@@ -16,4 +16,4 @@ Requirements
  -   [Matplotlib](http://matplotlib.org)
  -   [quaternion](https://github.com/moble/quaternion)
 
-[quaternion] add quaternion dtype support to numpy. Implementation by [moble]. Since this python toolbox relies extensively on this module, you can check out first the nice introduction [here](https://github.com/moble).
+[quaternion](https://github.com/moble/quaternion) add quaternion dtype support to numpy. Implementation by [moble]. Since this python toolbox relies extensively on this module, you can check out first the nice introduction [here](https://github.com/moble).
