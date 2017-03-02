@@ -10,7 +10,7 @@ setup(name='bispy',
       packages=['bispy'],
       zip_safe=False,
       provides=['bispy'],
-      requires=['numpy', 'scipy', 'matplotlib', 'quaternion'
+      install_requires=['numpy', 'scipy', 'matplotlib', 'quaternion'
           # 'Sphinx',
           # ^^^ Not sure if this is needed on readthedocs.org
           # 'something else?',
