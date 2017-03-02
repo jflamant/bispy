@@ -1,4 +1,4 @@
  numpydoc
- +# install sphinx from git to get patched version
- +# (fixes bug in autosummary where tables do not display)
- +-e git://github.com/sphinx-doc/sphinx.git@stable#egg=Sphinx-origin_stable
+ # install sphinx from git to get patched version
+ # (fixes bug in autosummary where tables do not display)
+ -e git://github.com/sphinx-doc/sphinx.git@stable#egg=Sphinx-origin_stable
