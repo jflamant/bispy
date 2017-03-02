@@ -303,4 +303,4 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 # -----------------------------------------------------------------------------
 
 import glob
-autosummary_generate = glob.glob("reference/*.rst")
+autosummary_generate = glob.glob("*.rst")

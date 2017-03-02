@@ -33,7 +33,7 @@ Documentation contents
    :maxdepth: 2
 
    tutorials/index
-   reference/index
+   reference
 
 Licence
 -------
