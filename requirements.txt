@@ -2,3 +2,4 @@ numpy
 scipy
 quaternion
 numpydoc
+-e git://github.com/sphinx-doc/sphinx.git@stable#egg=Sphinx-origin_stable
