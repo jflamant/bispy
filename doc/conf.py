@@ -24,7 +24,7 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
             return MagicMock()
 
-MOCK_MODULES = ['numpy', 'scipy', 'numpy-quaternion', 'matplotlib']
+MOCK_MODULES = ['numpy', 'scipy', 'numpy-quaternion', 'matplotlib', 'quaternion']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If extensions (or modules to document with autodoc) are in another directory,
