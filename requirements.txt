@@ -1,5 +1,5 @@
 numpy
 scipy
 matplotlib
-quaternion
+numpy-quaternion
 numpydoc
