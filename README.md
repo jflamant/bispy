@@ -17,3 +17,8 @@ Requirements
  -   [quaternion](https://github.com/moble/quaternion)
 
 [quaternion](https://github.com/moble/quaternion) add quaternion dtype support to numpy. Implementation by [moble]. Since this python toolbox relies extensively on this module, you can check out first the nice introduction [here](https://github.com/moble).
+
+
+Licence
+=======
+This software is distributed under the [CeCILL Free Software Licence Agreement](http://www.cecill.info/licences/Licence_CeCILL_V2-en.html) 
