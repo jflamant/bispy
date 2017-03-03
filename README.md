@@ -1,6 +1,6 @@
 # BiSPy : a python framework for signal processing of bivariate signals
 
-|build-status| |docs|
+[![Documentation](https://readthedocs.org/projects/bispy/badge/?style=default)](https://bispy.readthedocs.org)
 
 BiSPy is an open-source python framework for signal processing of bivariate signals. It comes in addition of the paper
 
