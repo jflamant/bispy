@@ -87,13 +87,16 @@ class QSTFT(object):
 
     x : array_type
         input signal array (has to be of quaternion dtype)
-
+    
     window : array_type
         window to use. Length of the window has to be odd. Windows can be
         generated using `PyPolar.utils.windows` methods
 
     spacing : int
         time index spacing between successive points
+
+    Nfft : int, optional
+        number of frequency bins. If 0, use size(x). Default is 0.
 
     tol : float, optional
         tolerance factor used in Stokes parameters normalization. Default
@@ -112,6 +115,9 @@ class QSTFT(object):
 
     spacing : int
         time index spacing between successive points
+
+    Nfft : int
+        number of frequency bins
 
     f : array_type
         sampled frequencies array
@@ -132,7 +138,7 @@ class QSTFT(object):
         be added.
     '''
 
-    def __init__(self, t, x, window, spacing, tol=0.01):
+    def __init__(self, t, x, window, spacing, Nfft=0, tol=0.01):
 
         if x.dtype != 'quaternion':
             raise ValueError('signal array should be of quaternion type.')
@@ -144,7 +150,16 @@ class QSTFT(object):
         self.spacing = spacing
 
         N = np.size(x, 0)
-        self.f = np.fft.fftfreq(N) / (t[1] - t[0])
+
+        if Nfft == 0:
+            Nfft = nextpow2(N)
+        elif Nfft < 0:
+            raise ValueError('Nfft should be greater than 0.')
+        else: 
+            Nfft = nextpow2(Nfft)
+
+        self.Nfft = int(Nfft)
+        self.f = np.fft.fftfreq(self.Nfft) / (t[1] - t[0])
 
         # Compute the Q-STFT
         sizewindow = np.size(window, 0)
@@ -155,15 +170,15 @@ class QSTFT(object):
         Lh = (sizewindow - 1) / 2  # half size index
         sampled_time = np.arange(0, N, spacing)
         P = np.size(sampled_time)
-        S = np.zeros((N, P), dtype='quaternion')
+        S = np.zeros((Nfft, P), dtype='quaternion')
 
         print('Computing Q-STFT coefficients')
         for ti, ts in enumerate(sampled_time):
 
-            taumin = - min([round(N / 2) - 1, Lh, ts])
-            taumax = min([round(N / 2) - 1, Lh, N - ts - 1])
+            taumin = - min([round(Nfft / 2) - 1, Lh, ts])
+            taumax = min([round(Nfft / 2) - 1, Lh, N - ts - 1])
             tau = np.arange(taumin, taumax + 1)
-            indices = ((ts + tau) % N).astype(int)
+            indices = ((Nfft + tau) % Nfft).astype(int)
 
             windowInd = window[(Lh + tau).astype(int)]
             windowIndq = utils.sympSynth(np.conj(windowInd) / np.linalg.norm(windowInd), 0)
@@ -215,10 +230,10 @@ class QSTFT(object):
         ridges : list
             list of detected ridges
         '''
-        N = np.size(self.signal, 0)
+
         # Extract ridges
         print('Extracting ridges')
-        self.ridges = _extractRidges(self.S0[:N / 2, :], parThresh, parMinD)
+        self.ridges = _extractRidges(self.S0[:self.Nfft / 2, :], parThresh, parMinD)
 
 
     def plotStokes(self):
@@ -232,10 +247,10 @@ class QSTFT(object):
         N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
 
-        im0 = ax[0].imshow(self.S1n[:N/2, :], origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[N/2-1]], vmin=-1, vmax=+1)
+        im0 = ax[0].imshow(self.S1n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
 
-        im1 = ax[1].imshow(self.S2n[:N/2, :], origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[N/2-1]], vmin=-1, vmax=+1)
-        im2 = ax[2].imshow(self.S3n[:N/2, :], origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[N/2-1]], vmin=-1, vmax=+1)
+        im1 = ax[1].imshow(self.S2n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
+        im2 = ax[2].imshow(self.S3n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
 
         # adjust figure
         fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
@@ -293,17 +308,17 @@ class QSTFT(object):
         S2mask = np.ma.masked_where(maskRidge == False, self.S2n)
         S3mask = np.ma.masked_where(maskRidge == False, self.S3n)
 
-        theta = .5 * np.arctan2(S2mask, S1mask) % np.pi
+        theta = .5 * np.arctan2(S2mask, S1mask)
         ori = np.exp(1j * theta)
 
         chi = 0.5 * np.arcsin(S3mask)
 
         N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
-        im0 = ax[0].imshow(self.S0[:N/2, :], interpolation='none', origin='lower', aspect='auto',cmap='Greys', extent=[self.t.min(), self.t.max(), 0, self.f[N/2-1]])
+        im0 = ax[0].imshow(self.S0[:self.Nfft / 2, :], interpolation='none', origin='lower', aspect='auto',cmap='Greys', extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]])
 
 
-        im1 = ax[1].quiver(self.t[::self.spacing][::quivertdecim], self.f[:N/2], np.real(ori[:N/2, ::quivertdecim]), (np.imag(ori[:N/2, ::quivertdecim])), theta[:N/2, ::quivertdecim], clim=[0, np.pi], cmap='hsv', headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
+        im1 = ax[1].quiver(self.t[::self.spacing][::quivertdecim], self.f[:self.Nfft / 2], np.real(ori[:self.Nfft / 2, ::quivertdecim]), (np.imag(ori[:self.Nfft / 2, ::quivertdecim])), theta[:self.Nfft / 2, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap='hsv', headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
 
         for r in self.ridges:
             points = np.array([self.t[::self.spacing][r[1]], self.f[r[0]]]).T.reshape(-1, 1, 2)
@@ -326,12 +341,12 @@ class QSTFT(object):
         cbar0.ax.xaxis.set_ticks_position('top')
 
         cbarax1 = fig.add_axes([0.369, 0.83, 0.303, 0.03])
-        cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='horizontal', ticks=[0, np.pi])
-        cbar1.ax.set_xticklabels([r'$0$', r'$\pi$'])
+        cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='horizontal', ticks=[-np.pi/2, 0, np.pi/2])
+        cbar1.ax.set_xticklabels([r'$-\frac{\pi}{2}$', r'$0$', r'$\frac{\pi}{2}$'])
         cbar1.ax.xaxis.set_ticks_position('top')
 
         cbarax2 = fig.add_axes([0.686, 0.83, 0.303, 0.03])
-        cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.sin(np.pi/4), 0, np.sin(np.pi/4)], orientation='horizontal')
+        cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.pi/4, 0, np.pi/4], orientation='horizontal')
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')
 
@@ -343,6 +358,7 @@ class QSTFT(object):
         ax[0].set_ylabel('Frequency [Hz]')
 
         ax[0].set_title('Time-Frequency energy density', y=1.14)
+        
         ax[1].set_title('Instantaneous orientation', y=1.14)
         ax[2].set_title('Instantaneous ellipticity', y=1.14)
 
@@ -387,7 +403,7 @@ class QCWT(object):
 
     eta : float
         central frequency of the mother wavelet
-    
+
     Fs : float
         sampling frequency
 
@@ -700,3 +716,9 @@ def _extractRidges(density, parThresh, parMinD):
 
 def log2(x):
     return np.log(x) / np.log(2)
+
+
+def nextpow2(i):
+    n = 1
+    while n < i: n *= 2
+    return n
