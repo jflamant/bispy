@@ -90,7 +90,7 @@ class QSTFT(object):
     
     window : array_type
         window to use. Length of the window has to be odd. Windows can be
-        generated using `PyPolar.utils.windows` methods
+        generated using `utils.windows` methods
 
     spacing : int
         time index spacing between successive points
@@ -130,7 +130,7 @@ class QSTFT(object):
 
     S1n, S2n, S3n : array_type
         normalized time-frequency Stokes parameters [w.r.t. S0] using the
-        tolerance factor `tol`. See `PyPolar.utils.normalizeStokes`.
+        tolerance factor `tol`. See `utils.normalizeStokes`.
 
     ridges : list
         List of ridges index and values extracted from the time-frequency
@@ -155,7 +155,7 @@ class QSTFT(object):
             Nfft = nextpow2(N)
         elif Nfft < 0:
             raise ValueError('Nfft should be greater than 0.')
-        else: 
+        else:
             Nfft = nextpow2(Nfft)
 
         self.Nfft = int(Nfft)
@@ -236,21 +236,33 @@ class QSTFT(object):
         self.ridges = _extractRidges(self.S0[:self.Nfft / 2, :], parThresh, parMinD)
 
 
-    def plotStokes(self):
+    def plotStokes(self, cmocean=False):
         ''' Plots S1n, S2n, S3n (normalized Stokes parameters) in time-frequency domain
+
+        Parameters
+        ----------
+        cmocean : bool, optional
+            activate use of cmocean colormaps
 
         Returns
         -------
         fig, ax : figure and axis handles
             may be needed to tweak the plot
         '''
+        # check whether cmocean colormaps should be used
+        if cmocean is True:
+            import cmocean
+            cmap = cmocean.cm.balance
+        else:
+            cmap = 'coolwarm'
+
         N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
 
-        im0 = ax[0].imshow(self.S1n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
+        im0 = ax[0].imshow(self.S1n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
 
-        im1 = ax[1].imshow(self.S2n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
-        im2 = ax[2].imshow(self.S3n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
+        im1 = ax[1].imshow(self.S2n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
+        im2 = ax[2].imshow(self.S3n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
 
         # adjust figure
         fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
@@ -273,7 +285,7 @@ class QSTFT(object):
 
         return fig, ax
 
-    def plotRidges(self, quivertdecim=10):
+    def plotRidges(self, quivertdecim=10, cmocean=False):
         ''' Plot S0, and the orientation and ellipticity recovered from the
         ridges in time-frequency domain
 
@@ -284,12 +296,25 @@ class QSTFT(object):
         quivertdecim : int, optional
             time-decimation index (allows faster and cleaner visualization of
             orientation vector field)
+        cmocean : bool, optional
+            activate use of cmocean colormaps
 
         Returns
         -------
         fig, ax : figure and axis handles
             may be needed to tweak the plot
         '''
+
+        # check whether cmocean colormaps should be used
+        if cmocean is True:
+            import cmocean
+            cmap_S0 = cmocean.cm.gray_r
+            cmap_theta = cmocean.cm.phase
+            cmap_chi = cmocean.cm.balance
+        else:
+            cmap_S0 = 'Greys'
+            cmap_theta = 'hsv'
+            cmap_chi = 'coolwarm'
 
         # check whether ridges have been computed
 
@@ -315,19 +340,19 @@ class QSTFT(object):
 
         N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
-        im0 = ax[0].imshow(self.S0[:self.Nfft / 2, :], interpolation='none', origin='lower', aspect='auto',cmap='Greys', extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]])
+        im0 = ax[0].imshow(self.S0[:self.Nfft / 2, :], interpolation='none', origin='lower', aspect='auto',cmap=cmap_S0, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]])
 
 
-        im1 = ax[1].quiver(self.t[::self.spacing][::quivertdecim], self.f[:self.Nfft / 2], np.real(ori[:self.Nfft / 2, ::quivertdecim]), (np.imag(ori[:self.Nfft / 2, ::quivertdecim])), theta[:self.Nfft / 2, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap='hsv', headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
+        im1 = ax[1].quiver(self.t[::self.spacing][::quivertdecim], self.f[:self.Nfft / 2], np.real(ori[:self.Nfft / 2, ::quivertdecim]), (np.imag(ori[:self.Nfft / 2, ::quivertdecim])), theta[:self.Nfft / 2, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
 
         for r in self.ridges:
             points = np.array([self.t[::self.spacing][r[1]], self.f[r[0]]]).T.reshape(-1, 1, 2)
             segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
-            lc = LineCollection(segments, cmap=plt.get_cmap('coolwarm'),
+            lc = LineCollection(segments, cmap=plt.get_cmap(cmap_chi),
                                 norm=plt.Normalize(-np.pi / 4, np.pi / 4))
             lc.set_array(chi[(r[0], r[1])])
-            lc.set_linewidth(3)
+            lc.set_linewidth(5)
             im2 = ax[2].add_collection(lc)
 
         #im2 = ax[2].imshow(chi, vmin=-np.pi/4, vmax=np.pi/4,  interpolation='none', origin='lower', aspect='auto', cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[N/2-1]])
@@ -421,7 +446,7 @@ class QCWT(object):
 
     S1n, S2n, S3n : array_type
         normalized time-scale Stokes parameters [w.r.t. S0] using the
-        tolerance factor `tol`. See `PyPolar.utils.normalizeStokes`.
+        tolerance factor `tol`. See `utils.normalizeStokes`.
 
     ridges : list
         List of ridges index and values extracted from the time-scale
@@ -522,8 +547,13 @@ class QCWT(object):
         self.ridges = _extractRidges(self.S0, parThresh, parMinD)
 
 
-    def plotStokes(self):
+    def plotStokes(self, cmocean=False):
         ''' Plots S1n, S2n, S3n (normalized Stokes parameters) in time-scale domain
+
+        Parameters
+        ----------
+        cmocean : bool, optional
+            activate use of cmocean colormaps
 
         Returns
         -------
@@ -531,13 +561,20 @@ class QCWT(object):
             may be needed to tweak the plot
         '''
 
+        # check whether cmocean colormaps should be used
+        if cmocean is True:
+            import cmocean
+            cmap = cmocean.cm.balance
+        else:
+            cmap = 'coolwarm'
+
         N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
 
-        im0 = ax[0].imshow(self.S1n, origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])], vmin=-1, vmax=+1)
+        im0 = ax[0].imshow(self.S1n, origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])], vmin=-1, vmax=+1)
 
-        im1 = ax[1].imshow(self.S2n, origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])], vmin=-1, vmax=+1)
-        im2 = ax[2].imshow(self.S3n, origin='lower', interpolation='none', aspect='auto',cmap='coolwarm', extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])], vmin=-1, vmax=+1)
+        im1 = ax[1].imshow(self.S2n, origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])], vmin=-1, vmax=+1)
+        im2 = ax[2].imshow(self.S3n, origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])], vmin=-1, vmax=+1)
 
         # adjust figure
         fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
@@ -560,7 +597,7 @@ class QCWT(object):
 
         return fig, ax
 
-    def plotRidges(self, quivertdecim=10):
+    def plotRidges(self, quivertdecim=10, cmocean=False):
 
         ''' Plot S0, and the orientation and ellipticity recovered from the
         ridges in time-scale domain
@@ -572,12 +609,24 @@ class QCWT(object):
         quivertdecim : int, optional
             time-decimation index (allows faster and cleaner visualization of
             orientation vector field)
+        cmocean : bool, optional
+            activate use of cmocean colormaps
 
         Returns
         -------
         fig, ax : figure and axis handles
             may be needed to tweak the plot
         '''
+        # check whether cmocean colormaps should be used
+        if cmocean is True:
+            import cmocean
+            cmap_S0 = cmocean.cm.gray_r
+            cmap_theta = cmocean.cm.phase
+            cmap_chi = cmocean.cm.balance
+        else:
+            cmap_S0 = 'Greys'
+            cmap_theta = 'hsv'
+            cmap_chi = 'coolwarm'
 
         # check whether ridges have been computed
 
@@ -596,23 +645,23 @@ class QCWT(object):
         S2mask = np.ma.masked_where(maskRidge == False, self.S2n)
         S3mask = np.ma.masked_where(maskRidge == False, self.S3n)
 
-        theta = .5*np.arctan2(S2mask, S1mask) % np.pi
+        theta = .5*np.arctan2(S2mask, S1mask)
         ori = np.exp(1j * theta)
 
         chi = 0.5 * np.arcsin(S3mask)
 
         N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
-        im0 = ax[0].imshow(self.S0, interpolation='none', origin='lower', aspect='auto',cmap='Greys', extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])])
+        im0 = ax[0].imshow(self.S0, interpolation='none', origin='lower', aspect='auto',cmap=cmap_S0, extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])])
 
 
-        im1 = ax[1].quiver(self.t[::quivertdecim], -log2(self.s), np.real(ori[:, ::quivertdecim]), (np.imag(ori[:, ::quivertdecim])), theta[:, ::quivertdecim], clim=[0, np.pi], cmap='hsv', headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
+        im1 = ax[1].quiver(self.t[::quivertdecim], -log2(self.s), np.real(ori[:, ::quivertdecim]), (np.imag(ori[:, ::quivertdecim])), theta[:, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
 
         for r in self.ridges:
             points = np.array([self.t[r[1]], -log2(self.s[r[0]])]).T.reshape(-1, 1, 2)
             segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
-            lc = LineCollection(segments, cmap=plt.get_cmap('coolwarm'),
+            lc = LineCollection(segments, cmap=plt.get_cmap(cmap_chi),
                                 norm=plt.Normalize(-np.pi / 4, np.pi / 4))
             lc.set_array(chi[(r[0], r[1])])
             lc.set_linewidth(3)
@@ -629,12 +678,12 @@ class QCWT(object):
         cbar0.ax.xaxis.set_ticks_position('top')
 
         cbarax1 = fig.add_axes([0.369, 0.83, 0.303, 0.03])
-        cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='horizontal', ticks=[0, np.pi])
-        cbar1.ax.set_xticklabels([r'$0$', r'$\pi$'])
+        cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='horizontal', ticks=[-np.pi/2, 0, np.pi/2])
+        cbar1.ax.set_xticklabels([r'$-\frac{\pi}{2}$', r'$0$', r'$\frac{\pi}{2}$'])
         cbar1.ax.xaxis.set_ticks_position('top')
 
         cbarax2 = fig.add_axes([0.686, 0.83, 0.303, 0.03])
-        cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.sin(np.pi/4), 0, np.sin(np.pi/4)], orientation='horizontal')
+        cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.pi/4, 0, np.pi/4], orientation='horizontal')
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')
 
