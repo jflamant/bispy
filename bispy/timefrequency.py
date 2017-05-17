@@ -233,7 +233,7 @@ class QSTFT(object):
 
         # Extract ridges
         print('Extracting ridges')
-        self.ridges = _extractRidges(self.S0[:self.Nfft / 2, :], parThresh, parMinD)
+        self.ridges = _extractRidges(self.S0[:int(self.Nfft / 2), :], parThresh, parMinD)
 
 
     def plotStokes(self, cmocean=False):
@@ -259,10 +259,10 @@ class QSTFT(object):
         N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
 
-        im0 = ax[0].imshow(self.S1n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
+        im0 = ax[0].imshow(self.S1n[:int(self.Nfft / 2), :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[int(self.t.min()), int(self.t.max()), 0, self.f[int(self.Nfft / 2-1)]], vmin=-1, vmax=+1)
 
-        im1 = ax[1].imshow(self.S2n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
-        im2 = ax[2].imshow(self.S3n[:self.Nfft / 2, :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]], vmin=-1, vmax=+1)
+        im1 = ax[1].imshow(self.S2n[:int(self.Nfft / 2), :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[int(self.t.min()), int(self.t.max()), 0, self.f[int(self.Nfft / 2-1)]], vmin=-1, vmax=+1)
+        im2 = ax[2].imshow(self.S3n[:int(self.Nfft / 2), :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[int(self.t.min()), int(self.t.max()), 0, self.f[int(self.Nfft / 2-1)]], vmin=-1, vmax=+1)
 
         # adjust figure
         fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
@@ -340,10 +340,10 @@ class QSTFT(object):
 
         N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
-        im0 = ax[0].imshow(self.S0[:self.Nfft / 2, :], interpolation='none', origin='lower', aspect='auto',cmap=cmap_S0, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft / 2-1]])
+        im0 = ax[0].imshow(self.S0[:int(self.Nfft / 2), :], interpolation='none', origin='lower', aspect='auto',cmap=cmap_S0, extent=[int(self.t.min()), int(self.t.max()), 0, self.f[int(self.Nfft / 2-1)]])
 
 
-        im1 = ax[1].quiver(self.t[::self.spacing][::quivertdecim], self.f[:self.Nfft / 2], np.real(ori[:self.Nfft / 2, ::quivertdecim]), (np.imag(ori[:self.Nfft / 2, ::quivertdecim])), theta[:self.Nfft / 2, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
+        im1 = ax[1].quiver(self.t[::int(self.spacing)][::quivertdecim], self.f[:int(self.Nfft / 2)], np.real(ori[:int(self.Nfft / 2), ::quivertdecim]), (np.imag(ori[:int(self.Nfft / 2), ::quivertdecim])), theta[:int(self.Nfft / 2), ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
 
         for r in self.ridges:
             points = np.array([self.t[::self.spacing][r[1]], self.f[r[0]]]).T.reshape(-1, 1, 2)
