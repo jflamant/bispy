@@ -371,6 +371,7 @@ class QSTFT(object):
         cbar1.ax.xaxis.set_ticks_position('top')
 
         cbarax2 = fig.add_axes([0.686, 0.83, 0.303, 0.03])
+        print("-----Bug line im2-----\n{0}".format(im2))
         cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.pi/4, 0, np.pi/4], orientation='horizontal')
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')
@@ -736,6 +737,7 @@ def _extractRidges(density, parThresh, parMinD):
 
         freqMask, timeMask = np.where(locMax)
 
+        FLAG = False #Avoid undifined FLAG if condition is false.
         if len(timeMask) > 1:
             FLAG = True
         while FLAG:
