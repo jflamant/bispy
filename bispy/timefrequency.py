@@ -736,7 +736,7 @@ def _extractRidges(density, parThresh, parMinD):
 
         freqMask, timeMask = np.where(locMax)
 
-        FLAG = False #Avoid undifined FLAG if condition is false.
+        FLAG = False  # Avoid undifined FLAG if condition is false.
         if len(timeMask) > 1:
             FLAG = True
         while FLAG:
