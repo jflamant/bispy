@@ -300,7 +300,7 @@ def quat2euler(q):
     S2 = qqj_float[..., 1]
     S3 = - qqj_float[..., 3]
 
-    a, theta, chi = Stokes2geo(S0, S1, S2, S3)
+    a, theta, chi, phi = Stokes2geo(S0, S1, S2, S3)
 
     qi = quaternion.x
     qk = quaternion.z

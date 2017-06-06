@@ -1,2 +1,9 @@
 
 *.pyc
+
+# Vim ignoring swap files
+
+*~
+*.swp
+*.swo
+
