@@ -12,11 +12,18 @@ This python toolbox is currently under development and is hosted on GitHub. If y
 
 Requirements
 ============
+BiSPy works with python 3.5+.
 
+Dependencies:
  -   [NumPy](http://www.numpy.org)
  -   [SciPy](https://www.scipy.org)
  -   [Matplotlib](http://matplotlib.org)
  -   [quaternion](https://github.com/moble/quaternion)
+
+To install dependencies:
+```shell
+pip install numpy scipy matplotlib numpy-quaternion
+```
 
 [quaternion](https://github.com/moble/quaternion) add quaternion dtype support to numpy. Implementation by [moble]. Since this python toolbox relies extensively on this module, you can check out first the nice introduction [here](https://github.com/moble).
 
