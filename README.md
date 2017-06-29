@@ -27,6 +27,21 @@ pip install numpy scipy matplotlib numpy-quaternion
 
 [quaternion](https://github.com/moble/quaternion) add quaternion dtype support to numpy. Implementation by [moble]. Since this python toolbox relies extensively on this module, you can check out first the nice introduction [here](https://github.com/moble).
 
+### Install from sources
+
+Clone this repository
+
+```bash
+git clone https://github.com/jflamant/bispy.git
+cd bispy
+```
+
+And execute `setup.py`
+
+```bash
+pip install .
+```
+
 
 Licence
 =======
