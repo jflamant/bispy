@@ -155,8 +155,8 @@ class Periodogram(object):
 
         S0 = g1.real
         S1 = g1.imag
-        S2 = g2.real
-        S3 = g2.imag
+        S3 = g2.real
+        S2 = g2.imag
 
         return S0, S1, S2, S3
 
@@ -358,8 +358,8 @@ class Multitaper(object):
 
         S0 = g1.real
         S1 = g1.imag
-        S2 = g2.real
-        S3 = g2.imag
+        S3 = g2.real
+        S2 = g2.imag
 
         return S0, S1, S2, S3
 
