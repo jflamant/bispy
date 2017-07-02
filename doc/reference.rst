@@ -12,3 +12,4 @@ Reference manual
    reference.qfft
    reference.utils
    reference.timefrequency
+   reference.spectral

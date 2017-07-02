@@ -28,6 +28,7 @@ Signal tools
    :toctree: generated/
 
    bivariateAMFM
+   bivariatewhiteNoise
 
 Windows functions
 -----------------
