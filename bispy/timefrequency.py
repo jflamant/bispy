@@ -100,7 +100,7 @@ class QSTFT(object):
 
     tol : float, optional
         tolerance factor used in Stokes parameters normalization. Default
-        is 1.0
+        is 0.01
 
     Attributes
     ----------

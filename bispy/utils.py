@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D # required for 3D plot
 
 __all__ = ['sympSplit', 'sympSynth', 'StokesNorm', 'normalizeStokes',
-    'Stokes2geo', 'geo2Stokes', 'quat2euler', 'euler2quat', 'bivariateAMFM']
+    'Stokes2geo', 'geo2Stokes', 'quat2euler', 'euler2quat', 'bivariateAMFM', 'bivariatewhiteNoise']
 
 
 def sympSplit(q):
@@ -352,10 +352,10 @@ def euler2quat(a, theta, chi, phi):
 
 class windows(object):
 
-    ''' Windows functions static methods. 
+    ''' Windows functions static methods.
 
     These window functions are provided for convenience, and are meant to be
-    used with the QSTFT class. 
+    used with the QSTFT class.
     '''
 
     def __init__(self):
@@ -440,6 +440,49 @@ def bivariateAMFM(a, theta, chi, phi, Hembedding=True, complexOutput=False):
             return x1.real + 1j * x2.real
         else:
             return sympSynth(x1.real, x2.real)
+
+
+def bivariatewhiteNoise(N, S0, P=0, theta=0, complexOutput=False):
+
+    ''' Generates a bivariate white noise with prescribed polarization
+        properties using the Unpolarized/Polarized part decomposition.
+
+        Parameters
+        ----------
+        N : int
+            length of the signal
+        S0 : float
+            white noise power (per frequency)
+        P : float, optional
+            degree of polarization, must be 0 <= P <= 1. Default is 0
+        theta : float, optional
+            angle of linear polarization. Default is 0
+        complexOutput: bool, optional
+            If `True`, output is a complex numpy array. Otherwise output is a
+            quaternion numpy array. Default is `False`.
+        returns
+        -------
+        w : array_type
+            bivariate white noise signal
+    '''
+    # check value of P
+    if (0 <= P <= 1) is False:
+        raise ValueError('Degree of polarization P must be between 0 and 1 !')
+
+    #  unpolarized part
+    wu = 1 / np.sqrt(2) * (np.random.randn(N) + 1j * np.random.randn(N))
+
+    #  polarized part
+    wp = np.random.randn(N)
+
+    #  use of the UP decomposition to construct the output
+    w = (S0 * N)**0.5 * (np.sqrt(1 - P) * wu + np.sqrt(P) *
+     np.exp(1j * theta) * wp)
+
+    if complexOutput is True:
+        return w
+    else:
+        return sympSynth(w.real, w.imag)
 
 
 class visual(object):
