@@ -452,7 +452,7 @@ def bivariatewhiteNoise(N, S0, P=0, theta=0, complexOutput=False):
         N : int
             length of the signal
         S0 : float
-            white noise power (per frequency)
+            white noise power
         P : float, optional
             degree of polarization, must be 0 <= P <= 1. Default is 0
         theta : float, optional
@@ -476,7 +476,7 @@ def bivariatewhiteNoise(N, S0, P=0, theta=0, complexOutput=False):
     wp = np.random.randn(N)
 
     #  use of the UP decomposition to construct the output
-    w = (S0 * N)**0.5 * (np.sqrt(1 - P) * wu + np.sqrt(P) *
+    w = (S0)**0.5 * (np.sqrt(1 - P) * wu + np.sqrt(P) *
      np.exp(1j * theta) * wp)
 
     if complexOutput is True:
