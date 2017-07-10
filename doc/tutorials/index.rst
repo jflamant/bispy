@@ -8,3 +8,4 @@ Tutorials
    :maxdepth: 2
 
    timefrequency
+   spectralanalysis
