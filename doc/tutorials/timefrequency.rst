@@ -26,7 +26,7 @@ The code below can be executed, for instance, in a Jupyter Notebook.
     # if BiSPy is not located in your python module directory
     # import sys
     # sys.path.append('/BiSPy_location_path/')
-    import BiSPy as bsp
+    import bispy as bsp
 
 
 Quaternion Short-Term Fourier Transform (Q-STFT) example
@@ -43,9 +43,9 @@ First, define some constants:
     N = 1024 # length of the signal
     
     # linear chirps constants
-    a = 250*pi
-    b = 50*pi
-    c = 150*pi
+    a = 250*np.pi
+    b = 50*np.pi
+    c = 150*np.pi
 
 Then define the instantaneous amplitudes, orientation, ellipticity and
 phase of each linear chirp. The amplitudes are taken equal - just a
@@ -57,12 +57,12 @@ Hanning window.
     t = np.linspace(0, 1, N)
     
     # first chirp
-    theta1 = pi/4 # constant orientation
-    chi1 = pi/6-t # reversing ellipticity
+    theta1 = np.pi/4 # constant orientation
+    chi1 = np.pi/6-t # reversing ellipticity
     phi1 = b*t+a*t**2 # linear chirp
     
     # second chirp
-    theta2 = pi/4*10*t # rotating orientation
+    theta2 = np.pi/4*10*t # rotating orientation
     chi2 = 0 # constant null ellipticity
     phi2 = c*t+a*t**2 # linear chirp
     
@@ -173,8 +173,8 @@ As before, let us first define some constants:
     N = 1024 # length of the signal
     
     # hyperbolic chirps parameters
-    alpha = 15*pi
-    beta = 5*pi
+    alpha = 15*np.pi
+    beta = 5*np.pi
     tup = 0.8 # set blow-up time value
 
 Now, let us define the instantaneous amplitudes, orientation,
@@ -186,13 +186,13 @@ windowed.
     t = np.linspace(0, 1, N) # time vector
     
     # chirp 1 parameters
-    theta1 = -pi/3 # constant orientation
-    chi1 = pi/6 # constant ellipticity
+    theta1 = -np.pi/3 # constant orientation
+    chi1 = np.pi/6 # constant ellipticity
     phi1 = alpha/(.8-t) # hyperbolic chirp
     
     # chirp 2 parameters
     theta2 = 5*t # rotating orientation
-    chi2 = -pi/10 # constant ellipticity
+    chi2 = -np.pi/10 # constant ellipticity
     phi2 = beta/(.8-t) # hyperbolic chirp
     
     # envelope
