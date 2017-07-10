@@ -160,7 +160,7 @@ class Periodogram(object):
 
         return S0, S1, S2, S3
 
-    def normalize(self, tol=0.01):
+    def normalize(self, tol=0.0):
 
         ''' Normalize Stokes parameters wrt S0.
         In addition, compute the degree of polarization Phi.
@@ -169,7 +169,7 @@ class Periodogram(object):
         ----------
         tol : float, optional
             tolerance factor used in Stokes parameters normalization.
-            Default is 0.01
+            Default is 0.0
 
         Returns
         -------
@@ -363,7 +363,7 @@ class Multitaper(object):
 
         return S0, S1, S2, S3
 
-    def normalize(self, tol=0.01):
+    def normalize(self, tol=0.0):
 
         ''' Normalize Stokes parameters wrt S0.
         In addition, compute the degree of polarization Phi.
@@ -372,7 +372,7 @@ class Multitaper(object):
         ----------
         tol : float, optional
             tolerance factor used in Stokes parameters normalization.
-            Default is 0.01
+            Default is 0.0
 
         Returns
         -------
