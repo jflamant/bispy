@@ -153,9 +153,6 @@ We proceed similarly. First define the different parameters:
 .. code:: python
 
     N = 1024 # length of the signal
-    S0 = 1 # power of the bivariate WGN
-    P0 = .5 # degree of polarization
-    theta0 = np.pi/4 # angle of linear polarization
     
     t = np.arange(0, N) # time vector
     dt = (t[1]-t[0])
@@ -168,8 +165,8 @@ We proceed similarly. First define the different parameters:
     
     # bivariate WGN noise paramerters
     S0_w = 10**(-2) # power of the bivariate WGN
-    Phi_w = .5 # degree of polarization
-    theta_w = np.pi/4 # angle of linear polarization
+    Phi_w = .2 # degree of polarization
+    theta_w = np.pi/8 # angle of linear polarization
 
 Now, simulate a bivariate monochromatic signal (note the use of the
 argument ``complexOutput`` which provides a complex output (useful for
