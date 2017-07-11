@@ -5,6 +5,7 @@
 BiSPy is an open-source python framework for signal processing of bivariate signals. It comes in addition of the following papers
 
 >   Julien Flamant, Nicolas Le Bihan, Pierre Chainais: “Time-frequency analysis of bivariate signals”, 2016; [arXiv:1609.0246](http://arxiv.org/abs/1609.02463)
+
 > Julien Flamant, Nicolas Le Bihan, Pierre Chainais: “Spectral analysis of stationary random bivariate signals”, 2016; [arXiv:1703.06417](http://arxiv.org/abs/1703.06417)
 
 These papers contains theoretical results and several applications that can be reproduced with this toolbox.
