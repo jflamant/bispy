@@ -27,6 +27,7 @@ matrix:
 install:
 # For OSX, you may want to call a script installing virtual env and so on.
   - ./scripts/install.sh
+  - pip install --upgrade setuptools
   - pip install .
   
 # Command to run tests. These are run for each configuration
