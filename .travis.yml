@@ -15,13 +15,13 @@ matrix:
         - os: linux
           python: 2.7
         - os: linux
-          python: 3.3
+          python: 3.5
         - os: osx
           language: generic
           env: PYTHON=2.7
         - os: osx
           language: generic
-          env: PYTHON=3.3.6
+          env: PYTHON=3.5
 
 # Command to install dependencies for each configuration.
 install:
