@@ -1,6 +1,7 @@
 # BiSPy : a python framework for signal processing of bivariate signals
 
 [![Documentation](https://readthedocs.org/projects/bispy/badge/?style=default)](https://bispy.readthedocs.org)
+[![Build Status](https://travis-ci.org/jflamant/bispy.svg?branch=master)](https://travis-ci.org/jflamant/bispy)
 
 BiSPy is an open-source python framework for signal processing of bivariate signals. It comes in addition of the following papers
 
@@ -20,7 +21,7 @@ Dependencies:
  -   [NumPy](http://www.numpy.org)
  -   [SciPy](https://www.scipy.org)
  -   [Matplotlib](http://matplotlib.org)
- -   [quaternion](https://github.com/moble/quaternion)
+ -   [numpy-quaternion](https://github.com/moble/quaternion)
 
 To install dependencies:
 ```shell
