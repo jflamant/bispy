@@ -5,6 +5,8 @@
 # See how to further configure the matrix of combinations in here: https://docs.travis-ci.com/user/multi-os/
 language: python
 
+cache: pip
+
 # Uncomment if you need super powers (e.g., for apt-get)
 # sudo: require
 
@@ -22,6 +24,7 @@ matrix:
 install:
 # For OSX, you may want to call a script installing virtual env and so on.
   - ./scripts/install.sh
+  - pip install -U pytest
   - CI=false pip install .
   
 # Command to run tests. These are run for each configuration
