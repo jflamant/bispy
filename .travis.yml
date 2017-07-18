@@ -21,7 +21,7 @@ matrix:
           env: PYTHON=2.7
         - os: osx
           language: generic
-          env: PYTHON=3.5
+          env: PYTHON=3.5.3
 
 # Command to install dependencies for each configuration.
 install:
