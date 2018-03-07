@@ -11,6 +11,7 @@ BiSPy is an open-source python framework for signal processing of bivariate sign
 
 These papers contains theoretical results and several applications that can be reproduced with this toolbox.
 
+
 This python toolbox is currently under development and is hosted on GitHub. If you encounter a bug or something unexpected please let me know by [raising an issue](https://github.com/jflamant/bispy/issues) on the project page.
 
 Requirements
@@ -48,4 +49,4 @@ pip install .
 
 Licence
 =======
-This software is distributed under the [CeCILL Free Software Licence Agreement](http://www.cecill.info/licences/Licence_CeCILL_V2-en.html) 
+This software is distributed under the [CeCILL Free Software Licence Agreement](http://www.cecill.info/licences/Licence_CeCILL_V2-en.html)
