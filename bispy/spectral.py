@@ -447,19 +447,19 @@ def _plotResultSpectral(t, sig, spe):
 
     # complex plane
     xx_c, yy_c = np.meshgrid(np.linspace(xmin, xmax), np.linspace(ymin, ymax))
-    ax_sig.plot_surface(-.05*(tmin+tmax), xx_c, yy_c,  alpha=0.05, color='gray', rstride = 100, cstride=100)
+    #ax_sig.plot_surface(-.05*(tmin+tmax), xx_c, yy_c,  alpha=0.05, color='gray', rstride = 100, cstride=100)
     ax_sig.plot(x.real, x.imag, -.05*(tmin+tmax), zdir='x', color='gray')
     ax_sig.set_xlim([-.05*(tmin+tmax), tmax])
 
     # real proj
     xx_r, yy_r = np.meshgrid(np.linspace(tmin, tmax), np.linspace(xmin, xmax))
-    ax_sig.plot_surface(xx_r, yy_r, 1.05*ymin, alpha=0.05, color='gray', rstride = 100, cstride=100)
+    #ax_sig.plot_surface(xx_r, yy_r, 1.05*ymin, alpha=0.05, color='gray', rstride = 100, cstride=100)
     ax_sig.plot(t, x.real, ymin*1.05, zdir='z', color='gray')
     ax_sig.set_zlim([1.05*ymin, ymax])
 
     #imaginary proj
     xx_i, yy_i = np.meshgrid(np.linspace(tmin, tmax), np.linspace(ymin, ymax))
-    ax_sig.plot_surface(xx_i, 1.05*xmax, yy_i,  alpha=0.05, color='gray',rstride = 100, cstride=100)
+    #ax_sig.plot_surface(xx_i, 1.05*xmax, yy_i,  alpha=0.05, color='gray',rstride = 100, cstride=100)
     ax_sig.plot(t, x.imag, 1.05*xmax, zdir='y', color='gray')
     ax_sig.set_ylim([xmin, 1.05*xmax])
 
