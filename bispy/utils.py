@@ -390,6 +390,41 @@ class windows(object):
 
         return window
 
+def polarizationEllipse(theta, chi, a=1, N=128):
+
+    '''Returns the trace of the polarization ellipse given its orientation and ellipticity.
+
+    Parameters
+    ----------
+    theta : float
+        Orientation of the ellipse, must be between -pi/2 and pi/2
+
+    chi : float
+        Ellipticity. It defines the shape of the ellipse, must be between -pi/4 and pi/4
+
+    a : float, optional
+        Scale parameter. Default is 1.
+
+    N : int, optional
+        Length of the complex trace. Default is 128.
+
+    Returns
+    -------
+
+    phi : array_type
+        Curvilinear absciss of the polarization ellipe
+
+    ell : array_type
+        Complex trace of the polarization ellipse.
+    '''
+
+    phi = np.linspace(0, 2*np.pi, N)
+
+    ell = a*np.exp(1j*theta)*(np.cos(chi)*np.cos(phi)+1j*np.sin(chi)*np.sin(phi))
+
+    return phi, ell
+
+
 
 ''' prototype signals '''
 
@@ -558,7 +593,7 @@ class visual(object):
 
 # workaround orthographic projection
 from mpl_toolkits.mplot3d import proj3d
- 
+
 def _orthogonal_proj(zfront, zback):
     a = (zfront+zback)/(zfront-zback)
     b = -2*(zfront*zback)/(zfront-zback)
