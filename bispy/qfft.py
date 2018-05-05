@@ -15,7 +15,7 @@ __all__ = ['Qfft', 'iQfft', 'Qfftshift', 'iQfftshift', 'Qfftfreq']
 # QFTTs functions
 
 
-def Qfft(x):
+def Qfft(x, **kwargs):
     ''' Performs QFT using 2 ffts.
 
     Parameters
@@ -28,15 +28,15 @@ def Qfft(x):
     '''
     x_1, x_2 = sympSplit(np.ascontiguousarray(x))  # ascontiguous may be needed
 
-    X_1 = np.fft.fft(x_1)
-    X_2 = np.fft.fft(x_2)
+    X_1 = np.fft.fft(x_1, **kwargs)
+    X_2 = np.fft.fft(x_2, **kwargs)
 
     X = sympSynth(X_1, X_2)
 
     return X
 
 
-def iQfft(X):
+def iQfft(X, **kwargs):
     ''' Performs inverse QFT.
 
     Parameters
@@ -50,8 +50,8 @@ def iQfft(X):
 
     X_1, X_2 = sympSplit(X)
 
-    x_1 = np.fft.ifft(X_1)
-    x_2 = np.fft.ifft(X_2)
+    x_1 = np.fft.ifft(X_1, **kwargs)
+    x_2 = np.fft.ifft(X_2, **kwargs)
 
     x = sympSynth(x_1, x_2)
 
@@ -110,4 +110,3 @@ def Qfftfreq(N, dt=1.0):
     '''
 
     return np.fft.fftfreq(N, d=dt)
-
