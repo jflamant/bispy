@@ -103,40 +103,39 @@ class TFPrepresentation(object):
             t = np.arange(N)
         self.t = t
 
-        # number of frequency bins
-        NFFT = kwargs.get('NFFT')
-        if NFFT is None:
-            NFFT = nextpow2(N)
-        elif NFFT < 0:
-            raise ValueError('Nfft should be greater than 0.')
-        else:
-            NFFT = nextpow2(NFFT)
-        self.NFFT = NFFT
-        # sampled frequencies
-        self.f = np.fft.fftfreq(NFFT) / (t[1] - t[0])
+        # # number of frequency bins
+        # NFFT = kwargs.get('NFFT')
+        # if NFFT is None:
+        #     NFFT = nextpow2(N)
+        # elif NFFT < 0:
+        #     raise ValueError('Nfft should be greater than 0.')
+        # else:
+        #     NFFT = nextpow2(NFFT)
+        # self.NFFT = NFFT
+        # # sampled frequencies
+        # self.f = np.fft.fftfreq(NFFT) / (t[1] - t[0])
 
         # sampled instants (spacing)
-        spacing = kwargs.get('spacing')
-        if spacing is None:
-            spacing = 1
-
-        self.sampled_index = np.arange(0, N, spacing)
-        self.sampled_time = t[::spacing]
+        # spacing = kwargs.get('spacing')
+        # if spacing is None:
+        #     spacing = 1
+        #
+        # self.sampled_index = np.arange(0, N, spacing)
+        # self.sampled_time = t[::spacing]
 
 
         # init representation
-        P = np.size(self.sampled_time)
-        self.tfpr = np.zeros((NFFT, P), dtype='quaternion')
+        self.tfpr = None
 
         # init Stokes parameters
-        self.S0 = np.zeros((NFFT, P))
-        self.S1 = np.zeros_like(self.S0)
-        self.S2 = np.zeros_like(self.S0)
-        self.S3 = np.zeros_like(self.S0)
+        self.S0 = None
+        self.S1 = None
+        self.S2 = None
+        self.S3 = None
 
-        self.S1n = np.zeros_like(self.S0)
-        self.S2n = np.zeros_like(self.S0)
-        self.S3n = np.zeros_like(self.S0)
+        self.S1n = None
+        self.S2n = None
+        self.S3n = None
 
     def normalizeStokes(self, tol=0.01):
         ''' Re-compute normalized Stokes parameters with a different normalization.
@@ -146,11 +145,12 @@ class TFPrepresentation(object):
         tol : float
             tolerance parameter. Default is 0.01.
         '''
-        if np.sum(np.abs(self.S0)) > 0:
-            self.S1n, self.S2n, self.S3n = utils.normalizeStokes(self.S0, self.S1, self.S2, self.S3, tol=tol)
+        if self.S0 is not None:
+            if np.sum(np.abs(self.S0)) > 0:
+                self.S1n, self.S2n, self.S3n = utils.normalizeStokes(self.S0, self.S1, self.S2, self.S3, tol=tol)
 
 
-    def plotSignal(self, kind='2D', **kwargs):
+    def plotSignal(self, kind='2D'):
         '''
         Plot the bivariate signal x.
 
@@ -160,16 +160,20 @@ class TFPrepresentation(object):
             type of plot. See `utils.visual`.
         '''
         if kind == '2D':
-            fig, ax = utils.visual.plot2D(self.t, self.x, **kwargs)
+            fig, ax = utils.visual.plot2D(self.t, self.x)
         elif kind == '3D':
             fig, ax = utils.visual.plot3D(self.t, self.x)
         return fig, ax
 
-    def plotStokes(self, S0_cmap='viridis', s_cmap='coolwarm', single_sided=True):
+    def _plotStokes(self, t, f, S0_cmap='viridis', s_cmap='coolwarm', single_sided=True):
         ''' Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)
 
         Parameters
         ----------
+        t : array_type
+            sampled times array
+        f : array_type
+            frequencies array (assuming unshifted)
         S0_cmap : colormap (sequential)
             to use for S0 time-frequency distribution
         s_cmap : colormap (diverging)
@@ -181,7 +185,8 @@ class TFPrepresentation(object):
             may be needed to tweak the plot
         '''
         # prepare meshgrid
-        tt, ff = np.meshgrid(self.sampled_time, np.fft.fftshift(self.f))
+        f = np.fft.fftshift(f)
+        #tt, ff = np.meshgrid(t, np.fft.fftshift(f))
         # size of plot
         A = np.random.rand(1, 4)
         w, h = plt.figaspect(A)
@@ -189,12 +194,13 @@ class TFPrepresentation(object):
 
         fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
 
-        im0 = ax[0].pcolormesh(tt, ff, np.fft.fftshift(self.S0, axes=0), cmap=S0_cmap)
-        im1 = ax[1].pcolormesh(tt, ff, np.fft.fftshift(self.S1n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1)
-        im2 = ax[2].pcolormesh(tt, ff, np.fft.fftshift(self.S2n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1)
-        im3 = ax[3].pcolormesh(tt, ff, np.fft.fftshift(self.S3n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1)
+        im0 = ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=S0_cmap, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+        im1 = ax[1].imshow(np.fft.fftshift(self.S1n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+        im2 = ax[2].imshow(np.fft.fftshift(self.S2n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+        im3 = ax[3].imshow(np.fft.fftshift(self.S3n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+
         if single_sided is True:
-            ax[0].set_ylim(0, self.f.max())
+            ax[0].set_ylim(0, f.max())
         # adjust figure
         cbarax1 = fig.add_axes([0.96, 0.12, 0.01, 0.8])
         cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='vertical', ticks=[-1, 0, 1])
@@ -207,11 +213,11 @@ class TFPrepresentation(object):
             axis.set_aspect(1./axis.get_data_ratio())
             axis.set_adjustable('box-forced')
             axis.set_title(label[i], y = 0.85, size=labelsize)
-
+            axis.set_xlim(self.t.min(), self.t.max())
 
         # set ylabls
         ax[0].set_ylabel('Frequency')
-        #fig.subplots_adjust(left=0.05, right=0.95, wspace=0.05, top=0.92, bottom=0.12)
+        fig.subplots_adjust(left=0.05, right=0.95, wspace=0.05, top=0.92, bottom=0.12)
         return fig, ax
 
 
@@ -227,15 +233,7 @@ class QSTFT(TFPrepresentation):
     x : array_type
         input signal array
 
-    window : array_type
-        window to use. Length of the window has to be odd. Windows can be
-        generated using `utils.windows` methods
-
-    spacing : int
-        time index spacing between successive points
-
-    Nfft : int, optional
-        number of frequency bins. If 0, use size(x). Default is 0.
+    params : dict, optional
 
     tol : float, optional
         tolerance factor used in Stokes parameters normalization. Default
@@ -283,40 +281,68 @@ class QSTFT(TFPrepresentation):
         be added.
     '''
 
-    def __init__(self, x, window, t=None, NFFT=None, spacing=None):
+    def __init__(self, x, t=None):
         # init main base object
-        super(QSTFT, self).__init__(x=x, t=t, NFFT=NFFT, spacing=spacing)
-        self.window = window
+        super(QSTFT, self).__init__(x=x, t=t)
+        # init frequencies, sampled times and params directly
+        self.f = None
+        self.sampled_times = None
+        self.params = None
+
         #init ridges
         self.ridges = []
 
-    def compute(self, tol=0.01, ridges=False):
+    def compute(self, window='hamming', nperseg=128, noverlap=None, nfft=None,
+    boundary='zeros', tol=0.01, ridges=False):
+        '''
+        Compute the Q-STFT of the signal x.
+        '''
+        # parameters
+        self.params = dict(fs = 1./(self.t[1]-self.t[0]),
+                    window=window,
+                    nperseg=nperseg,
+                    noverlap=noverlap,
+                    nfft=nfft,
+                    boundary=boundary,
+                    return_onesided=False,
+                    detrend=False,
+                    padded=True)
 
-        # Compute the Q-STFT
-        sizewindow = np.size(self.window, 0)
-        # check size of window is odd
-        if sizewindow % 2 == 0:
-            raise ValueError('Window size must me odd.')
+        # split x = x_1 + i x_2
+        x1, x2 = utils.sympSplit(self.x)
 
-        Lh = (sizewindow - 1) / 2  # half size index
-        N = self.x.shape[0]
-        print('Computing Q-STFT coefficients')
-        temp = np.zeros_like(self.tfpr)
-        for ti, ts in enumerate(self.sampled_index):
+        # Compute the Q-STFT using scipy.signal.stft on x1, x2
+        f, sampled_times, temp1 = sg.stft(x1, **self.params )
+        _, _ , temp2 = sg.stft(x2, **self.params)
 
-            taumin = - min([round(self.NFFT / 2) - 1, Lh, ts])
-            taumax = min([round(self.NFFT / 2) - 1, Lh, N - ts - 1])
-            tau = np.arange(taumin, taumax + 1)
-            indices = ((self.NFFT + tau) % self.NFFT).astype(int)
-
-            windowInd = self.window[(Lh + tau).astype(int)]
-            windowIndq = utils.sympSynth(np.conj(windowInd) / np.linalg.norm(windowInd), 0)
-
-            temp[indices, ti] = self.x[(ts + tau).astype(int)] * windowIndq
-
-            temp[:, ti] = qfft.Qfft(temp[:, ti])
-
-        self.tfpr = temp
+        # update Attributes
+        self.f = f
+        self.sampled_times = sampled_times
+        # recombine
+        self.tfpr = utils.sympSynth(temp1, temp2)
+        # sizewindow = np.size(self.window, 0)
+        # # check size of window is odd
+        # if sizewindow % 2 == 0:
+        #     raise ValueError('Window size must me odd.')
+        #
+        # Lh = (sizewindow - 1) // 2  # half size index
+        # N = self.x.shape[0]
+        # print('Computing Q-STFT coefficients')
+        # temp = np.zeros_like(self.tfpr)
+        # for ti, ts in enumerate(self.sampled_index):
+        #
+        #     taumin = - min([round(self.NFFT / 2) - 1, Lh, ts])
+        #     taumax = min([round(self.NFFT / 2) - 1, Lh, N - ts - 1])
+        #     tau = np.arange(taumin, taumax + 1)
+        #     indices = ((self.NFFT + tau) % self.NFFT).astype(int)
+        #
+        #     windowInd = self.window[(Lh + tau).astype(int)]
+        #     windowIndq = utils.sympSynth(np.conj(windowInd) / np.linalg.norm(windowInd), 0)
+        #
+        #     temp[indices, ti] = self.x[(ts + tau).astype(int)] * windowIndq
+        #
+        # temp = qfft.Qfft(temp, axis=0)
+        #self.tfpr = temp
 
         # Compute the Time-Frequency Stokes parameters S0, S1, S2, S3
         print('Computing Time-Frequency Stokes parameters')
@@ -324,18 +350,47 @@ class QSTFT(TFPrepresentation):
         self.S0 = np.norm(self.tfpr)  # already squared norm with this definition
 
         # compute the j-involution + conjugation
-        qqj = utils.StokesNorm(self.tfpr)
-        qqj_float = quaternion.as_float_array(qqj)
+        qjq = utils.StokesNorm(self.tfpr)
+        qjq_float = quaternion.as_float_array(qjq)
 
-        self.S1 = qqj_float[..., 0]
-        self.S2 = qqj_float[..., 1]
-        self.S3 = - qqj_float[..., 3]
+        self.S1 = qjq_float[..., 2]
+        self.S2 = qjq_float[..., 3]
+        self.S3 = qjq_float[..., 1]
 
         # normalized Stokes parameters
         self.S1n, self.S2n, self.S3n = utils.normalizeStokes(self.S0, self.S1, self.S2, self.S3, tol=tol)
 
         if ridges is True:
             self.extractRidges()
+
+    def inverse(self, mask=None):
+        '''Compute inverse Q-STFT
+
+            Parameters
+            ----------
+            mask: array_type
+                mask applied to Q-STFT coefficients prior to inversion.
+                If mask=None, no mask is employed.
+        '''
+
+        # construct dict for inversion
+        inversion_dict =  dict(fs = self.params['fs'],
+                            window=self.params['window'],
+                            nperseg=self.params['nperseg'],
+                            noverlap=self.params['noverlap'],
+                            nfft=self.params['nfft'],
+                            boundary=self.params['boundary'],
+                            input_onesided=False)
+
+        if mask is None:
+            mask = np.ones(self.S0.shape, dtype=bool)
+
+        tfp1, tfp2 = utils.sympSplit(self.tfpr)
+        t, x1 = sg.istft(tfp1, **inversion_dict)
+        __, x2 = sg.istft(tfp2, **inversion_dict)
+
+        xr = utils.sympSynth(x1, x2)
+        return t, xr
 
     def extractRidges(self, parThresh=4, parMinD=3):
         ''' Extracts ridges from the time-frequency energy density S0.
@@ -357,10 +412,10 @@ class QSTFT(TFPrepresentation):
         ridges : list
             list of detected ridges
         '''
-
+        nfft = self.params['nfft']
         # Extract ridges
         print('Extracting ridges')
-        self.ridges = _extractRidges(self.S0[:self.NFFT // 2, :], parThresh, parMinD)
+        self.ridges = _extractRidges(self.S0[:nfft//2, :], parThresh, parMinD)
 
     def plotRidges(self, quivertdecim=10):
         ''' Plot S0, the orientation and ellipticity recovered from the
@@ -410,19 +465,21 @@ class QSTFT(TFPrepresentation):
         N = np.size(self.t)
 
         # prepare meshgrid
-        tt, ff = np.meshgrid(self.sampled_time, np.fft.fftshift(self.f))
+        tt, ff = np.meshgrid(self.sampled_times, np.fft.fftshift(self.f))
         # size of plot
         A = np.random.rand(1, 3)
         w, h = plt.figaspect(A)
         labelsize= 20
 
         fig, ax = plt.subplots(ncols=3, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1]})
-        im0 = ax[0].pcolormesh(tt, ff, np.fft.fftshift(self.S0, axes=0), cmap=cmap_S0)
 
-        im1 = ax[1].quiver(self.sampled_time[::quivertdecim], self.f, np.real(ori[:, ::quivertdecim]), (np.imag(ori[:, ::quivertdecim])), theta[:, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
+        #im0 = ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=cmap_S0,origin='lower', extent=[self.sampled_times.min(), self.sampled_times.max(), 0, self.f.max()], aspect='auto')
+        im0 = ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=cmap_S0, extent=[self.sampled_times.min(), self.sampled_times.max(), self.f.min(), self.f.max()], origin='lower')
+
+        im1 = ax[1].quiver(self.sampled_times[::quivertdecim], self.f, np.real(ori[:, ::quivertdecim]), (np.imag(ori[:, ::quivertdecim])), theta[:, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
 
         for r in self.ridges:
-            points = np.array([self.sampled_time[r[1]], self.f[r[0]]]).T.reshape(-1, 1, 2)
+            points = np.array([self.sampled_times[r[1]], self.f[r[0]]]).T.reshape(-1, 1, 2)
             segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
             lc = LineCollection(segments, cmap=plt.get_cmap(cmap_chi),
@@ -436,26 +493,29 @@ class QSTFT(TFPrepresentation):
         # adjust figure
         fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
 
-        cbarax0 = fig.add_axes([0.05, 0.83, 0.303, 0.03])
+        for i, axis in enumerate(ax):
+            axis.set_xlabel('Time')
+            axis.set_ylim([0, self.f.max()])
+            axis.set_xlim(self.t.min(), self.t.max())
+            axis.set_aspect(1./axis.get_data_ratio())
+            axis.set_adjustable('box-forced')
+
+
+        cbarax0 = fig.add_axes([0.09, 0.83, 0.224, 0.03])
         cbar0 = fig.colorbar(im0, cax=cbarax0, orientation='horizontal', ticks=[0, np.max(self.S0)])
         cbar0.ax.set_xticklabels(['', ''])
         cbar0.ax.xaxis.set_ticks_position('top')
 
-        cbarax1 = fig.add_axes([0.369, 0.83, 0.303, 0.03])
+        cbarax1 = fig.add_axes([0.185+0.224, 0.83, 0.224, 0.03])
         cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='horizontal', ticks=[-np.pi/2, 0, np.pi/2])
         cbar1.ax.set_xticklabels([r'$-\frac{\pi}{2}$', r'$0$', r'$\frac{\pi}{2}$'])
         cbar1.ax.xaxis.set_ticks_position('top')
 
-        cbarax2 = fig.add_axes([0.686, 0.83, 0.303, 0.03])
+        cbarax2 = fig.add_axes([0.725, 0.83, 0.224, 0.03])
         cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.pi/4, 0, np.pi/4], orientation='horizontal')
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')
 
-        ax[0].set_ylim([0, self.f.max()])
-        ax[1].set_xlim([self.t.min(), self.t.max()])
-        ax[2].set_xlim([self.t.min(), self.t.max()])
-
-        ax[0].set_xlabel('Time [s]')
 
         ax[0].set_ylabel('Frequency [Hz]')
 
@@ -465,6 +525,9 @@ class QSTFT(TFPrepresentation):
         ax[2].set_title('Instantaneous ellipticity', y=1.14)
 
         return fig, ax
+
+    def plotStokes(self, S0_cmap='viridis', s_cmap='coolwarm', single_sided=True):
+        return self._plotStokes(self.sampled_times, self.f, S0_cmap=S0_cmap, s_cmap=s_cmap, single_sided=single_sided)
 
 
 
