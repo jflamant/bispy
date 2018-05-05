@@ -149,7 +149,7 @@ def StokesNorm(q):
         raise ValueError('array should be of quaternion type')
 
     # compute j-product
-    jq = -quaternion.y * np.conj(q)
+    jq = quaternion.y * np.conj(q)
 
     return q * jq
 
