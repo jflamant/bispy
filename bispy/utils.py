@@ -127,7 +127,7 @@ def StokesNorm(q):
 
     The Stokes-Poincaré norm is defined by::
 
-        StokesNorm(q) = -q*j*np.conj(q)*j
+        StokesNorm(q) = -q*j*np.conj(q)
 
     with j = quaternion(0, 0, 1, 0).
 
@@ -137,37 +137,21 @@ def StokesNorm(q):
 
     Returns
     -------
-    q*j*np.conj(q)*j : Stokes-Poincaré norm of q
+    q*j*np.conj(q) : Stokes-Poincaré norm of q
 
     See also
     --------
     quat2euler
 
-    Examples
-    --------
-    >>> q
-    array([[quaternion(0.3, 0.47, -0.86, -0.42),
-            quaternion(0.24, -1.07, -2.11, 0.37),
-            quaternion(-0.24, -1.36, -1.14, 1.69)],
-           [quaternion(0.4, -0.61, 0.04, -0.03),
-            quaternion(-1.58, -1.69, -1.18, -1.02),
-            quaternion(0.78, -1.06, -1.05, -0.62)]], dtype=quaternion)
-    >>> StokesNorm(q)
-    array([[quaternion(0.4323, 1.0044, -2.77555756156289e-17, 0.5564),
-        quaternion(3.2279, -2.075, 0, -4.3378),
-        quaternion(-3.3485, -3.2004, 0, -3.912)],
-       [quaternion(-0.2114, -0.4904, -3.46944695195361e-18, 0.0248),
-        quaternion(-0.00769999999999937, 7.7476, 0, -0.765199999999999),
-        quaternion(0.2029, -0.3516, 0, -3.1932)]], dtype=quaternion)
     '''
 
     if q.dtype != 'quaternion':
         raise ValueError('array should be of quaternion type')
 
-    # compute j-conjugation
-    jqj = -quaternion.y * np.conj(q) * quaternion.y
+    # compute j-product
+    jq = -quaternion.y * np.conj(q)
 
-    return q * jqj
+    return q * jq
 
 
 def normalizeStokes(S0, S1, S2, S3, tol=0.0):
@@ -295,11 +279,11 @@ def quat2euler(q):
 
     S0 = np.norm(q)  # squared modulus
 
-    qqj = StokesNorm(q)
-    qqj_float = quaternion.as_float_array(qqj)
-    S1 = qqj_float[..., 0]
-    S2 = qqj_float[..., 1]
-    S3 = - qqj_float[..., 3]
+    qjq = StokesNorm(q)
+    qjq_float = quaternion.as_float_array(qqj)
+    S1 = qjq_float[..., 2]
+    S2 = qjq_float[..., 3]
+    S3 = qjq_float[..., 1]
 
     a, theta, chi, Phi = Stokes2geo(S0, S1, S2, S3)
 
