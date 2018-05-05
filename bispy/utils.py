@@ -280,7 +280,7 @@ def quat2euler(q):
     S0 = np.norm(q)  # squared modulus
 
     qjq = StokesNorm(q)
-    qjq_float = quaternion.as_float_array(qqj)
+    qjq_float = quaternion.as_float_array(qjq)
     S1 = qjq_float[..., 2]
     S2 = qjq_float[..., 3]
     S3 = qjq_float[..., 1]
