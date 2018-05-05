@@ -385,7 +385,7 @@ class QSTFT(TFPrepresentation):
         if mask is None:
             mask = np.ones(self.S0.shape, dtype=bool)
 
-        tfp1, tfp2 = utils.sympSplit(self.tfpr)
+        tfp1, tfp2 = utils.sympSplit(self.tfpr*mask)
         t, x1 = sg.istft(tfp1, **inversion_dict)
         __, x2 = sg.istft(tfp2, **inversion_dict)
 
