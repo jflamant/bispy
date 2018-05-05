@@ -10,6 +10,7 @@ import quaternion
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D # required for 3D plot
+import matplotlib.gridspec as gridspec # required for 2D plot
 
 __all__ = ['sympSplit', 'sympSynth', 'StokesNorm', 'normalizeStokes',
     'Stokes2geo', 'geo2Stokes', 'quat2euler', 'euler2quat', 'bivariateAMFM', 'bivariatewhiteNoise']
@@ -527,6 +528,78 @@ class visual(object):
 
     def __init__(self):
         pass
+
+    @staticmethod
+    def plot2D(t, q, labels=['u(t)', 'v(t)']):
+        ''' 2D plot of a bivariate signal.
+
+        Plots the 2D trace, and time evolution of each component.
+
+        Parameters
+        ----------
+        t, q : array_type
+            time and signal arrays (signal array may be either complex or quaternion type)
+        labels : [label1, label2]
+            list of labels to display.
+
+        Returns
+        -------
+        fig, ax : figure and axis handles
+        '''
+
+        fig = plt.figure(figsize=(10, 4))
+
+        N = np.size(t)
+        q1, q2 = sympSplit(q)
+
+        gs = gridspec.GridSpec(2, 5)
+        gs.update(hspace=0.1, wspace=0.1, bottom=0.18, left=0.09, top=0.95, right=0.94)
+
+
+        ax1 = plt.subplot(gs[0, 2:])
+        ax2 = plt.subplot(gs[1, 2:])
+        ax3 = plt.subplot(gs[:, :2])
+
+        # ax1
+        ax1.spines['top'].set_visible(False)
+        ax1.spines['left'].set_visible(False)
+        ax1.spines['bottom'].set_visible(False)
+        ax1.set_xticks([])
+        ax1.yaxis.set_ticks_position('right')
+        ax1.spines['right'].set_position(('outward', 10))
+        #ax2
+        ax2.spines['top'].set_visible(False)
+        ax2.spines['left'].set_visible(False)
+        ax2.yaxis.set_ticks_position('right')
+        ax2.spines['right'].set_position(('outward', 10))
+        ax2.spines['bottom'].set_position(('outward', 10))
+
+        #ax3
+        ax3.spines['top'].set_visible(False)
+        ax3.spines['right'].set_visible(False)
+        ax3.spines['left'].set_position(('outward', 10))
+        ax3.spines['bottom'].set_position(('outward', 10))
+
+        # plots
+        ax1.plot(t, q1.real)
+        ax2.plot(t, q2.real)
+        ax3.plot(q1.real, q2.real)
+
+        ax3.set_aspect('equal', 'box')
+        # get limits
+        lims = ax3.get_xlim() + ax3.get_ylim()
+        li = np.max(np.abs(lims))
+        #set lims
+        for ax in [ax1, ax2, ax3]:
+            ax.set_ylim([-li, li])
+        ax3.set_xlim([-li, li])
+        ax3.set_xlabel(labels[0])
+        ax3.set_ylabel(labels[1])
+
+        ax1.set_title(labels[0])
+        ax2.set_title(labels[1])
+        ax2.set_xlabel('time')
+        return fig, [ax1, ax2, ax3]
 
     @staticmethod
     def plot3D(t, q):
