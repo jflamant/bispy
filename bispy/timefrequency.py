@@ -1,6 +1,12 @@
-# This file contains Time-Frequency tools for bivariate data. Each tool is
-# coded as an object, with particular methods associated with it.
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright © 2018 Julien Flamant
+#
+# Distributed under terms of the CeCILL Free Software Licence Agreement
 
+'''
+Module for the time-frequency analysis of bivariate signals.
+'''
 # import modules and packages
 import numpy as np
 import quaternion
@@ -75,8 +81,141 @@ class Hembedding(object):
 
     # TODO: routine for plotting the extracted parameters?
 
+class TFPrepresentation(object):
 
-class QSTFT(object):
+    def __init__(self, x, **kwargs):
+        """
+        Base time-frequency-polarization representation object.
+        This is a low-level function, not meant to be used directly.
+        """
+        # check dimension of input array
+        if x.ndim > 1:
+            x = x.ravel()
+        # check dtype of signal x and convert if necessary
+        if x.dtype != 'quaternion':
+            x = utils.sympSynth(x.real, x.imag)
+        self.x = x
+        N = x.shape[0]
+
+        # timestamps of the signal x
+        t = kwargs.get('t')
+        if t is None:
+            t = np.arange(N)
+        self.t = t
+
+        # number of frequency bins
+        NFFT = kwargs.get('NFFT')
+        if NFFT is None:
+            NFFT = nextpow2(N)
+        elif NFFT < 0:
+            raise ValueError('Nfft should be greater than 0.')
+        else:
+            NFFT = nextpow2(NFFT)
+        self.NFFT = NFFT
+        # sampled frequencies
+        self.f = np.fft.fftfreq(NFFT) / (t[1] - t[0])
+
+        # sampled instants (spacing)
+        spacing = kwargs.get('spacing')
+        if spacing is None:
+            spacing = 1
+
+        self.sampled_index = np.arange(0, N, spacing)
+        self.sampled_time = t[::spacing]
+
+
+        # init representation
+        P = np.size(self.sampled_time)
+        self.tfpr = np.zeros((NFFT, P), dtype='quaternion')
+
+        # init Stokes parameters
+        self.S0 = np.zeros((NFFT, P))
+        self.S1 = np.zeros_like(self.S0)
+        self.S2 = np.zeros_like(self.S0)
+        self.S3 = np.zeros_like(self.S0)
+
+        self.S1n = np.zeros_like(self.S0)
+        self.S2n = np.zeros_like(self.S0)
+        self.S3n = np.zeros_like(self.S0)
+
+    def normalizeStokes(self, tol=0.01):
+        ''' Re-compute normalized Stokes parameters with a different normalization.
+
+        Parameters
+        ----------
+        tol : float
+            tolerance parameter. Default is 0.01.
+        '''
+        if np.sum(np.abs(self.S0)) > 0:
+            self.S1n, self.S2n, self.S3n = utils.normalizeStokes(self.S0, self.S1, self.S2, self.S3, tol=tol)
+
+
+    def plotSignal(self, kind='2D', **kwargs):
+        '''
+        Plot the bivariate signal x.
+
+        Parameters
+        ----------
+        kind : string, '2D' or '3D'
+            type of plot. See `utils.visual`.
+        '''
+        if kind == '2D':
+            fig, ax = utils.visual.plot2D(self.t, self.x, **kwargs)
+        elif kind == '3D':
+            fig, ax = utils.visual.plot3D(self.t, self.x)
+        return fig, ax
+
+    def plotStokes(self, S0_cmap='viridis', s_cmap='coolwarm', single_sided=True):
+        ''' Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)
+
+        Parameters
+        ----------
+        S0_cmap : colormap (sequential)
+            to use for S0 time-frequency distribution
+        s_cmap : colormap (diverging)
+            to use for normalized Stokes time-frequency distribution
+
+        Returns
+        -------
+        fig, ax : figure and axis handles
+            may be needed to tweak the plot
+        '''
+        # prepare meshgrid
+        tt, ff = np.meshgrid(self.sampled_time, np.fft.fftshift(self.f))
+        # size of plot
+        A = np.random.rand(1, 4)
+        w, h = plt.figaspect(A)
+        labelsize= 20
+
+        fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
+
+        im0 = ax[0].pcolormesh(tt, ff, np.fft.fftshift(self.S0, axes=0), cmap=S0_cmap)
+        im1 = ax[1].pcolormesh(tt, ff, np.fft.fftshift(self.S1n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1)
+        im2 = ax[2].pcolormesh(tt, ff, np.fft.fftshift(self.S2n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1)
+        im3 = ax[3].pcolormesh(tt, ff, np.fft.fftshift(self.S3n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1)
+        if single_sided is True:
+            ax[0].set_ylim(0, self.f.max())
+        # adjust figure
+        cbarax1 = fig.add_axes([0.96, 0.12, 0.01, 0.8])
+        cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='vertical', ticks=[-1, 0, 1])
+        #cbar1.ax.set_xticklabels([-1, 0, 1])
+        #cbar1.ax.xaxis.set_ticks_position('top')
+
+        label =[r'$S_0$', r'$s_1$', r'$s_2$', r'$s_3$']
+        for i, axis in enumerate(ax):
+            axis.set_xlabel('Time')
+            axis.set_aspect(1./axis.get_data_ratio())
+            axis.set_adjustable('box-forced')
+            axis.set_title(label[i], y = 0.85, size=labelsize)
+
+
+        # set ylabls
+        ax[0].set_ylabel('Frequency')
+        #fig.subplots_adjust(left=0.05, right=0.95, wspace=0.05, top=0.92, bottom=0.12)
+        return fig, ax
+
+
+class QSTFT(TFPrepresentation):
     ''' Compute the Quaternion-Short Term Fourier Transform for bivariate
     signals taken as (1, i)-quaternion valued signals.
 
@@ -86,8 +225,8 @@ class QSTFT(object):
         time samples array
 
     x : array_type
-        input signal array (has to be of quaternion dtype)
-    
+        input signal array
+
     window : array_type
         window to use. Length of the window has to be odd. Windows can be
         generated using `utils.windows` methods
@@ -107,7 +246,7 @@ class QSTFT(object):
     t : array_type
         time samples array
 
-    signal : array_type
+    x : array_type
         input signal array
 
     window : array_type
@@ -116,13 +255,19 @@ class QSTFT(object):
     spacing : int
         time index spacing between successive points
 
-    Nfft : int
+    NFFT : int
         number of frequency bins
 
     f : array_type
         sampled frequencies array
 
-    QSTFT : array_type
+    sampled_time : array_type
+        sampled times instants
+
+    sampled_index : array_type
+        sampled times indexes
+
+    tfpr : array_type
         Q-STFT coefficients array
 
     S0, S1, S2, S3 : array_type
@@ -138,64 +283,48 @@ class QSTFT(object):
         be added.
     '''
 
-    def __init__(self, t, x, window, spacing, Nfft=0, tol=0.01):
-
-        if x.dtype != 'quaternion':
-            raise ValueError('signal array should be of quaternion type.')
-
-        # Store the signal and parameters
-        self.t = t
-        self.signal = x
+    def __init__(self, x, window, t=None, NFFT=None, spacing=None):
+        # init main base object
+        super(QSTFT, self).__init__(x=x, t=t, NFFT=NFFT, spacing=spacing)
         self.window = window
-        self.spacing = spacing
+        #init ridges
+        self.ridges = []
 
-        N = np.size(x, 0)
-
-        if Nfft == 0:
-            Nfft = nextpow2(N)
-        elif Nfft < 0:
-            raise ValueError('Nfft should be greater than 0.')
-        else:
-            Nfft = nextpow2(Nfft)
-
-        self.Nfft = int(Nfft)
-        self.f = np.fft.fftfreq(self.Nfft) / (t[1] - t[0])
+    def compute(self, tol=0.01, ridges=False):
 
         # Compute the Q-STFT
-        sizewindow = np.size(window, 0)
+        sizewindow = np.size(self.window, 0)
         # check size of window is odd
         if sizewindow % 2 == 0:
             raise ValueError('Window size must me odd.')
 
         Lh = (sizewindow - 1) / 2  # half size index
-        sampled_time = np.arange(0, N, spacing)
-        P = np.size(sampled_time)
-        S = np.zeros((Nfft, P), dtype='quaternion')
-
+        N = self.x.shape[0]
         print('Computing Q-STFT coefficients')
-        for ti, ts in enumerate(sampled_time):
+        temp = np.zeros_like(self.tfpr)
+        for ti, ts in enumerate(self.sampled_index):
 
-            taumin = - min([round(Nfft / 2) - 1, Lh, ts])
-            taumax = min([round(Nfft / 2) - 1, Lh, N - ts - 1])
+            taumin = - min([round(self.NFFT / 2) - 1, Lh, ts])
+            taumax = min([round(self.NFFT / 2) - 1, Lh, N - ts - 1])
             tau = np.arange(taumin, taumax + 1)
-            indices = ((Nfft + tau) % Nfft).astype(int)
+            indices = ((self.NFFT + tau) % self.NFFT).astype(int)
 
-            windowInd = window[(Lh + tau).astype(int)]
+            windowInd = self.window[(Lh + tau).astype(int)]
             windowIndq = utils.sympSynth(np.conj(windowInd) / np.linalg.norm(windowInd), 0)
 
-            S[indices, ti] = x[(ts + tau).astype(int)] * windowIndq
+            temp[indices, ti] = self.x[(ts + tau).astype(int)] * windowIndq
 
-            S[:, ti] = qfft.Qfft(S[:, ti])
+            temp[:, ti] = qfft.Qfft(temp[:, ti])
 
-        self.QSTFT = S
+        self.tfpr = temp
 
         # Compute the Time-Frequency Stokes parameters S0, S1, S2, S3
         print('Computing Time-Frequency Stokes parameters')
 
-        self.S0 = np.norm(S)  # already squared norm with this definition
+        self.S0 = np.norm(self.tfpr)  # already squared norm with this definition
 
         # compute the j-involution + conjugation
-        qqj = utils.StokesNorm(S)
+        qqj = utils.StokesNorm(self.tfpr)
         qqj_float = quaternion.as_float_array(qqj)
 
         self.S1 = qqj_float[..., 0]
@@ -203,12 +332,10 @@ class QSTFT(object):
         self.S3 = - qqj_float[..., 3]
 
         # normalized Stokes parameters
-
         self.S1n, self.S2n, self.S3n = utils.normalizeStokes(self.S0, self.S1, self.S2, self.S3, tol=tol)
 
-        # init ridges
-
-        self.ridges = []
+        if ridges is True:
+            self.extractRidges()
 
     def extractRidges(self, parThresh=4, parMinD=3):
         ''' Extracts ridges from the time-frequency energy density S0.
@@ -233,60 +360,10 @@ class QSTFT(object):
 
         # Extract ridges
         print('Extracting ridges')
-        self.ridges = _extractRidges(self.S0[:self.Nfft // 2, :], parThresh, parMinD)
+        self.ridges = _extractRidges(self.S0[:self.NFFT // 2, :], parThresh, parMinD)
 
-
-    def plotStokes(self, cmocean=False):
-        ''' Plots S1n, S2n, S3n (normalized Stokes parameters) in time-frequency domain
-
-        Parameters
-        ----------
-        cmocean : bool, optional
-            activate use of cmocean colormaps
-
-        Returns
-        -------
-        fig, ax : figure and axis handles
-            may be needed to tweak the plot
-        '''
-        # check whether cmocean colormaps should be used
-        if cmocean is True:
-            import cmocean
-            cmap = cmocean.cm.balance
-        else:
-            cmap = 'coolwarm'
-
-        N = np.size(self.t)
-        fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
-
-        im0 = ax[0].imshow(self.S1n[:self.Nfft // 2, :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft // 2-1]], vmin=-1, vmax=+1)
-
-        im1 = ax[1].imshow(self.S2n[:self.Nfft // 2, :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft // 2-1]], vmin=-1, vmax=+1)
-        im2 = ax[2].imshow(self.S3n[:self.Nfft // 2, :], origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft // 2-1]], vmin=-1, vmax=+1)
-
-        # adjust figure
-        fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
-
-        cbarax1 = fig.add_axes([0.369, 0.83, 0.303, 0.03])
-        cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='horizontal', ticks=[-1, 0, 1])
-        cbar1.ax.set_xticklabels([-1, 0, 1])
-        cbar1.ax.xaxis.set_ticks_position('top')
-
-        ax[1].set_xlim([self.t.min(), self.t.max()])
-        ax[2].set_xlim([self.t.min(), self.t.max()])
-
-        ax[0].set_xlabel('Time [s]')
-
-        ax[0].set_ylabel('Frequency [Hz]')
-
-        ax[0].set_title(r'$S_1$', y=0.9, size=20)
-        ax[1].set_title(r'$S_2$', y=0.9, size=20)
-        ax[2].set_title(r'$S_3$', y=0.9, size=20)
-
-        return fig, ax
-
-    def plotRidges(self, quivertdecim=10, cmocean=False):
-        ''' Plot S0, and the orientation and ellipticity recovered from the
+    def plotRidges(self, quivertdecim=10):
+        ''' Plot S0, the orientation and ellipticity recovered from the
         ridges in time-frequency domain
 
         If ridges are not extracted yet, it runs `extractRidges` method first.
@@ -296,8 +373,6 @@ class QSTFT(object):
         quivertdecim : int, optional
             time-decimation index (allows faster and cleaner visualization of
             orientation vector field)
-        cmocean : bool, optional
-            activate use of cmocean colormaps
 
         Returns
         -------
@@ -305,16 +380,10 @@ class QSTFT(object):
             may be needed to tweak the plot
         '''
 
-        # check whether cmocean colormaps should be used
-        if cmocean is True:
-            import cmocean
-            cmap_S0 = cmocean.cm.gray_r
-            cmap_theta = cmocean.cm.phase
-            cmap_chi = cmocean.cm.balance
-        else:
-            cmap_S0 = 'Greys'
-            cmap_theta = 'hsv'
-            cmap_chi = 'coolwarm'
+        #  default colormaps
+        cmap_S0 = 'Greys'
+        cmap_theta = 'hsv'
+        cmap_chi = 'coolwarm'
 
         # check whether ridges have been computed
 
@@ -339,14 +408,21 @@ class QSTFT(object):
         chi = 0.5 * np.arcsin(S3mask)
 
         N = np.size(self.t)
-        fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
-        im0 = ax[0].imshow(self.S0[:self.Nfft // 2, :], interpolation='none', origin='lower', aspect='auto',cmap=cmap_S0, extent=[self.t.min(), self.t.max(), 0, self.f[self.Nfft // 2-1]])
 
+        # prepare meshgrid
+        tt, ff = np.meshgrid(self.sampled_time, np.fft.fftshift(self.f))
+        # size of plot
+        A = np.random.rand(1, 3)
+        w, h = plt.figaspect(A)
+        labelsize= 20
 
-        im1 = ax[1].quiver(self.t[::int(self.spacing)][::quivertdecim], self.f[:int(self.Nfft / 2)], np.real(ori[:self.Nfft // 2, ::quivertdecim]), (np.imag(ori[:self.Nfft // 2, ::quivertdecim])), theta[:self.Nfft // 2, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
+        fig, ax = plt.subplots(ncols=3, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1]})
+        im0 = ax[0].pcolormesh(tt, ff, np.fft.fftshift(self.S0, axes=0), cmap=cmap_S0)
+
+        im1 = ax[1].quiver(self.sampled_time[::quivertdecim], self.f, np.real(ori[:, ::quivertdecim]), (np.imag(ori[:, ::quivertdecim])), theta[:, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
 
         for r in self.ridges:
-            points = np.array([self.t[::self.spacing][r[1]], self.f[r[0]]]).T.reshape(-1, 1, 2)
+            points = np.array([self.sampled_time[r[1]], self.f[r[0]]]).T.reshape(-1, 1, 2)
             segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
             lc = LineCollection(segments, cmap=plt.get_cmap(cmap_chi),
@@ -375,6 +451,7 @@ class QSTFT(object):
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')
 
+        ax[0].set_ylim([0, self.f.max()])
         ax[1].set_xlim([self.t.min(), self.t.max()])
         ax[2].set_xlim([self.t.min(), self.t.max()])
 
@@ -392,6 +469,7 @@ class QSTFT(object):
 
 
 
+#!---- Quaternion Continuous Wavelet Transform -------------------------------!#
 class QCWT(object):
     ''' Compute the Quaternion-Continuous Wavelet Transform for bivariate
     signals taken as (1, i)-quaternion valued signals.
@@ -771,4 +849,4 @@ def log2(x):
 def nextpow2(i):
     n = 1
     while n < i: n *= 2
-    return n
+    return int(n)
