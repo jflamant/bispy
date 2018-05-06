@@ -227,17 +227,11 @@ class QSTFT(TFPrepresentation):
 
     Parameters
     ----------
-    t : array_type
-        time samples array
-
     x : array_type
         input signal array
 
-    params : dict, optional
-
-    tol : float, optional
-        tolerance factor used in Stokes parameters normalization. Default
-        is 0.01
+    t : array_type (optional)
+        time samples array. Default is t = np.arange(x.shape[0])
 
     Attributes
     ----------
@@ -247,23 +241,14 @@ class QSTFT(TFPrepresentation):
     x : array_type
         input signal array
 
-    window : array_type
-        window used
-
-    spacing : int
-        time index spacing between successive points
-
-    NFFT : int
-        number of frequency bins
-
-    f : array_type
-        sampled frequencies array
+    params : dict
+        parameters used for the computation of the Q-STFT.
 
     sampled_time : array_type
         sampled times instants
 
-    sampled_index : array_type
-        sampled times indexes
+    f : array_type
+        sampled frequencies
 
     tfpr : array_type
         Q-STFT coefficients array
@@ -296,6 +281,19 @@ class QSTFT(TFPrepresentation):
     boundary='zeros', tol=0.01, ridges=False):
         '''
         Compute the Q-STFT of the signal x.
+
+        It takes advantages of the scipy.signal.stft function for greater
+        flexibility.
+
+        window, nperseg, noverlap, nfft, boundary : stft parameters
+            See `scipy.signal.stft`
+        tol : float, optional
+            tolerance factor used in normalization of Stokes parameters.
+            Default to 0.01
+        ridges: bool, optional
+            If True, compute also the ridges of the transform.
+            Default to `False`. Ridges can be later computed using
+            `extractRidges()`.
         '''
         # parameters
         self.params = dict(fs = 1./(self.t[1]-self.t[0]),
@@ -320,6 +318,8 @@ class QSTFT(TFPrepresentation):
         self.sampled_times = sampled_times
         # recombine
         self.tfpr = utils.sympSynth(temp1, temp2)
+
+        # old version
         # sizewindow = np.size(self.window, 0)
         # # check size of window is odd
         # if sizewindow % 2 == 0:
