@@ -165,7 +165,7 @@ class TFPrepresentation(object):
             fig, ax = utils.visual.plot3D(self.t, self.x)
         return fig, ax
 
-    def _plotStokes(self, t, f, S0_cmap='viridis', s_cmap='coolwarm', single_sided=True):
+    def _plotStokes(self, t, f, S0_cmap='viridis', s_cmap='coolwarm', single_sided=True, affine=False):
         ''' Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)
 
         Parameters
@@ -184,41 +184,73 @@ class TFPrepresentation(object):
         fig, ax : figure and axis handles
             may be needed to tweak the plot
         '''
-        # prepare meshgrid
-        f = np.fft.fftshift(f)
-        #tt, ff = np.meshgrid(t, np.fft.fftshift(f))
-        # size of plot
-        A = np.random.rand(1, 4)
-        w, h = plt.figaspect(A)
-        labelsize= 20
+        if affine:
+            # size of plot
+            A = np.random.rand(1, 4)
+            w, h = plt.figaspect(A)
+            labelsize= 20
 
-        fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
+            fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
 
-        im0 = ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=S0_cmap, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
-        im1 = ax[1].imshow(np.fft.fftshift(self.S1n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
-        im2 = ax[2].imshow(np.fft.fftshift(self.S2n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
-        im3 = ax[3].imshow(np.fft.fftshift(self.S3n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+            im0 = ax[0].pcolormesh(t, f, self.S0, cmap=S0_cmap)
+            im1 = ax[1].pcolormesh(t, f, self.S1n, cmap=s_cmap, vmin=-1, vmax=+1)
+            im2 = ax[2].pcolormesh(t, f, self.S2n, cmap=s_cmap, vmin=-1, vmax=+1)
+            im3 = ax[3].pcolormesh(t, f, self.S3n, cmap=s_cmap, vmin=-1, vmax=+1)
 
-        if single_sided is True:
-            ax[0].set_ylim(0, f.max())
-        # adjust figure
-        cbarax1 = fig.add_axes([0.96, 0.12, 0.01, 0.8])
-        cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='vertical', ticks=[-1, 0, 1])
-        #cbar1.ax.set_xticklabels([-1, 0, 1])
-        #cbar1.ax.xaxis.set_ticks_position('top')
+            # adjust figure
+            cbarax1 = fig.add_axes([0.96, 0.12, 0.01, 0.8])
+            cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='vertical', ticks=[-1, 0, 1])
+            #cbar1.ax.set_xticklabels([-1, 0, 1])
+            #cbar1.ax.xaxis.set_ticks_position('top')
 
-        label =[r'$S_0$', r'$s_1$', r'$s_2$', r'$s_3$']
-        for i, axis in enumerate(ax):
-            axis.set_xlabel('Time')
-            axis.set_aspect(1./axis.get_data_ratio())
-            axis.set_adjustable('box-forced')
-            axis.set_title(label[i], y = 0.85, size=labelsize)
-            axis.set_xlim(self.t.min(), self.t.max())
+            label =[r'$S_0$', r'$s_1$', r'$s_2$', r'$s_3$']
+            for i, axis in enumerate(ax):
+                axis.set_xlabel('Time')
+                axis.set_aspect(1./axis.get_data_ratio())
+                axis.set_adjustable('box-forced')
+                axis.set_title(label[i], y = 0.85, size=labelsize)
+                axis.set_xlim(self.t.min(), self.t.max())
 
-        # set ylabls
-        ax[0].set_ylabel('Frequency')
-        fig.subplots_adjust(left=0.05, right=0.95, wspace=0.05, top=0.92, bottom=0.12)
-        return fig, ax
+            # set ylabls
+            ax[0].set_ylabel('Frequency')
+            fig.subplots_adjust(left=0.05, right=0.95, wspace=0.05, top=0.92, bottom=0.12)
+            return fig, ax
+        else:
+
+            f = np.fft.fftshift(f)
+            #tt, ff = np.meshgrid(t, np.fft.fftshift(f))
+            # size of plot
+            A = np.random.rand(1, 4)
+            w, h = plt.figaspect(A)
+            labelsize= 20
+
+            fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
+
+            im0 = ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=S0_cmap, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+            im1 = ax[1].imshow(np.fft.fftshift(self.S1n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+            im2 = ax[2].imshow(np.fft.fftshift(self.S2n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+            im3 = ax[3].imshow(np.fft.fftshift(self.S3n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+
+            if single_sided is True:
+                ax[0].set_ylim(0, f.max())
+            # adjust figure
+            cbarax1 = fig.add_axes([0.96, 0.12, 0.01, 0.8])
+            cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='vertical', ticks=[-1, 0, 1])
+            #cbar1.ax.set_xticklabels([-1, 0, 1])
+            #cbar1.ax.xaxis.set_ticks_position('top')
+
+            label =[r'$S_0$', r'$s_1$', r'$s_2$', r'$s_3$']
+            for i, axis in enumerate(ax):
+                axis.set_xlabel('Time')
+                axis.set_aspect(1./axis.get_data_ratio())
+                axis.set_adjustable('box-forced')
+                axis.set_title(label[i], y = 0.85, size=labelsize)
+                axis.set_xlim(self.t.min(), self.t.max())
+
+            # set ylabls
+            ax[0].set_ylabel('Frequency')
+            fig.subplots_adjust(left=0.05, right=0.95, wspace=0.05, top=0.92, bottom=0.12)
+            return fig, ax
 
 
 class QSTFT(TFPrepresentation):
@@ -518,9 +550,7 @@ class QSTFT(TFPrepresentation):
 
 
         ax[0].set_ylabel('Frequency [Hz]')
-
         ax[0].set_title('Time-Frequency energy density', y=1.14)
-
         ax[1].set_title('Instantaneous orientation', y=1.14)
         ax[2].set_title('Instantaneous ellipticity', y=1.14)
 
@@ -530,138 +560,186 @@ class QSTFT(TFPrepresentation):
         return self._plotStokes(self.sampled_times, self.f, S0_cmap=S0_cmap, s_cmap=s_cmap, single_sided=single_sided)
 
 
+#!---- Quaternion Continuous Wavelet Transform --------------------------!#
+class QCWT(TFPrepresentation):
+    def __init__(self, x, t=None):
+        ''' Compute the Quaternion-Continuous Wavelet Transform for bivariate
+        signals taken as (1, i)-quaternion valued signals.
 
+        Parameters
+        ----------
+        x : array_type
+            input signal array
 
-#!---- Quaternion Continuous Wavelet Transform -------------------------------!#
-class QCWT(object):
-    ''' Compute the Quaternion-Continuous Wavelet Transform for bivariate
-    signals taken as (1, i)-quaternion valued signals.
+        t : array_type (optional)
+            time samples array. Default is t = np.arange(x.shape[0])
 
-    Parameters
-    ----------
-    t : array_type
-        time samples array
+        Attributes
+        ----------
+        t : array_type
+            time samples array
 
-    x : array_type
-        input signal array (has to be of quaternion dtype)
+        x : array_type
+            input signal array
 
-    wave : string, optional
-        wavelet to use. Default is `Morlet`. For now, only wavelet available.
+        params : dict
+            parameters used for the computation of the Q-CWT.
 
-    eta : float, optional
-        central frequency of the mother wavelet. Default is 5.
+        sampled_frequencies : array_type
+            sampled frequencies
 
-    Nscale : int, optional
-        number of scales to span. If 0, Nscale = N where N is the length of the
-        signal. Default is 0.
+        tfpr : array_type
+            Q-STFT coefficients array
 
-    tol : float, optional
-        tolerance factor used in Stokes parameters normalization. Default
-        is 1.0
+        S0, S1, S2, S3 : array_type
+            Time-frequency Stokes parameters, non-normalized [w.r.t. S0]
 
-    Attributes
-    ----------
-    t : array_type
-        time samples array
+        S1n, S2n, S3n : array_type
+            normalized time-frequency Stokes parameters [w.r.t. S0] using the
+            tolerance factor `tol`. See `utils.normalizeStokes`.
 
-    signal : array_type
-        input signal array
-
-    eta : float
-        central frequency of the mother wavelet
-
-    Fs : float
-        sampling frequency
-
-    s : array_type
-        sampled scales array
-
-    f : array_type
-        sampled frequencies array
-
-    QCWT : array_type
-        Q-CWT coefficients array
-
-    S0, S1, S2, S3 : array_type
-        Time-scale Stokes parameters, non-normalized [w.r.t. S0]
-
-    S1n, S2n, S3n : array_type
-        normalized time-scale Stokes parameters [w.r.t. S0] using the
-        tolerance factor `tol`. See `utils.normalizeStokes`.
-
-    ridges : list
-        List of ridges index and values extracted from the time-scale
-        energy density S0. Requires call of `extractRidges` for ridges to
-        be added.
-    '''
-
-    def __init__(self, t, x, wave='Morlet', eta=5, Nscale=0, tol=0.01):
-        ''' smin, smax are defined wrt :
-        -- smin given by ratio of signal size and support of wavelet (8 for morlet)
-        -- smax as eta/Fs
+        ridges : list
+            List of ridges index and values extracted from the time-frequency
+            energy density S0. Requires call of `extractRidges` for ridges to
+            be added.
         '''
-        # Store the signal and parameters
-        self.t = t
-        self.signal = x
-        self.eta = eta
-        self.Fs = 1 / (t[1] - t[0])
 
-        if x.dtype != 'quaternion':
-            raise ValueError('signal array should be of quaternion type.')
+        # init main base object
+        super(QCWT, self).__init__(x=x, t=t)
+        # init frequencies, scales and params directly
+        self.sampled_frequencies = None
+        self.params = None
 
-        if Nscale == 0: # if nothing is specified
-            Nscale = np.size(x, 0)
+        #init ridges
+        self.ridges = []
 
-        N = np.size(x, 0)
+    def _getWavelet(self, Nscales, **waveletParams):
+        # construct wavelet array (len(x), Nscales)
+        N = self.x.shape[0]
+        W = np.zeros((Nscales, N), dtype='quaternion')
+        Fs = 1./(self.t[1]-self.t[0])
+        f = np.fft.fftfreq(N, d=1./Fs)
 
-        # Define s values
-        smax = N/self.Fs/8
-        smin = eta/(np.pi*self.Fs)
-        self.s = np.logspace(np.log(smax)/np.log(2), np.log(smin)/np.log(2), Nscale, base=2)  # ordering from low freqencie to large
-        self.f = eta / (2*np.pi*self.s)
+        wType = waveletParams['type']
 
-        # compute QCWT
+        if wType not in ['Morse', 'Morlet']:
+            raise ValueError("Unknown value for wavelet type %s, must be one of: "
+            "{'Morse', 'Morlet'}" % wType)
 
-        qfftx = qfft.Qfft(x)  # Precompute the QFT of signal sarray
-        omega = 2 * np.pi * np.fft.fftfreq(N) * self.Fs
-        S = np.zeros((Nscale, N), dtype='quaternion')
+        if wType == 'Morse':
 
-        print('Computing Q-CWT')
-        for kscale in range(Nscale):
+            if waveletParams.get('beta') is None:
+                beta = 3
+            else:
+                beta = waveletParams['beta']
 
-            if wave == 'Morlet':
-                s = self.s[kscale]
+            if waveletParams.get('gamma') is None:
+                gamma = 1
+            else:
+                gamma = waveletParams['gamma']
+            if waveletParams.get('norm') is None:
+                mode = 'bandpass'
+            else:
+                mode = waveletParams['norm']
+
+            fc = (beta/gamma)**(1./gamma) # central frequency of Morse wavelets
+
+            for fi, fsampled in enumerate(self.sampled_frequencies):
+                fnorm = f[:N//2]*fc/(fsampled)
+                temp = fnorm**beta*np.exp(-fnorm**gamma)
+                norm = self._getNormalization(wType, beta, gamma, mode=mode, Fs=Fs, fc=fc, fsampled=fsampled)
+                W[fi, :N//2] = utils.sympSynth(temp*norm, 0)
+
+        elif wType == 'Morlet':
+            if waveletParams.get('eta') is None:
+                eta = 2*np.pi
+            else:
+                eta = waveletParams.get('eta')
+
+            for fi, fsampled in enumerate(self.sampled_frequencies):
+                s = eta /(2*np.pi*fsampled) # scale
+
                 prefactor = (np.pi)**(-1/4)/(1+np.exp(-eta**2)-2*np.exp(-3/4*eta**2))**1/2*np.sqrt(s)
 
-                Psi = prefactor*(np.exp(-0.5*(s*omega - eta)**2) - np.exp(-0.5*((s*omega)**2 + eta**2)))
-            else:
-                raise ValueError('Wavelet type not recognized. Only Morlet is implemented for now.')
+                temp = prefactor*(np.exp(-0.5*(s*2*np.pi*f - eta)**2) - np.exp(-0.5*((s*2*np.pi*f)**2 + eta**2)))
+                W[fi, :] = utils.sympSynth(temp, 0)
 
-            Psiq = utils.sympSynth(Psi, 0)
+        return W
 
-            S[kscale, :] = qfft.iQfft(qfftx * Psiq)
 
-        self.QCWT = S
+    def _getNormalization(self, wType, beta=None, gamma=None, Fs=None, fc=None, fsampled=None, mode='bandpass'):
+        if wType == 'Morse':
+            '''
+            See e.g.,
+            Lilly, Jonathan M., and Sofia C. Olhede. 2009. “Higher-Order Properties of Analytic Wavelets.” IEEE Transactions on Signal Processing 57 (1): 146–60. doi:10.1109/TSP.2008.2007607.
 
-        # Compute the Time-Scale Stokes parameters S0, S1, S2, S3
-        print('Computing Time-Scale Stokes parameters')
-        self.S0 = np.norm(S)  # squared normed in this defitions
+            Olhede, Sofia C., and Andrew T. Walden. 2002. “Generalized Morse Wavelets.” IEEE Transactions on Signal Processing 50 (11): 2661–70. doi:10.1109/TSP.2002.804066.
+            '''
+            import scipy.special as sp
+
+            if mode == 'bandpass':
+                a = 2*(np.exp(1)*gamma/beta)**(beta/gamma)
+            elif mode == 'energy':
+                r = (2*beta+1)/gamma
+                a = (gamma*(2**r)/sp.gamma(r))**(0.5)*np.sqrt(Fs*fc/(fsampled))
+        return a
+
+    def compute(self, fmin, fmax, waveletParams, Nscales=50, tol=0.01, ridges=False):
+        ''' Compute the Q-CWT of x using a specified wavelet.
+
+            Parameters
+            ----------
+            fmin, fmax : float
+                min and max frequencies
+            waveletParams : dict
+                dictionary containing wavelet features. Currently 2 types,
+                'Morlet' and 'Morse' are supported.
+            Nscales : int
+                number of scales to analyze. Controls the size of the
+                sampled_frequencies array.
+            tol : float, optional
+                tolerance factor used in normalization of Stokes parameters.
+                Default to 0.01
+            ridges: bool, optional
+                If True, compute also the ridges of the transform.
+                Default to `False`. Ridges can be later computed using
+                `extractRidges()`.
+
+        '''
+
+        #deine sampled frequencies from fmin and fmax
+        Fs = self.t[1]-self.t[0]
+        N = self.x.shape[0]
+        self.sampled_frequencies = np.logspace(np.log10(fmin), np.log10(fmax), Nscales) # note to self: allow other choices as well?
+
+        W =self._getWavelet(Nscales=Nscales, **waveletParams)
+
+        X = qfft.Qfft(self.x)  # Precompute the QFT of signal sarray
+        temp = np.zeros((Nscales, N), dtype='quaternion')
+        for k in range(Nscales):
+            temp[k, :] = qfft.iQfft(X * W[k, :])
+
+        self.tfpr = temp
+        self.params = dict(fmin=fmin, fmax=fmax, wavelets = W)
+
+        # Compute the Time-Frequency Stokes parameters S0, S1, S2, S3
+        print('Computing Time-Frequency Stokes parameters')
+
+        self.S0 = np.norm(self.tfpr)  # already squared norm with this definition
 
         # compute the j-involution + conjugation
-        qqj = utils.StokesNorm(S)
-        qqj_float = quaternion.as_float_array(qqj)
+        qjq = utils.StokesNorm(self.tfpr)
+        qjq_float = quaternion.as_float_array(qjq)
 
-        self.S1 = qqj_float[..., 0]
-        self.S2 = qqj_float[..., 1]
-        self.S3 = - qqj_float[..., 3]
+        self.S1 = qjq_float[..., 2]
+        self.S2 = qjq_float[..., 3]
+        self.S3 = qjq_float[..., 1]
 
         # normalized Stokes parameters
-
         self.S1n, self.S2n, self.S3n = utils.normalizeStokes(self.S0, self.S1, self.S2, self.S3, tol=tol)
 
-        # init ridges
-
-        self.ridges = []
+        if ridges is True:
+            self.extractRidges()
 
     def extractRidges(self, parThresh=4, parMinD=3):
         ''' Extracts ridges from the time-scale energy density S0.
@@ -688,57 +766,10 @@ class QCWT(object):
         self.ridges = _extractRidges(self.S0, parThresh, parMinD)
 
 
-    def plotStokes(self, cmocean=False):
-        ''' Plots S1n, S2n, S3n (normalized Stokes parameters) in time-scale domain
+    def plotStokes(self, S0_cmap='viridis', s_cmap='coolwarm'):
+        return self._plotStokes(self.t, self.sampled_frequencies, S0_cmap=S0_cmap, s_cmap=s_cmap, affine=True)
 
-        Parameters
-        ----------
-        cmocean : bool, optional
-            activate use of cmocean colormaps
-
-        Returns
-        -------
-        fig, ax : figure and axis handles
-            may be needed to tweak the plot
-        '''
-
-        # check whether cmocean colormaps should be used
-        if cmocean is True:
-            import cmocean
-            cmap = cmocean.cm.balance
-        else:
-            cmap = 'coolwarm'
-
-        N = np.size(self.t)
-        fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
-
-        im0 = ax[0].imshow(self.S1n, origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])], vmin=-1, vmax=+1)
-
-        im1 = ax[1].imshow(self.S2n, origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])], vmin=-1, vmax=+1)
-        im2 = ax[2].imshow(self.S3n, origin='lower', interpolation='none', aspect='auto',cmap=cmap, extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])], vmin=-1, vmax=+1)
-
-        # adjust figure
-        fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
-
-        cbarax1 = fig.add_axes([0.369, 0.83, 0.303, 0.03])
-        cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='horizontal', ticks=[-1, 0, 1])
-        cbar1.ax.set_xticklabels([-1, 0, 1])
-        cbar1.ax.xaxis.set_ticks_position('top')
-
-        ax[1].set_xlim([self.t.min(), self.t.max()])
-        ax[2].set_xlim([self.t.min(), self.t.max()])
-
-        ax[0].set_xlabel('Time [s]')
-
-        ax[0].set_ylabel(r'$-\log_2(s)$')
-
-        ax[0].set_title(r'$S_1$', y=0.9, size=20)
-        ax[1].set_title(r'$S_2$', y=0.9, size=20)
-        ax[2].set_title(r'$S_3$', y=0.9, size=20)
-
-        return fig, ax
-
-    def plotRidges(self, quivertdecim=10, cmocean=False):
+    def plotRidges(self, quivertdecim=10):
 
         ''' Plot S0, and the orientation and ellipticity recovered from the
         ridges in time-scale domain
@@ -750,24 +781,16 @@ class QCWT(object):
         quivertdecim : int, optional
             time-decimation index (allows faster and cleaner visualization of
             orientation vector field)
-        cmocean : bool, optional
-            activate use of cmocean colormaps
 
         Returns
         -------
         fig, ax : figure and axis handles
             may be needed to tweak the plot
         '''
-        # check whether cmocean colormaps should be used
-        if cmocean is True:
-            import cmocean
-            cmap_S0 = cmocean.cm.gray_r
-            cmap_theta = cmocean.cm.phase
-            cmap_chi = cmocean.cm.balance
-        else:
-            cmap_S0 = 'Greys'
-            cmap_theta = 'hsv'
-            cmap_chi = 'coolwarm'
+        #  default colormaps
+        cmap_S0 = 'Greys'
+        cmap_theta = 'hsv'
+        cmap_chi = 'coolwarm'
 
         # check whether ridges have been computed
 
@@ -793,13 +816,12 @@ class QCWT(object):
 
         N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
-        im0 = ax[0].imshow(self.S0, interpolation='none', origin='lower', aspect='auto',cmap=cmap_S0, extent=[self.t.min(), self.t.max(), -log2(self.s[0]), -log2(self.s[-1])])
+        im0 = ax[0].pcolormesh(self.t, self.sampled_frequencies, self.S0, cmap=cmap_S0)
 
-
-        im1 = ax[1].quiver(self.t[::quivertdecim], -log2(self.s), np.real(ori[:, ::quivertdecim]), (np.imag(ori[:, ::quivertdecim])), theta[:, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
+        im1 = ax[1].quiver(self.t[::quivertdecim], self.sampled_frequencies, np.real(ori[:, ::quivertdecim]), (np.imag(ori[:, ::quivertdecim])), theta[:, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
 
         for r in self.ridges:
-            points = np.array([self.t[r[1]], -log2(self.s[r[0]])]).T.reshape(-1, 1, 2)
+            points = np.array([self.t[r[1]], self.sampled_frequencies[r[0]]]).T.reshape(-1, 1, 2)
             segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
             lc = LineCollection(segments, cmap=plt.get_cmap(cmap_chi),
@@ -828,14 +850,14 @@ class QCWT(object):
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')
 
-        ax[1].set_xlim([self.t.min(), self.t.max()])
-        ax[2].set_xlim([self.t.min(), self.t.max()])
+        for i, axis in enumerate(ax):
+            axis.set_xlim([self.t.min(), self.t.max()])
+            axis.set_ylim([self.sampled_frequencies.min(), self.sampled_frequencies.max()])
 
         ax[0].set_xlabel('Time [s]')
-        ax[0].set_ylim([-log2(self.s[0]), -log2(self.s[-1])])
-        ax[0].set_ylabel(r'$-\log_2(s)$')
+        ax[0].set_ylabel('Frequency [Hz]')
 
-        ax[0].set_title('Time-scale energy density', y=1.14)
+        ax[0].set_title('Time-frequency energy density', y=1.14)
         ax[1].set_title('Instantaneous orientation', y=1.14)
         ax[2].set_title('Instantaneous ellipticity', y=1.14)
 
