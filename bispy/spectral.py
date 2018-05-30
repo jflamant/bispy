@@ -102,8 +102,7 @@ class Periodogram(object):
 
         # then the spectral density Gamma_{xx}
 
-        self.density = dt / N * (np.norm(QFTx) + utils.StokesNorm(QFTx) *
-                quaternion.y)
+        self.density = dt / N * (np.norm(QFTx) + utils.StokesNorm(QFTx))
 
 
     def __add__(self, other):
@@ -307,7 +306,7 @@ class Multitaper(object):
             QFTx = qfft.Qfft(self.signal * self.dpss[:, n])  # tapered QFT
 
             self.densities[:, n] = dt * (np.norm(QFTx) +
-                utils.StokesNorm(QFTx) * quaternion.y)
+                utils.StokesNorm(QFTx))
 
     def __add__(self, other):
         if np.any(self.t != other.t) is True:
