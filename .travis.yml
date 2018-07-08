@@ -16,9 +16,6 @@ matrix:
     include:
         - os: linux
           python: 3.5
-        - os: osx
-          language: generic
-          env: PYTHON=3.5.3
 
 # Command to install dependencies for each configuration.
 install:
@@ -26,8 +23,8 @@ install:
   - ./scripts/install.sh
   - pip install -U pytest
   - CI=false pip install .
-  
+
 # Command to run tests. These are run for each configuration
-script: 
+script:
   - python --version
   - pytest

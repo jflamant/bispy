@@ -7,3 +7,6 @@
 *.swp
 *.swo
 
+# doc files
+/doc/_build/
+/doc/generated/
