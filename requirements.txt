@@ -3,3 +3,4 @@ scipy
 matplotlib
 numpydoc
 spectrum
+m2r
