@@ -557,6 +557,21 @@ class QSTFT(TFPrepresentation):
         return fig, ax
 
     def plotStokes(self, S0_cmap='viridis', s_cmap='coolwarm', single_sided=True):
+        ''' Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)
+
+        Parameters
+        ----------
+        S0_cmap : colormap (sequential)
+            to use for S0 time-frequency distribution
+        s_cmap : colormap (diverging)
+            to use for normalized Stokes time-frequency distribution
+
+        Returns
+        -------
+        fig, ax : figure and axis handles
+            may be needed to tweak the plot
+        '''
+
         return self._plotStokes(self.sampled_times, self.f, S0_cmap=S0_cmap, s_cmap=s_cmap, single_sided=single_sided)
 
 
@@ -767,6 +782,21 @@ class QCWT(TFPrepresentation):
 
 
     def plotStokes(self, S0_cmap='viridis', s_cmap='coolwarm'):
+        ''' Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)
+
+        Parameters
+        ----------
+        S0_cmap : colormap (sequential)
+            to use for S0 time-frequency distribution
+        s_cmap : colormap (diverging)
+            to use for normalized Stokes time-frequency distribution
+
+        Returns
+        -------
+        fig, ax : figure and axis handles
+            may be needed to tweak the plot
+        '''
+
         return self._plotStokes(self.t, self.sampled_frequencies, S0_cmap=S0_cmap, s_cmap=s_cmap, affine=True)
 
     def plotRidges(self, quivertdecim=10):
