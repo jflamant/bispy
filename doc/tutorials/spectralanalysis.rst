@@ -7,7 +7,7 @@ This tutorial aims at demonstrating different tools available within the
 with the paper
 
 -  Julien Flamant, Nicolas Le Bihan, Pierre Chainais: “Spectral analysis
-   of stationary random bivariate signals”, IEEE Transaction on Signal
+   of stationary random bivariate signals”, IEEE Transactions on Signal
    Processing, 2017;
    `arXiv:1703.06417 <http://arxiv.org/abs/1703.06417>`__,
    `doi:10.1109/TSP.2017.2736494 <https://doi.org/10.1109/TSP.2017.2736494>`__
