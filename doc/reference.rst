@@ -14,3 +14,4 @@ Reference manual
    reference.timefrequency
    reference.spectral
    reference.filters
+   reference.signals

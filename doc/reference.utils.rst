@@ -2,7 +2,7 @@
 
 .. currentmodule:: bispy.utils
 
-:mod:`utils` - Utility functions 
+:mod:`utils` - Utility functions
 ********************************
 
 
@@ -21,14 +21,6 @@ Quaternion specific operations
    quat2euler
    euler2quat
 
-Signal tools
-------------
-
-.. autosummary::
-   :toctree: generated/
-
-   bivariateAMFM
-   bivariatewhiteNoise
 
 Windows functions
 -----------------
