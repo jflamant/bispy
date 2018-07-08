@@ -15,7 +15,7 @@ with the paper
 The paper contains theoretical results and several applications that can
 be reproduced with the following tutorial. A completementary notebook
 version is available
-`here <https://github.com/jflamant/bispy/notebooks/spectralanalysisTutorial>`__.
+`here <https://github.com/jflamant/bispy/blob/master/notebooks/spectralanalysisTutorial.ipynb>`__.
 
 Load ``bispy`` and necessary modules
 ------------------------------------

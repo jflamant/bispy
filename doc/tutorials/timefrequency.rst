@@ -14,7 +14,7 @@ along with the paper
 
 The paper contains theoretical results and several applications that can
 be reproduced with the following tutorial.
-A Jupyter notebook version can be downloaded  `here <https://github.com/jflamant/bispy/notebooks/timefrequencyTutorial.ipynb>`__.
+A Jupyter notebook version can be downloaded  `here <https://github.com/jflamant/bispy/blob/master/notebooks/timefrequencyTutorial.ipynb>`__.
 
 Load ``bispy`` and necessary modules
 ------------------------------------
