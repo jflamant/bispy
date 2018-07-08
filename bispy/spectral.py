@@ -12,8 +12,7 @@ import quaternion
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # required for 3D plot
 import matplotlib.gridspec as gridspec
-
-from spectrum import dpss
+import scipy.signal as sg
 
 from . import qfft
 from . import utils
@@ -201,7 +200,7 @@ class Multitaper(object):
     Compute a multitaper spectral estimate of the spectrum of bivariate
     signals taken as (1, i)-quaternion valued signals.
     The data tapers are chosen as discrete-prolate spheroidal sequences
-    (dpss or Slepian tapers). This class requires the `spectrum` package for dpss calculations.
+    (dpss or Slepian tapers).
 
     Parameters
     ----------
@@ -298,7 +297,7 @@ class Multitaper(object):
         dt = (self.t[1] - self.t[0])
         # data tapers
         print('Number of data tapers: ' + str(Nmt))
-        [self.dpss, eigens] = dpss(N, bw, Nmt)
+        self.dpss = sg.windows.dpss(N, bw, Kmax=Nmt).T
 
         # compute Nmt tapered periodograms
         for n in range(Nmt):
@@ -430,7 +429,7 @@ def _plotResultSpectral(t, sig, spe):
     if sig.dtype == 'quaternion':
         x1, x2 = utils.sympSplit(sig)
         x = x1.real + 1j * x2.real
-    else: 
+    else:
         x = sig
 
     ax_sig.plot(t, np.real(x), np.imag(x), color='k')
@@ -581,7 +580,7 @@ def _plotResultSpectral(t, sig, spe):
 
 # workaround orthographic projection
 from mpl_toolkits.mplot3d import proj3d
- 
+
 def _orthogonal_proj(zfront, zback):
     a = (zfront+zback)/(zfront-zback)
     b = -2*(zfront*zback)/(zfront-zback)

@@ -24,7 +24,7 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
             return MagicMock()
 
-MOCK_MODULES = ['numpy-quaternion', 'quaternion', 'spectrum']
+MOCK_MODULES = ['numpy-quaternion', 'quaternion']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -49,6 +49,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
     'numpydoc',
+    'm2r',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -56,8 +57,8 @@ templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
+#source_suffix = '.rst'
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -67,7 +68,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'BiSPy'
-copyright = '2017, Julien Flamant'
+copyright = '2017-2018, Julien Flamant'
 author = 'Julien Flamant'
 
 # The version info for the project you're documenting, acts as replacement for
