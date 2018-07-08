@@ -1,38 +1,37 @@
 
-Spectral analysis of bivariate signals tutorial
-===============================================
+Spectral analysis of bivariate signals: tutorial
+================================================
 
 This tutorial aims at demonstrating different tools available within the
-``spectral`` module of ``BisPy``. The examples provided here come along
+``spectral`` module of ``BiSPy``. The examples provided here come along
 with the paper
 
 -  Julien Flamant, Nicolas Le Bihan, Pierre Chainais: “Spectral analysis
-   of stationary random bivariate signals”, 2017;
-   `arXiv:1703.06417 <http://arxiv.org/abs/1703.06417>`__.
+   of stationary random bivariate signals”, IEEE Transaction on Signal
+   Processing, 2017;
+   `arXiv:1703.06417 <http://arxiv.org/abs/1703.06417>`__,
+   `doi:10.1109/TSP.2017.2736494 <https://doi.org/10.1109/TSP.2017.2736494>`__
 
 The paper contains theoretical results and several applications that can
-be reproduced with the following tutorial. If you use ``BisPy`` for your
-research, please cite the above paper as reference.
+be reproduced with the following tutorial. A completementary notebook
+version is available
+`here <https://github.com/jflamant/bispy/notebooks/spectralanalysisTutorial>`__.
 
 Load ``bispy`` and necessary modules
 ------------------------------------
 
-.. code:: python
+.. code:: ipython3
 
-    %pylab inline
+    import numpy as np
+    import matplotlib.pyplot as plt
     import quaternion  # load the quaternion module
-
-    # if BiSPy is not located in your python module directory
-    # import sys
-    # sys.path.append('/BiSPy_location_path/')
     import bispy as bsp
-
 
 Synthetic examples
 ------------------
 
 The following examples are presented in the aforementioned paper. The
-module ``bispy.utils`` gives useful functions to generate the synthetic
+module ``bispy.signals`` gives useful functions to generate the synthetic
 signals presented.
 
 Example 1: Bivariate white noise only
@@ -41,38 +40,30 @@ Example 1: Bivariate white noise only
 First let us define the constants defining the polarization properties
 of the bivariate white gaussian noise.
 
-.. code:: python
+.. code:: ipython3
 
     N = 1024 # length of the signal
     S0 = 1 # power of the bivariate WGN
     P0 = .5 # degree of polarization
     theta0 = np.pi/4 # angle of linear polarization
-    
+
     t = np.arange(0, N) # time vector
 
-First simulate a realization of this bivariate WGN (note the use of the
-argument ``complexOutput`` which provides a complex output (useful for
-plots), rather than a quaternion-valued output (useful for computations)
+First simulate a realization of this bivariate WGN:
 
-.. code:: python
+.. code:: ipython3
 
-    w = bsp.utils.bivariatewhiteNoise(N, S0, P=P0, theta=theta0, complexOutput=True)
+    w = bsp.signals.bivariatewhiteNoise(N, S0, P=P0, theta=theta0)
 
 Now, display this signal
 
-.. code:: python
+.. code:: ipython3
 
-    fig, ax = plt.subplots()
-    
-    ax.plot(w.real, w.imag, color='k')
-    
-    ax.set_xlim([-3, 3])
-    ax.set_ylim([-3, 3])
-    ax.set_xlabel('real axis')
-    ax.set_ylabel('imaginary axis')
+    fig, ax = bsp.utils.visual.plot2D(t, w)
 
 
-.. image:: spectralanalysisTutorial_files/output_9_1.png
+
+.. image:: spectralanalysisTutorial_files/output_9_0.png
 
 
 The goal is now to compare 2 spectral density estimation methods:
@@ -83,31 +74,32 @@ The goal is now to compare 2 spectral density estimation methods:
 To do so, we simulate ``M`` independent realization of this bivariate
 WGN, and average across realizations each method output.
 
-.. code:: python
+.. code:: ipython3
 
     M = 10 # number of independent realization of the WGN
 
 The periodogram and multitaper estimates are computed like:
 
-.. code:: python
+.. code:: ipython3
 
-    w = bsp.utils.bivariatewhiteNoise(N, S0, P=P0, theta=theta0)
+    w = bsp.signals.bivariatewhiteNoise(N, S0, P=P0, theta=theta0)
     # compute spectral estimates
-    per = bsp.spectral.Periodogram(t, w) 
+    per = bsp.spectral.Periodogram(t, w)
     multi = bsp.spectral.Multitaper(t, w)
-    
+
     # loop accros realizations
     for k in range(1, M):
-        w = bsp.utils.bivariatewhiteNoise(N, S0,  P=P0, theta=theta0)
-        
+        w = bsp.signals.bivariatewhiteNoise(N, S0,  P=P0, theta=theta0)
+
         per2 = bsp.spectral.Periodogram(t, w)
         multi2 = bsp.spectral.Multitaper(t, w)
         per = per + per2
         multi = multi + multi2
-    
+
     # normalize by M
     per = 1./M * per
     multi = 1./M * multi
+
 
 By default, the ``Multitaper`` class assumes a bandwidth ``bw`` of 2.5
 frequency samples, giving 4 Slepian tapers.
@@ -115,31 +107,33 @@ frequency samples, giving 4 Slepian tapers.
 The next step is to normalize the Stokes parameters
 :math:`S_1, S_2, S_3` by the intensity Stokes parameter :math:`S_0`
 
-.. code:: python
+.. code:: ipython3
 
     per.normalize()
     multi.normalize()
 
 We can now display the results for both methods
 
-.. code:: python
+.. code:: ipython3
 
     fig, axes = per.plot()
+
 
 
 .. image:: spectralanalysisTutorial_files/output_17_1.png
 
 
-.. code:: python
+.. code:: ipython3
 
     fig, ax = multi.plot()
+
 
 
 .. image:: spectralanalysisTutorial_files/output_18_1.png
 
 
-Both estimates permits to recover the main features of the bivariate
-WGN: power, degree of polarization and polarization state are recovered.
+Both estimates permit to recover the main features of the bivariate WGN:
+power, degree of polarization and polarization state are recovered.
 
 Then the usual discussion between periodogram and multitaper estimates
 apply: the multitaper estimate exhibits reduced leakage bias and less
@@ -150,19 +144,19 @@ Example 2: bivariate monochromatic signal in white noise
 
 We proceed similarly. First define the different parameters:
 
-.. code:: python
+.. code:: ipython3
 
     N = 1024 # length of the signal
-    
+
     t = np.arange(0, N) # time vector
     dt = (t[1]-t[0])
-    
+
     # bivariate monochromatic signal parameters
-    a = 1/sqrt(N*dt) # amplitude = 1
+    a = 1/np.sqrt(N*dt) # amplitude = 1
     theta = -np.pi/3 # polarization angle
     chi = np.pi/8 # ellipticity parameter
     f0 = 128/N/dt # frequency
-    
+
     # bivariate WGN noise paramerters
     S0_w = 10**(-2) # power of the bivariate WGN
     Phi_w = .2 # degree of polarization
@@ -172,22 +166,19 @@ Now, simulate a bivariate monochromatic signal (note the use of the
 argument ``complexOutput`` which provides a complex output (useful for
 plots), rather than a quaternion-valued output (useful for computations)
 
-.. code:: python
+.. code:: ipython3
 
-    x = bsp.utils.bivariateAMFM(a, theta, chi, 2*np.pi*f0*t, complexOutput=True, Hembedding=False)
+    x = bsp.signals.bivariateAMFM(a, theta, chi, 2*np.pi*f0*t)
 
 Let us have a look at the bivariate signal itself
 
-.. code:: python
+.. code:: ipython3
 
-    fig, ax = plt.subplots()
-    ax.plot(x.real, x.imag, color='k')
-    
-    ax.set_xlabel('real axis')
-    ax.set_ylabel('imaginary axis')
+    fig, ax = bsp.utils.visual.plot2D(t, x)
 
 
-.. image:: spectralanalysisTutorial_files/output_25_1.png
+
+.. image:: spectralanalysisTutorial_files/output_25_0.png
 
 
 Again, we compare 2 spectral density estimation methods:
@@ -198,31 +189,33 @@ Again, we compare 2 spectral density estimation methods:
 To do so, we simulate ``M`` independent realization of this bivariate
 WGN, and average across realizations each method output.
 
-.. code:: python
+.. code:: ipython3
 
     M = 20 # number of realizations
     y = np.zeros((N, M), dtype='quaternion')
-    
+
     # generate the data
     for k in range(M):
         phi = 2*np.pi*np.random.rand() # random initial phase term
-        x = bsp.utils.bivariateAMFM(a, theta, chi, 2*np.pi*f0*t+phi) # bivariate monochromatic signal
-        w = bsp.utils.bivariatewhiteNoise(N, S0_w, Phi_w, theta_w) # bivariate WGN
+        x = bsp.signals.bivariateAMFM(a, theta, chi, 2*np.pi*f0*t+phi) # bivariate monochromatic signal
+        w = bsp.signals.bivariatewhiteNoise(N, S0_w, Phi_w, theta_w) # bivariate WGN
         y[:, k] = x + w
-    
+
     # compute spectral estimates
     per = bsp.spectral.Periodogram(t, y[:, 0])
-    multi = bsp.spectral.Multitaper(t, y[:, 0], bw=3) 
+    multi = bsp.spectral.Multitaper(t, y[:, 0], bw=3)
     for k in range(1, M):
         per2 = bsp.spectral.Periodogram(t, y[:, k])
         multi2 = bsp.spectral.Multitaper(t, y[:, k], bw=3)
-        
+
         per = per + per2
         multi = multi + multi2
-    
-        
+
+
     per = 1./M * per
     multi = 1/M * multi
+
+
 
 Here the multitaper class is computed with a bandwidth ``bw = 3``
 frequency samples, giving 5 Slepian tapers.
@@ -230,23 +223,29 @@ frequency samples, giving 5 Slepian tapers.
 The next step is to normalize the Stokes parameters
 :math:`S_1, S_2, S_3` by the intensity Stokes parameter :math:`S_0`
 
-.. code:: python
+.. code:: ipython3
 
     per.normalize()
     multi.normalize()
 
 We can now display the results for both methods
 
-.. code:: python
+.. code:: ipython3
 
     fig, ax = per.plot()
+
+
+
 
 .. image:: spectralanalysisTutorial_files/output_31_1.png
 
 
-.. code:: python
+.. code:: ipython3
 
     fig, ax = multi.plot()
+
+
+
 
 .. image:: spectralanalysisTutorial_files/output_32_1.png
 
@@ -266,7 +265,7 @@ in
 ::
 
        S. L. Goh, M. Chen, D. H. Popovic, K. Aihara, D. Obradovic and D. P. Mandic, "Complex-Valued Forecasting of Wind Profile," Renewable Energy, vol. 31, pp. 1733-1750, 2006.
-       
+
 
 Quoting the included Readme: >- Wind data for 'low', 'medium' and 'high'
 dynamics regions. - Data are recorded using the Gill Instruments
@@ -281,14 +280,14 @@ Setting 1: low-wind
 
 We start by loading the data
 
-.. code:: python
+.. code:: ipython3
 
     import scipy.io as scio
     windData = scio.loadmat('datasets/wind/low-wind.mat')
-    
+
     u = windData['v_east'][:,0]
     v = windData['v_north'][:, 0]
-    
+
     N = np.size(u) # should be 5000
     dt = 1./50
 
@@ -301,44 +300,44 @@ underlying process. (Welch method with no overlap)
 
 Let's define a handy function:
 
-.. code:: python
+.. code:: ipython3
 
     def subsignal(u, v, Nx, k):
         '''subsamples u, v components and returns the associated quaternion signal'''
         uk = u[k*Nx:(k+1)*Nx]
         vk = v[k*Nx:(k+1)*Nx]
-        
+
         # to make it zero-mean
         uk = uk - np.mean(uk)
         vk = vk - np.mean(vk)
-        
-        return bsp.utils.sympSynth(uk, vk)
 
+        return bsp.utils.sympSynth(uk, vk)
 
 Then we compute the averaged multitaper estimate
 
-.. code:: python
+.. code:: ipython3
 
     # subsampling parameters
     Nw = 20 # number of subsamples
     Nx = N // Nw # length of one subsampled signal
-    
+
     # time index for subsampled signals
     tx = np.arange(Nx)*dt
-    
+
     xk = subsignal(u, v, Nx, 0)
-    
+
     multi = bsp.spectral.Multitaper(tx, xk)
     # loop across subsamples
     for k in range(1, Nw):
-        
+
         xk = subsignal(u, v, Nx, k)
         multi2 = bsp.spectral.Multitaper(tx, xk)
         multi = multi + multi2
-    
+
     # normalize and plot multitaper estimate
     multi.normalize()
     fig, ax = multi.plot()
+
 
 
 .. image:: spectralanalysisTutorial_files/output_39_2.png
@@ -357,35 +356,36 @@ Setting 2: moderate wind
 
 We follow the same procedure as above.
 
-.. code:: python
+.. code:: ipython3
 
     # load data
     windData = scio.loadmat('datasets/wind/medium-wind.mat')
-    
+
     u = windData['v_east'][:,0]
     v = windData['v_north'][:, 0]
-    
+
     N = np.size(u)
-    
+
     # we use an ergodic argument and split the signal into "sub-signals"
     Nw = 20
     Nx = N // Nw
     tx = np.arange(Nx)*dt
-    
+
     xk = subsignal(u, v, Nx, 0)
-    
+
     # compute spectral estimate
     multi = bsp.spectral.Multitaper(tx, xk)
     for k in range(1, Nw):
-        
+
         xk = subsignal(u, v, Nx, k)
         multi2 = bsp.spectral.Multitaper(tx, xk)
-        
+
         multi = multi + multi2
-    
+
     # normalize and plot multitaper estimate
     multi.normalize()
     fig, ax = multi.plot()
+
 
 
 .. image:: spectralanalysisTutorial_files/output_42_2.png
@@ -401,34 +401,35 @@ Setting 3: high-wind
 
 Again, same procedure.
 
-.. code:: python
+.. code:: ipython3
 
     # load data
     windData = scio.loadmat('datasets/wind/high-wind.mat')
-    
+
     u = windData['v_east'][:,0]
     v = windData['v_north'][:, 0]
-    
+
     N = np.size(u)
-    
+
     # we use an ergodic argument and split the signal into "sub-signals"
     Nw = 20
     Nx = N // Nw
     tx = np.arange(Nx)
-    
+
     xk = subsignal(u, v, Nx, 0)
-    
+
     # compute spectral estimate
     multi = bsp.spectral.Multitaper(tx, xk)
     for k in range(1, Nw):
-        
+
         xk = subsignal(u, v, Nx, k)
         multi2 = bsp.spectral.Multitaper(tx, xk)
-        
+
         multi = multi + multi2
     # normalize and plot multitaper estimate
     multi.normalize()
-    fig, ax = Multi.plot()
+    fig, ax = multi.plot()
+
 
 
 .. image:: spectralanalysisTutorial_files/output_45_2.png
