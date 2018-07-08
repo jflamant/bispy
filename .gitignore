@@ -10,3 +10,7 @@
 # doc files
 /doc/_build/
 /doc/generated/
+
+# notebooks
+*.ipynb_checkpoints
+/notebooks/datasets/
