@@ -106,7 +106,9 @@ class HermitianFilter(Filter):
         self.mu = muvec
 
     def output(self, x):
-        ''' returns the output of the filter given an input signal x'''
+        ''' returns the output of the filter given an input signal x
+
+        '''
 
         if np.size(x) != self.N:
             raise ValueError('Size of input array should be the same as the constructed filter')
@@ -121,6 +123,42 @@ class HermitianFilter(Filter):
         return y
 
 class UnitaryFilter(Filter):
+    '''
+    Unitary filter for bivariate signals.
+    The Unitary filtering relation reads in the QFT spectral domain:
+        Y(\nu) = exp(\mu(\nu) \alpha(\nu) / 2)X(\nu)exp(j\phi(nu))
+    where \phi(\nu) is phase delay of the filter, \mu is the axis of the filter
+    and \alpha(\nu) is birefringence angle.
+
+    Parameters
+    ----------
+    N : int
+        length of the filter
+    mu : array_type (quaternion)
+        birefringence axis quaternion array (should be of size N and of dtype quaternion).
+    alpha : array_type
+        birefringence angle array (should be of size N). If alpha is a float, then a alpha is assumed constant throughout frequencies.
+
+    phi : array_type or float
+        phase delay array (should be of size N). If phi is a float, then a
+        constant phase delay is assumed throughout frequencies.
+    dt : float (optional)
+        time sampling step (default 1)
+
+    Attributes
+    ----------
+    N : int
+        length of the filter
+
+    f : array_type
+        sampled frequencies
+
+    dt : float
+        time sampling step (default 1)
+
+    mu, alpha, phi : array_types
+        filter parameters
+    '''
     def __init__(self, N, mu, alpha, phi, dt=1.0):
         # initialize Filter
         Filter.__init__(self, N, dt=dt)
