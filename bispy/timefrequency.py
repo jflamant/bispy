@@ -317,6 +317,8 @@ class QSTFT(TFPrepresentation):
         It takes advantages of the scipy.signal.stft function for greater
         flexibility.
 
+        Parameters
+        ----------
         window, nperseg, noverlap, nfft, boundary : stft parameters
             See `scipy.signal.stft`
         tol : float, optional
