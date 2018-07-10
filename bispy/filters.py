@@ -29,15 +29,16 @@ class Filter(object):
 
 
 class HermitianFilter(Filter):
-    ''' Hermitian filter for bivariate signals.
+    '''
+    Hermitian filter for bivariate signals.
     The Hermitian filtering relations reads in the QFT spectral domain:
-        Y(nu) = K(nu)*[X(nu) - *eta(nu)*mu(nu)*X(\nu)*qj]
+        Y(nu) = K(nu)*[X(nu) - eta(nu)*mu(nu)*X(nu)*qj]
     where K is the homogeneous gain of the filter, eta is the polarizing power
     and mu the axis of the filter.
 
     Parameters
     ----------
-    
+
     N : int
         length of the filter
 
