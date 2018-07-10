@@ -31,27 +31,33 @@ class Filter(object):
 class HermitianFilter(Filter):
     ''' Hermitian filter for bivariate signals.
     The Hermitian filtering relations reads in the QFT spectral domain:
-        Y(\nu) = K(\nu)[X(\nu) - \eta(\nu)\mu(\nu)X(\nu)qj]
-    where K is the homogeneous gain of the filter, \eta is the polarizing power
-    and \mu the axis of the filter.
+        Y(nu) = K(nu)*[X(nu) - *eta(nu)*mu(nu)*X(\nu)*qj]
+    where K is the homogeneous gain of the filter, eta is the polarizing power
+    and mu the axis of the filter.
 
     Parameters
     ----------
+    
     N : int
         length of the filter
+
     K : array_type or float
         homogeneous gain array (should be of size N). If K is a float, then a
         constant gain is assumed throughout frequencies.
-    eta : array_type
+
+    eta : array_type or float
         polarizing power array (should be of size N). If eta is a float, then a
         constant polarizing is assumed throughout frequencies.
-    mu : array_type (quaternion)
+
+    mu : array_type (quaternion) or quaternion
         diattenuation axis quaternion array (should be of size N and of dtype quaternion).
+
     dt : float (optional)
         time sampling step (default 1)
 
     Attributes
     ----------
+
     N : int
         length of the filter
 
@@ -126,27 +132,32 @@ class UnitaryFilter(Filter):
     '''
     Unitary filter for bivariate signals.
     The Unitary filtering relation reads in the QFT spectral domain:
-        Y(\nu) = exp(\mu(\nu) \alpha(\nu) / 2)X(\nu)exp(j\phi(nu))
-    where \phi(\nu) is phase delay of the filter, \mu is the axis of the filter
-    and \alpha(\nu) is birefringence angle.
+        Y(nu) = exp(mu(nu)*alpha(nu) / 2)*X(nu)exp(1j*phi(nu))
+    where phi is phase delay of the filter, mu its axis and alpha is the
+    birefringence angle.
 
     Parameters
     ----------
+
     N : int
         length of the filter
+
     mu : array_type (quaternion)
         birefringence axis quaternion array (should be of size N and of dtype quaternion).
+
     alpha : array_type
-        birefringence angle array (should be of size N). If alpha is a float, then a alpha is assumed constant throughout frequencies.
+        birefringence angle array (should be of size N). If alpha is a float, then alpha is assumed constant throughout frequencies.
 
     phi : array_type or float
         phase delay array (should be of size N). If phi is a float, then a
         constant phase delay is assumed throughout frequencies.
+
     dt : float (optional)
         time sampling step (default 1)
 
     Attributes
     ----------
+
     N : int
         length of the filter
 
