@@ -179,6 +179,59 @@ class quaternionPSD(object):
         fig.subplots_adjust(left=0.05, right=0.95, wspace=0.05, top=0.92, bottom=0.12)
         return fig, ax
 
+    def plot(self, single_sided=True):
+        '''
+        Displays the quaternion PSD
+        '''
+
+        f = np.fft.fftshift(self.f)
+        # get geometric Parameters
+        __, theta, chi, Phi = utils.Stokes2geo(np.fft.fftshift(self.S0), np.fft.fftshift(self.S1), np.fft.fftshift(self.S2), np.fft.fftshift(self.S3))
+
+        # size of plot
+        A = np.random.rand(1, 3)
+        w, h = plt.figaspect(A)
+        labelsize= 20
+
+        fig, ax = plt.subplots(ncols=3, figsize=(w, h), gridspec_kw = {'width_ratios':[1, 1, 1]})
+
+        ax[0].plot(f, np.fft.fftshift(self.S0))
+        ax[1].plot(f, Phi)
+        ax[1].set_ylim(0, 1.05)
+        ax[1].set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+        # angles
+        ax[2].plot(f, theta, color='r')
+        ax[2].tick_params('y', colors='r')
+        ax[2].set_ylim(-np.pi/2, np.pi/2)
+
+
+        axchi = ax[2].twinx()
+        axchi.plot(f, chi, color='g')
+        axchi.tick_params('y', colors='g')
+        axchi.set_ylim(-np.pi/4, np.pi/4)
+        axchi.set_xlim(-np.pi/4, np.pi/4)
+
+        label =[r'$S_0$', r'$\Phi$', '']
+
+        if single_sided is True:
+            axchi.set_xlim(0, f.max())
+        axchi.set_aspect(1./axchi.get_data_ratio())
+        axchi.set_adjustable('box-forced')
+
+        for i, axis in enumerate(ax):
+            if single_sided is True:
+                axis.set_xlim(0, f.max())
+            axis.set_xlabel('Frequency [Hz]')
+            axis.set_aspect(1./axis.get_data_ratio())
+            axis.set_adjustable('box-forced')
+            axis.set_title(label[i], y = 0.85, size=labelsize)
+
+
+        ax[2].set_title(r'$\theta$', size=labelsize, color='r', x=0.1, y=0.9)
+        axchi.set_title(r'$\chi$', size=labelsize, color='g', x=0.9, y=0.9)
+
+        fig.subplots_adjust(left=0.05, right=0.95, wspace=0.1, top=0.92, bottom=0.12)
+        return fig, ax
 
 
 
