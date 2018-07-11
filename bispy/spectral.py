@@ -17,6 +17,170 @@ import scipy.signal as sg
 from . import qfft
 from . import utils
 
+class quaternionPSD(object):
+    '''
+    Quaternion Power Spectral Density constructor of the form:
+    Gamma_xx(nu) = S_0x(nu)*[1 + Phi_x(nu)*mu_x(nu)]
+
+    where S_0x is the PSD of the signal x, Phi_x(nu) is the degree of polarization of the signal and mu_x is the polarization axis.
+
+    Parameters
+    ----------
+    N : int
+        size of the frequencies array
+
+    S0x : array_type
+        PSD array of the signal
+
+    Phix : array_type
+        degree of polarization array
+
+    mux : array_type (quaternion)
+        polarization axis array
+
+    dt : float (optional)
+        time sampling size step
+
+    Attributes
+    ----------
+    S0, S1, S2, S3 : array_type
+        Stokes Parameters array
+
+    density : array_type
+        quaternion PSD
+
+    f : array_type
+        sampled frequencies array
+
+    Phi : array_type
+        degree of polarization
+
+    mu : array_type
+        polarization axis
+    '''
+
+    def __init__(self, N, S0x, Phix, mux, dt=1):
+
+        if mux.dtype != 'quaternion':
+            raise ValueError('polarization axis array should be of quaternion type.')
+        # several tests to ensure proper feed
+        for param in [S0x, Phix, mux]:
+            if np.size(param) != 1 and np.size(param) != N:
+                raise ValueError('Parameters should be either scalar or of size N')
+
+        if np.size(S0x) == 1:
+            S0xvec = np.ones(N)*S0x
+        else:
+            S0xvec = S0x
+        if np.size(Phix) == 1:
+            Phixvec = np.ones(N)*Phix
+        else:
+            Phixvec = Phix
+        if np.size(mux) ==1:
+            muxvec = np.ones(N)*mux/np.abs(mux)
+        else:
+            muxvec = np.zeros(N, dtype='quaternion')
+            valid = np.abs(mux) > 0
+            muxvec[valid] = mux[valid]/np.abs(mux)[valid]
+
+        if np.max(np.abs(Phixvec)) > 1:
+            raise ValueError('Degree of polarization shall not exceed 1')
+        elif np.min(Phixvec) < 0:
+            raise ValueError('Degree of polarization cannot be negative')
+        # save
+        self.f = np.fft.fftfreq(N, d=dt)
+        self.S0, self.Phi, self.mu = self.__ensureSym(S0xvec, Phixvec, muxvec)
+
+        self.density = self.S0*(1 + self.Phi*self.mu)
+
+        __, self.S1, self.S2, self.S3 = self._getStokes()
+
+    def __ensureSym(self, S0xvec, Phixvec, muxvec):
+        '''
+        Ensure symmetry relation on PSD parameters
+            Gamma_xx(-nu) =-i*conj(Gamma_xx(nu))*i
+        '''
+        N = np.size(self.f)
+        #
+        qi = quaternion.x
+
+        # SO(-v) = SO(v)
+        S0 = np.zeros_like(S0xvec)
+        S0[:N//2+1] = S0xvec[:N//2+1]
+        S0[N//2 +1:] = S0xvec[1:N//2][::-1]
+
+        # Phi(-v) = Phi(v)
+        Phi = np.zeros_like(Phixvec)
+        Phi[:N//2 +1] = Phixvec[:N//2+1]
+        Phi[N//2 +1:] = Phixvec[1:N//2][::-1]
+
+        # mu(-v) = conj_i(mu(v))
+        mu = np.zeros_like(muxvec)
+        mu[1:N//2] = muxvec[1:N//2]
+        mu[N//2 + 1:] = -qi*np.conj(muxvec[1:N//2][::-1])*qi
+        mu[0] = .5*(mu[1] + mu[-1])
+        mu[N//2] = .5*(mu[N//2+1] + mu[N//2-1])
+
+        return S0, Phi, mu
+
+    def _getStokes(self):
+        '''Low-level function.
+        Extract extract Stokes parameters from the spectral density
+        \Gamma_{xx}.
+        Recall that
+
+            \Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
+
+        Returns
+        -------
+        S0, S1, S2, S2: array_type
+            Stokes parameters
+        '''
+        g1, g2 = utils.sympSplit(self.density)
+
+        S0 = g1.real
+        S1 = g1.imag
+        S3 = g2.real
+        S2 = g2.imag
+
+        return S0, S1, S2, S3
+
+    def plotStokes(self, single_sided=True):
+        '''
+        Displays Stokes Parameters S0, S1, S2, S3
+        '''
+
+        f = np.fft.fftshift(self.f)
+
+        # size of plot
+        A = np.random.rand(1, 4)
+        w, h = plt.figaspect(A)
+        labelsize= 20
+
+        fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
+
+        im0 = ax[0].plot(f, np.fft.fftshift(self.S0))
+        im1 = ax[1].plot(f, np.fft.fftshift(self.S1))
+        im2 = ax[2].plot(f, np.fft.fftshift(self.S2))
+        im3 = ax[3].plot(f, np.fft.fftshift(self.S3))
+
+        label =[r'$S_0$', r'$S_1$', r'$S_2$', r'$S_3$']
+        for i, axis in enumerate(ax):
+            if single_sided is True:
+                axis.set_xlim(0, f.max())
+            axis.set_xlabel('Frequency [Hz]')
+            axis.set_aspect(1./axis.get_data_ratio())
+            axis.set_adjustable('box-forced')
+            axis.set_title(label[i], y = 0.85, size=labelsize)
+
+
+
+        # set ylabls
+        fig.subplots_adjust(left=0.05, right=0.95, wspace=0.05, top=0.92, bottom=0.12)
+        return fig, ax
+
+
+
 
 class Periodogram(object):
     '''
