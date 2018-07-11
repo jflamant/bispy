@@ -6,6 +6,11 @@
 ********************************************
 
 
+Quaternion PSD
+--------------
+
+.. autoclass:: quaternionPSD
+   :members:
 
 Periodogram
 -----------
