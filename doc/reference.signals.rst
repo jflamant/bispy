@@ -13,3 +13,6 @@ Prototype signals
 
    bivariateAMFM
    bivariatewhiteNoise
+
+.. autoclass:: stationaryBivariate
+  :members:
