@@ -8,6 +8,66 @@ import numpy as np
 import quaternion
 
 from .utils import euler2quat, sympSynth
+from .filters import HermitianFilter
+from .spectral import quaternionPSD
+
+class stationaryBivariate(HermitianFilter):
+    '''
+    Simulates realizations of a stationary Gaussian random bivariate sequence with specficied quaternion PSD.
+
+    The simulation method relies on spectral synthesis and is approximate.
+    The quality of the approximation increases with the size N (aka the number of frequency bins).
+
+
+    Parameters
+    ----------
+    targetPSD: quaternionPSD object
+        target PSD of the signal to sample from
+
+    Attributes
+    ----------
+    simulation : array_type
+        array of size (M, N) where M is the number of independent realizations of the signal and N is the length of the simulated sequence.
+
+    '''
+
+    def __init__(self, targetPSD):
+        # check input is a quaternionPSD object
+        if isinstance(targetPSD, quaternionPSD) is False:
+            raise ValueError("target PSD should be a quaternionPSD object")
+
+        N = targetPSD.N
+        dt = targetPSD.dt
+
+        # filter parameters
+        mu = targetPSD.mu
+
+        eta = np.zeros_like(targetPSD.Phi)
+        valid = targetPSD.Phi > 0
+        eta[valid] = (1-np.sqrt(1-targetPSD.Phi[valid]**2))/targetPSD.Phi[valid]
+        K = np.sqrt(targetPSD.S0/(1+eta**2))
+
+        super(stationaryBivariate, self).__init__(N, K, eta, mu, dt=dt)
+
+        self.simulation = None
+
+    def simulate(self, M):
+        '''
+        Simulate realizations of the stationary Gaussian random bivariate signal with specified quaternion PSD.
+
+        Parameters
+        ----------
+        M : int
+            number of independent realizations to simulate
+
+        '''
+        self.simulation = np.zeros((M, self.N), dtype='quaternion')
+        for m in range(M):
+            w = bivariatewhiteNoise(self.N, 1)
+            self.simulation[m, :] =  self.output(w)
+
+
+
 
 def bivariateAMFM(a, theta, chi, phi, Hembedding=True, complexOutput=False):
 
