@@ -88,6 +88,8 @@ class quaternionPSD(object):
         elif np.min(Phixvec) < 0:
             raise ValueError('Degree of polarization cannot be negative')
         # save
+        self.N = N
+        self.dt = dt
         self.f = np.fft.fftfreq(N, d=dt)
         self.S0, self.Phi, self.mu = self.__ensureSym(S0xvec, Phixvec, muxvec)
 
