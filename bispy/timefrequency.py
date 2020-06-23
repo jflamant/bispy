@@ -207,7 +207,7 @@ class TFPrepresentation(object):
             for i, axis in enumerate(ax):
                 axis.set_xlabel('Time')
                 axis.set_aspect(1./axis.get_data_ratio())
-                axis.set_adjustable('box-forced')
+                axis.set_adjustable('box')
                 axis.set_title(label[i], y = 0.85, size=labelsize)
                 axis.set_xlim(self.t.min(), self.t.max())
 
@@ -243,7 +243,7 @@ class TFPrepresentation(object):
             for i, axis in enumerate(ax):
                 axis.set_xlabel('Time')
                 axis.set_aspect(1./axis.get_data_ratio())
-                axis.set_adjustable('box-forced')
+                axis.set_adjustable('box')
                 axis.set_title(label[i], y = 0.85, size=labelsize)
                 axis.set_xlim(self.t.min(), self.t.max())
 
@@ -532,7 +532,7 @@ class QSTFT(TFPrepresentation):
             axis.set_ylim([0, self.f.max()])
             axis.set_xlim(self.t.min(), self.t.max())
             axis.set_aspect(1./axis.get_data_ratio())
-            axis.set_adjustable('box-forced')
+            axis.set_adjustable('box')
 
 
         cbarax0 = fig.add_axes([0.09, 0.83, 0.224, 0.03])
