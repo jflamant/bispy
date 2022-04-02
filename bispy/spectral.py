@@ -693,8 +693,8 @@ def _plotResultSpectral(t, sig, spe):
     boundsS0min = np.min(spe.S0)
     boundsS0max = np.max(spe.S0)
 
-    logBoundsmin = np.floor(np.log10(boundsS0min))
-    logBoundsmax = np.ceil(np.log10(boundsS0max))
+    logBoundsmin = int(np.floor(np.log10(boundsS0min)))
+    logBoundsmax = int(np.ceil(np.log10(boundsS0max)))
 
     ax_S0.spines['left'].set_bounds(0.6*10**(logBoundsmin), 1.4*10**(logBoundsmax))
 
