@@ -7,7 +7,7 @@ Module for the synthesis of prototype bivariate signals
 import numpy as np
 import quaternion
 
-from .utils import euler2quat, sympSynth
+from .utils import euler2quat, sympSynth, sympSplit
 from .filters import HermitianFilter
 from .spectral import quaternionPSD
 
