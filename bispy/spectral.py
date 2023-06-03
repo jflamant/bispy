@@ -131,7 +131,7 @@ class quaternionPSD(object):
         Extract extract Stokes parameters from the spectral density
         Recall that
 
-            \Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
+            Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
 
         Returns
         -------
@@ -363,7 +363,7 @@ class Periodogram(object):
         Extract extract Stokes parameters from the spectral density
         Recall that
 
-            \Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
+            Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
 
         Returns
         -------
@@ -561,11 +561,11 @@ class Multitaper(object):
         return self * scalar
 
     def _getStokes(self):
-        '''Low-level function.
+        r'''Low-level function.
         Extract extract Stokes parameters from the spectral density
         Recall that
 
-            \Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
+            Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
 
         Returns
         -------
