@@ -8,8 +8,8 @@
 *.swo
 
 # doc files
-/doc/_build/
-/doc/generated/
+/docs/_build/
+/docs/generated/
 
 # notebooks
 *.ipynb_checkpoints
