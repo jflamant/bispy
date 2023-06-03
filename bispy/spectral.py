@@ -312,7 +312,9 @@ class Periodogram(object):
         self.Phi = np.zeros_like(self.S0)
 
     def compute(self):
-        ''' Low-level function. Compute Periodogram estimate'''
+        '''
+        Low-level function. Compute Periodogram estimate
+        '''
         # compute the QFT of x
         dt = (self.t[1] - self.t[0])
         N = np.size(self.signal, 0)
@@ -357,7 +359,8 @@ class Periodogram(object):
         return self * scalar
 
     def _getStokes(self):
-        '''Low-level function.
+        '''
+        Low-level function.
         Extract extract Stokes parameters from the spectral density
         \Gamma_{xx}.
         Recall that
