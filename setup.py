@@ -50,7 +50,7 @@ setup(
         'Development Status :: 3 - Alpha',
 
         # Indicate who your project is intended for
-        'Intended Audience :: Researchers',
+        'Intended Audience :: Science/Research',
 
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: MIT License',
