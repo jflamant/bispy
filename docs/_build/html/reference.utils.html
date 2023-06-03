@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils - Utility functions &mdash; BiSPy 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bispy.utils.sympSplit" href="generated/bispy.utils.sympSplit.html" />
+    <link rel="prev" title="bispy.qfft.Qfftfreq" href="generated/bispy.qfft.Qfftfreq.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BiSPy
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="reference.html">Reference manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="reference.qfft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qfft</span></code> - Quaternion Fourier Transforms</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> - Utility functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#quaternion-specific-operations">Quaternion specific operations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.utils.sympSplit.html">bispy.utils.sympSplit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.utils.sympSynth.html">bispy.utils.sympSynth</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.utils.StokesNorm.html">bispy.utils.StokesNorm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.utils.normalizeStokes.html">bispy.utils.normalizeStokes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.utils.Stokes2geo.html">bispy.utils.Stokes2geo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.utils.geo2Stokes.html">bispy.utils.geo2Stokes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.utils.quat2euler.html">bispy.utils.quat2euler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.utils.euler2quat.html">bispy.utils.euler2quat</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#windows-functions">Windows functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bispy.utils.windows"><code class="docutils literal notranslate"><span class="pre">windows</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#graphical-tools">Graphical tools</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bispy.utils.visual"><code class="docutils literal notranslate"><span class="pre">visual</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.timefrequency.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">timefrequency</span></code> - Time-Frequency representations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.spectral.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">spectral</span></code> - Spectral analysis routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.filters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">filters</span></code> - LTI filters for bivariate signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.signals.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signals</span></code> - generating bivariate signals</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BiSPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="reference.html">Reference manual</a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> - Utility functions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/reference.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils-utility-functions">
+<span id="reference-utils"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> - Utility functions<a class="headerlink" href="#utils-utility-functions" title="Permalink to this heading"></a></h1>
+<section id="quaternion-specific-operations">
+<h2>Quaternion specific operations<a class="headerlink" href="#quaternion-specific-operations" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bispy.utils.sympSplit.html#bispy.utils.sympSplit" title="bispy.utils.sympSplit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sympSplit</span></code></a>(q)</p></td>
+<td><p>Splits a quaternion array into two complex arrays.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bispy.utils.sympSynth.html#bispy.utils.sympSynth" title="bispy.utils.sympSynth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sympSynth</span></code></a>(q_1, q_2)</p></td>
+<td><p>Constructs a quaternion array from two complex arrays.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bispy.utils.StokesNorm.html#bispy.utils.StokesNorm" title="bispy.utils.StokesNorm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StokesNorm</span></code></a>(q)</p></td>
+<td><p>Return the Stokes-Poincaré norm of a quaternion.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bispy.utils.normalizeStokes.html#bispy.utils.normalizeStokes" title="bispy.utils.normalizeStokes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalizeStokes</span></code></a>(S0, S1, S2, S3[, tol])</p></td>
+<td><p>Normalize Stokes parameters S1, S2, S3  by S0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bispy.utils.Stokes2geo.html#bispy.utils.Stokes2geo" title="bispy.utils.Stokes2geo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stokes2geo</span></code></a>(S0, S1, S2, S3[, tol])</p></td>
+<td><p>Return geometric parameters from Stokes parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bispy.utils.geo2Stokes.html#bispy.utils.geo2Stokes" title="bispy.utils.geo2Stokes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geo2Stokes</span></code></a>(a, theta, chi[, Phi])</p></td>
+<td><p>Compute Stokes parameters from geometric parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bispy.utils.quat2euler.html#bispy.utils.quat2euler" title="bispy.utils.quat2euler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quat2euler</span></code></a>(q)</p></td>
+<td><p>Euler polar form of a quaternion array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bispy.utils.euler2quat.html#bispy.utils.euler2quat" title="bispy.utils.euler2quat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">euler2quat</span></code></a>(a, theta, chi, phi)</p></td>
+<td><p>Quaternion from Euler polar form.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="windows-functions">
+<h2>Windows functions<a class="headerlink" href="#windows-functions" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bispy.utils.windows">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bispy.utils.</span></span><span class="sig-name descname"><span class="pre">windows</span></span><a class="reference internal" href="_modules/bispy/utils.html#windows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.utils.windows" title="Permalink to this definition"></a></dt>
+<dd><p>Windows functions static methods.</p>
+<p>These window functions are provided for convenience, and are meant to be
+used with the QSTFT class.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gaussian</span></code>(N[, sigma])</p></td>
+<td><p>Gaussian window</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hamming</span></code>(N)</p></td>
+<td><p>Hamming window</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hanning</span></code>(N)</p></td>
+<td><p>Hanning window</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rectangle</span></code>(N)</p></td>
+<td><p>Rectangle window</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+<section id="graphical-tools">
+<h2>Graphical tools<a class="headerlink" href="#graphical-tools" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bispy.utils.visual">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bispy.utils.</span></span><span class="sig-name descname"><span class="pre">visual</span></span><a class="reference internal" href="_modules/bispy/utils.html#visual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.utils.visual" title="Permalink to this definition"></a></dt>
+<dd><p>Static methods for visualization of bivariate signals.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.utils.visual.plot2D" title="bispy.utils.visual.plot2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot2D</span></code></a>(t, q[, labels])</p></td>
+<td><p>2D plot of a bivariate signal.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bispy.utils.visual.plot3D" title="bispy.utils.visual.plot3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot3D</span></code></a>(t, q)</p></td>
+<td><p>3D plot of a bivariate signal</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.utils.visual.plot2D">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['u(t)',</span> <span class="pre">'v(t)']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/utils.html#visual.plot2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.utils.visual.plot2D" title="Permalink to this definition"></a></dt>
+<dd><p>2D plot of a bivariate signal.</p>
+<p>Plots the 2D trace, and time evolution of each component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t, q</strong><span class="classifier">array_type</span></dt><dd><p>time and signal arrays (signal array may be either complex or quaternion type)</p>
+</dd>
+<dt><strong>labels</strong><span class="classifier">[label1, label2]</span></dt><dd><p>list of labels to display.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig, ax</strong><span class="classifier">figure and axis handles</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.utils.visual.plot3D">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/utils.html#visual.plot3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.utils.visual.plot3D" title="Permalink to this definition"></a></dt>
+<dd><p>3D plot of a bivariate signal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t, q</strong><span class="classifier">array_type</span></dt><dd><p>time and signal arrays (signal array may be either complex or quaternion type)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig, ax</strong><span class="classifier">figure and axis handles</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="generated/bispy.qfft.Qfftfreq.html" class="btn btn-neutral float-left" title="bispy.qfft.Qfftfreq" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/bispy.utils.sympSplit.html" class="btn btn-neutral float-right" title="bispy.utils.sympSplit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2018, Julien Flamant.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spectral analysis of bivariate signals: tutorial &mdash; BiSPy 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reference manual" href="../reference.html" />
+    <link rel="prev" title="Time-Frequency-Polarization analysis: tutorial" href="timefrequency.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BiSPy
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="timefrequency.html">Time-Frequency-Polarization analysis: tutorial</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Spectral analysis of bivariate signals: tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#load-bispy-and-necessary-modules">Load <code class="docutils literal notranslate"><span class="pre">bispy</span></code> and necessary modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synthetic-examples">Synthetic examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#example-1-bivariate-white-noise-only">Example 1: Bivariate white noise only</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-2-bivariate-monochromatic-signal-in-white-noise">Example 2: bivariate monochromatic signal in white noise</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#a-real-case-example-spectral-analysis-of-wind-measurements">A real case example: spectral analysis of wind measurements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-1-low-wind">Setting 1: low-wind</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setting-2-moderate-wind">Setting 2: moderate wind</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setting-3-high-wind">Setting 3: high-wind</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference manual</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BiSPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Spectral analysis of bivariate signals: tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/spectralanalysis.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spectral-analysis-of-bivariate-signals-tutorial">
+<h1>Spectral analysis of bivariate signals: tutorial<a class="headerlink" href="#spectral-analysis-of-bivariate-signals-tutorial" title="Permalink to this heading"></a></h1>
+<p>This tutorial aims at demonstrating different tools available within the
+<code class="docutils literal notranslate"><span class="pre">spectral</span></code> module of <code class="docutils literal notranslate"><span class="pre">BiSPy</span></code>. The examples provided here come along
+with the paper</p>
+<ul class="simple">
+<li><p>Julien Flamant, Nicolas Le Bihan, Pierre Chainais: “Spectral analysis
+of stationary random bivariate signals”, IEEE Transactions on Signal
+Processing, 2017;
+<a class="reference external" href="http://arxiv.org/abs/1703.06417">arXiv:1703.06417</a>,
+<a class="reference external" href="https://doi.org/10.1109/TSP.2017.2736494">doi:10.1109/TSP.2017.2736494</a></p></li>
+</ul>
+<p>The paper contains theoretical results and several applications that can
+be reproduced with the following tutorial. A completementary notebook
+version is available
+<a class="reference external" href="https://github.com/jflamant/bispy/blob/master/notebooks/spectralanalysisTutorial.ipynb">here</a>.</p>
+<section id="load-bispy-and-necessary-modules">
+<h2>Load <code class="docutils literal notranslate"><span class="pre">bispy</span></code> and necessary modules<a class="headerlink" href="#load-bispy-and-necessary-modules" title="Permalink to this heading"></a></h2>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+import matplotlib.pyplot as plt
+import quaternion  # load the quaternion module
+import bispy as bsp
+</pre></div>
+</div>
+</section>
+<section id="synthetic-examples">
+<h2>Synthetic examples<a class="headerlink" href="#synthetic-examples" title="Permalink to this heading"></a></h2>
+<p>The following examples are presented in the aforementioned paper. The
+module <code class="docutils literal notranslate"><span class="pre">bispy.signals</span></code> gives useful functions to generate the synthetic
+signals presented.</p>
+<section id="example-1-bivariate-white-noise-only">
+<h3>Example 1: Bivariate white noise only<a class="headerlink" href="#example-1-bivariate-white-noise-only" title="Permalink to this heading"></a></h3>
+<p>First let us define the constants defining the polarization properties
+of the bivariate white gaussian noise.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>N = 1024 # length of the signal
+S0 = 1 # power of the bivariate WGN
+P0 = .5 # degree of polarization
+theta0 = np.pi/4 # angle of linear polarization
+
+t = np.arange(0, N) # time vector
+</pre></div>
+</div>
+<p>First simulate a realization of this bivariate WGN:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>w = bsp.signals.bivariatewhiteNoise(N, S0, P=P0, theta=theta0)
+</pre></div>
+</div>
+<p>Now, display this signal</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = bsp.utils.visual.plot2D(t, w)
+</pre></div>
+</div>
+<img alt="../_images/output_9_0.png" src="../_images/output_9_0.png" />
+<p>The goal is now to compare 2 spectral density estimation methods:</p>
+<ul class="simple">
+<li><p>an averaged polarization periodogram</p></li>
+<li><p>an averaged multitaper estimate using Slepian tapers.</p></li>
+</ul>
+<p>To do so, we simulate <code class="docutils literal notranslate"><span class="pre">M</span></code> independent realization of this bivariate
+WGN, and average across realizations each method output.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>M = 10 # number of independent realization of the WGN
+</pre></div>
+</div>
+<p>The periodogram and multitaper estimates are computed like:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>w = bsp.signals.bivariatewhiteNoise(N, S0, P=P0, theta=theta0)
+# compute spectral estimates
+per = bsp.spectral.Periodogram(t, w)
+multi = bsp.spectral.Multitaper(t, w)
+
+# loop accros realizations
+for k in range(1, M):
+    w = bsp.signals.bivariatewhiteNoise(N, S0,  P=P0, theta=theta0)
+
+    per2 = bsp.spectral.Periodogram(t, w)
+    multi2 = bsp.spectral.Multitaper(t, w)
+    per = per + per2
+    multi = multi + multi2
+
+# normalize by M
+per = 1./M * per
+multi = 1./M * multi
+</pre></div>
+</div>
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">Multitaper</span></code> class assumes a bandwidth <code class="docutils literal notranslate"><span class="pre">bw</span></code> of 2.5
+frequency samples, giving 4 Slepian tapers.</p>
+<p>The next step is to normalize the Stokes parameters
+<img class="math" src="../_images/math/3010a5a683af50ff0e56be122b986e280e982603.png" alt="S_1, S_2, S_3"/> by the intensity Stokes parameter <img class="math" src="../_images/math/182ab051139a312c2a7ee4d721792fe87d23eef3.png" alt="S_0"/></p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>per.normalize()
+multi.normalize()
+</pre></div>
+</div>
+<p>We can now display the results for both methods</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, axes = per.plot()
+</pre></div>
+</div>
+<img alt="../_images/output_17_1.png" src="../_images/output_17_1.png" />
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = multi.plot()
+</pre></div>
+</div>
+<img alt="../_images/output_18_1.png" src="../_images/output_18_1.png" />
+<p>Both estimates permit to recover the main features of the bivariate WGN:
+power, degree of polarization and polarization state are recovered.</p>
+<p>Then the usual discussion between periodogram and multitaper estimates
+apply: the multitaper estimate exhibits reduced leakage bias and less
+variance than the periodogram estimate.</p>
+</section>
+<section id="example-2-bivariate-monochromatic-signal-in-white-noise">
+<h3>Example 2: bivariate monochromatic signal in white noise<a class="headerlink" href="#example-2-bivariate-monochromatic-signal-in-white-noise" title="Permalink to this heading"></a></h3>
+<p>We proceed similarly. First define the different parameters:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>N = 1024 # length of the signal
+
+t = np.arange(0, N) # time vector
+dt = (t[1]-t[0])
+
+# bivariate monochromatic signal parameters
+a = 1/np.sqrt(N*dt) # amplitude = 1
+theta = -np.pi/3 # polarization angle
+chi = np.pi/8 # ellipticity parameter
+f0 = 128/N/dt # frequency
+
+# bivariate WGN noise paramerters
+S0_w = 10**(-2) # power of the bivariate WGN
+Phi_w = .2 # degree of polarization
+theta_w = np.pi/8 # angle of linear polarization
+</pre></div>
+</div>
+<p>Now, simulate a bivariate monochromatic signal (note the use of the
+argument <code class="docutils literal notranslate"><span class="pre">complexOutput</span></code> which provides a complex output (useful for
+plots), rather than a quaternion-valued output (useful for computations)</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>x = bsp.signals.bivariateAMFM(a, theta, chi, 2*np.pi*f0*t)
+</pre></div>
+</div>
+<p>Let us have a look at the bivariate signal itself</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = bsp.utils.visual.plot2D(t, x)
+</pre></div>
+</div>
+<img alt="../_images/output_25_0.png" src="../_images/output_25_0.png" />
+<p>Again, we compare 2 spectral density estimation methods:</p>
+<ul class="simple">
+<li><p>an averaged polarization periodogram</p></li>
+<li><p>an averaged multitaper estimate using Slepian tapers.</p></li>
+</ul>
+<p>To do so, we simulate <code class="docutils literal notranslate"><span class="pre">M</span></code> independent realization of this bivariate
+WGN, and average across realizations each method output.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>M = 20 # number of realizations
+y = np.zeros((N, M), dtype=&#39;quaternion&#39;)
+
+# generate the data
+for k in range(M):
+    phi = 2*np.pi*np.random.rand() # random initial phase term
+    x = bsp.signals.bivariateAMFM(a, theta, chi, 2*np.pi*f0*t+phi) # bivariate monochromatic signal
+    w = bsp.signals.bivariatewhiteNoise(N, S0_w, Phi_w, theta_w) # bivariate WGN
+    y[:, k] = x + w
+
+# compute spectral estimates
+per = bsp.spectral.Periodogram(t, y[:, 0])
+multi = bsp.spectral.Multitaper(t, y[:, 0], bw=3)
+for k in range(1, M):
+    per2 = bsp.spectral.Periodogram(t, y[:, k])
+    multi2 = bsp.spectral.Multitaper(t, y[:, k], bw=3)
+
+    per = per + per2
+    multi = multi + multi2
+
+
+per = 1./M * per
+multi = 1/M * multi
+</pre></div>
+</div>
+<p>Here the multitaper class is computed with a bandwidth <code class="docutils literal notranslate"><span class="pre">bw</span> <span class="pre">=</span> <span class="pre">3</span></code>
+frequency samples, giving 5 Slepian tapers.</p>
+<p>The next step is to normalize the Stokes parameters
+<img class="math" src="../_images/math/3010a5a683af50ff0e56be122b986e280e982603.png" alt="S_1, S_2, S_3"/> by the intensity Stokes parameter <img class="math" src="../_images/math/182ab051139a312c2a7ee4d721792fe87d23eef3.png" alt="S_0"/></p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>per.normalize()
+multi.normalize()
+</pre></div>
+</div>
+<p>We can now display the results for both methods</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = per.plot()
+</pre></div>
+</div>
+<img alt="../_images/output_31_1.png" src="../_images/output_31_1.png" />
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = multi.plot()
+</pre></div>
+</div>
+<img alt="../_images/output_32_1.png" src="../_images/output_32_1.png" />
+</section>
+</section>
+<section id="a-real-case-example-spectral-analysis-of-wind-measurements">
+<h2>A real case example: spectral analysis of wind measurements<a class="headerlink" href="#a-real-case-example-spectral-analysis-of-wind-measurements" title="Permalink to this heading"></a></h2>
+<p>We turn to a real-life example to illustrate the general relevance of
+the method.</p>
+<p>We consider a dataset of instantaneous wind measurements (east and
+northward velocities). The dataset is available for download at
+<a class="reference external" href="http://www.commsp.ee.ic.ac.uk/~mandic/research/WL_Complex_Stuff.htm">http://www.commsp.ee.ic.ac.uk/~mandic/research/WL_Complex_Stuff.htm</a>.
+This dataset has been used by the authors in several publications, e.g.
+in</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">S</span><span class="o">.</span> <span class="n">L</span><span class="o">.</span> <span class="n">Goh</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span> <span class="n">Chen</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span> <span class="n">H</span><span class="o">.</span> <span class="n">Popovic</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span> <span class="n">Aihara</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span> <span class="n">Obradovic</span> <span class="ow">and</span> <span class="n">D</span><span class="o">.</span> <span class="n">P</span><span class="o">.</span> <span class="n">Mandic</span><span class="p">,</span> <span class="s2">&quot;Complex-Valued Forecasting of Wind Profile,&quot;</span> <span class="n">Renewable</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">vol</span><span class="o">.</span> <span class="mi">31</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span> <span class="mi">1733</span><span class="o">-</span><span class="mi">1750</span><span class="p">,</span> <span class="mf">2006.</span>
+</pre></div>
+</div>
+<p>Quoting the included Readme: &gt;- Wind data for ‘low’, ‘medium’ and ‘high’
+dynamics regions. - Data are recorded using the Gill Instruments
+WindMaster, the 2D ultrasonic anemometer - Wind was sampled at 32 Hz and
+resampled at 50Hz, and the two channels correspond to the the “north”
+and “east” direction - To make a complex-valued wind signal, combine
+z=v_n + j v_e, where ‘v’ is wind speed and ‘n’ and ‘e’ the north and
+east directions - Data length = 5000 samples</p>
+<section id="setting-1-low-wind">
+<h3>Setting 1: low-wind<a class="headerlink" href="#setting-1-low-wind" title="Permalink to this heading"></a></h3>
+<p>We start by loading the data</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import scipy.io as scio
+windData = scio.loadmat(&#39;datasets/wind/low-wind.mat&#39;)
+
+u = windData[&#39;v_east&#39;][:,0]
+v = windData[&#39;v_north&#39;][:, 0]
+
+N = np.size(u) # should be 5000
+dt = 1./50
+</pre></div>
+</div>
+<p>Estimating polarization features in bivariate signals requires ideally
+multiple measurements/realizations. We will fake this out using an
+ergodic hypothesis. This thus split the signal into <code class="docutils literal notranslate"><span class="pre">Nw</span></code> subsignals,
+and compute for each a spectral estimate. By averaging out spectral
+estimates, one obtains a estimate of the spectral density of the
+underlying process. (Welch method with no overlap)</p>
+<p>Let’s define a handy function:</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def subsignal(u, v, Nx, k):
+    &#39;&#39;&#39;subsamples u, v components and returns the associated quaternion signal&#39;&#39;&#39;
+    uk = u[k*Nx:(k+1)*Nx]
+    vk = v[k*Nx:(k+1)*Nx]
+
+    # to make it zero-mean
+    uk = uk - np.mean(uk)
+    vk = vk - np.mean(vk)
+
+    return bsp.utils.sympSynth(uk, vk)
+</pre></div>
+</div>
+<p>Then we compute the averaged multitaper estimate</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># subsampling parameters
+Nw = 20 # number of subsamples
+Nx = N // Nw # length of one subsampled signal
+
+# time index for subsampled signals
+tx = np.arange(Nx)*dt
+
+xk = subsignal(u, v, Nx, 0)
+
+multi = bsp.spectral.Multitaper(tx, xk)
+# loop across subsamples
+for k in range(1, Nw):
+
+    xk = subsignal(u, v, Nx, k)
+    multi2 = bsp.spectral.Multitaper(tx, xk)
+    multi = multi + multi2
+
+# normalize and plot multitaper estimate
+multi.normalize()
+fig, ax = multi.plot()
+</pre></div>
+</div>
+<img alt="../_images/output_39_2.png" src="../_images/output_39_2.png" />
+<p>The total power spectrum <img class="math" src="../_images/math/8c5f3f81eb164875d5d0b09483478be1a7547eac.png" alt="S_0(\nu)"/> exhibits a power-law like
+shape.</p>
+<p>Looking at the degree of polarization <img class="math" src="../_images/math/908365c4a9a0be9e8b14578f9a9cdc354cd83e4a.png" alt="\Phi(\nu)"/>, we see that the
+signal is almost unpolarized at all frequencies, except for frequencies
+below 0.5 Hz, where we notice a small increase in the degree of
+polarization.</p>
+</section>
+<section id="setting-2-moderate-wind">
+<h3>Setting 2: moderate wind<a class="headerlink" href="#setting-2-moderate-wind" title="Permalink to this heading"></a></h3>
+<p>We follow the same procedure as above.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># load data
+windData = scio.loadmat(&#39;datasets/wind/medium-wind.mat&#39;)
+
+u = windData[&#39;v_east&#39;][:,0]
+v = windData[&#39;v_north&#39;][:, 0]
+
+N = np.size(u)
+
+# we use an ergodic argument and split the signal into &quot;sub-signals&quot;
+Nw = 20
+Nx = N // Nw
+tx = np.arange(Nx)*dt
+
+xk = subsignal(u, v, Nx, 0)
+
+# compute spectral estimate
+multi = bsp.spectral.Multitaper(tx, xk)
+for k in range(1, Nw):
+
+    xk = subsignal(u, v, Nx, k)
+    multi2 = bsp.spectral.Multitaper(tx, xk)
+
+    multi = multi + multi2
+
+# normalize and plot multitaper estimate
+multi.normalize()
+fig, ax = multi.plot()
+</pre></div>
+</div>
+<img alt="../_images/output_42_2.png" src="../_images/output_42_2.png" />
+<p>We observe again power law - like shape in the total power
+<img class="math" src="../_images/math/8c5f3f81eb164875d5d0b09483478be1a7547eac.png" alt="S_0(\nu)"/>. The degree of polarization <img class="math" src="../_images/math/908365c4a9a0be9e8b14578f9a9cdc354cd83e4a.png" alt="\Phi(\nu)"/> is close
+to zero for frequencies above 1 Hz; There is again a small “step” for
+frequencies below 1 Hz.</p>
+</section>
+<section id="setting-3-high-wind">
+<h3>Setting 3: high-wind<a class="headerlink" href="#setting-3-high-wind" title="Permalink to this heading"></a></h3>
+<p>Again, same procedure.</p>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># load data
+windData = scio.loadmat(&#39;datasets/wind/high-wind.mat&#39;)
+
+u = windData[&#39;v_east&#39;][:,0]
+v = windData[&#39;v_north&#39;][:, 0]
+
+N = np.size(u)
+
+# we use an ergodic argument and split the signal into &quot;sub-signals&quot;
+Nw = 20
+Nx = N // Nw
+tx = np.arange(Nx)
+
+xk = subsignal(u, v, Nx, 0)
+
+# compute spectral estimate
+multi = bsp.spectral.Multitaper(tx, xk)
+for k in range(1, Nw):
+
+    xk = subsignal(u, v, Nx, k)
+    multi2 = bsp.spectral.Multitaper(tx, xk)
+
+    multi = multi + multi2
+# normalize and plot multitaper estimate
+multi.normalize()
+fig, ax = multi.plot()
+</pre></div>
+</div>
+<img alt="../_images/output_45_2.png" src="../_images/output_45_2.png" />
+<p>Again <img class="math" src="../_images/math/8c5f3f81eb164875d5d0b09483478be1a7547eac.png" alt="S_0(\nu)"/> exhibits a power law shape. The degree of
+polarization is overall higher than in the low and moderate wind
+settings. The signal is strongly polarized (<img class="math" src="../_images/math/6221a684c7a33d42ff41bf00fc89f73f1cd4ac1e.png" alt="\Phi(0) \simeq 0.7"/>)
+at low frequencies. High frequencies show a relatively constant degree
+of polarization, around <img class="math" src="../_images/math/9023220e6b347561fa0e5ef3730a9acd6e446072.png" alt="\Phi(\nu) \simeq 0.3"/></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="timefrequency.html" class="btn btn-neutral float-left" title="Time-Frequency-Polarization analysis: tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../reference.html" class="btn btn-neutral float-right" title="Reference manual" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2018, Julien Flamant.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

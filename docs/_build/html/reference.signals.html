@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>signals - generating bivariate signals &mdash; BiSPy 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bispy.signals.bivariateAMFM" href="generated/bispy.signals.bivariateAMFM.html" />
+    <link rel="prev" title="filters - LTI filters for bivariate signals" href="reference.filters.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BiSPy
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="reference.html">Reference manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="reference.qfft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qfft</span></code> - Quaternion Fourier Transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> - Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.timefrequency.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">timefrequency</span></code> - Time-Frequency representations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.spectral.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">spectral</span></code> - Spectral analysis routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.filters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">filters</span></code> - LTI filters for bivariate signals</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signals</span></code> - generating bivariate signals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prototype-signals">Prototype signals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.signals.bivariateAMFM.html">bispy.signals.bivariateAMFM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/bispy.signals.bivariatewhiteNoise.html">bispy.signals.bivariatewhiteNoise</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bispy.signals.stationaryBivariate"><code class="docutils literal notranslate"><span class="pre">stationaryBivariate</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BiSPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="reference.html">Reference manual</a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signals</span></code> - generating bivariate signals</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/reference.signals.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="signals-generating-bivariate-signals">
+<span id="reference-signals"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">signals</span></code> - generating bivariate signals<a class="headerlink" href="#signals-generating-bivariate-signals" title="Permalink to this heading"></a></h1>
+<section id="prototype-signals">
+<h2>Prototype signals<a class="headerlink" href="#prototype-signals" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/bispy.signals.bivariateAMFM.html#bispy.signals.bivariateAMFM" title="bispy.signals.bivariateAMFM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bivariateAMFM</span></code></a>(a, theta, chi, phi[, ...])</p></td>
+<td><p>Construct a bivariate AM-FM model with specified parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/bispy.signals.bivariatewhiteNoise.html#bispy.signals.bivariatewhiteNoise" title="bispy.signals.bivariatewhiteNoise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bivariatewhiteNoise</span></code></a>(N, S0[, P, theta, ...])</p></td>
+<td><p>Generates a bivariate white noise with prescribed polarization properties using the Unpolarized/Polarized part decomposition.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="bispy.signals.stationaryBivariate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bispy.signals.</span></span><span class="sig-name descname"><span class="pre">stationaryBivariate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targetPSD</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/signals.html#stationaryBivariate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.signals.stationaryBivariate" title="Permalink to this definition"></a></dt>
+<dd><p>Simulates realizations of a stationary Gaussian random bivariate sequence with specficied quaternion PSD.</p>
+<p>The simulation method relies on spectral synthesis and is approximate.
+The quality of the approximation increases with the size N (aka the number of frequency bins).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>targetPSD: quaternionPSD object</strong></dt><dd><p>target PSD of the signal to sample from</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>simulation</strong><span class="classifier">array_type</span></dt><dd><p>array of size (M, N) where M is the number of independent realizations of the signal and N is the length of the simulated sequence.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">output</span></code>(x)</p></td>
+<td><p>returns the output of the filter given an input signal x</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bispy.signals.stationaryBivariate.simulate" title="bispy.signals.stationaryBivariate.simulate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simulate</span></code></a>(M)</p></td>
+<td><p>Simulate realizations of the stationary Gaussian random bivariate signal with specified quaternion PSD.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.signals.stationaryBivariate.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/signals.html#stationaryBivariate.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.signals.stationaryBivariate.simulate" title="Permalink to this definition"></a></dt>
+<dd><p>Simulate realizations of the stationary Gaussian random bivariate signal with specified quaternion PSD.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>M</strong><span class="classifier">int</span></dt><dd><p>number of independent realizations to simulate</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="reference.filters.html" class="btn btn-neutral float-left" title="filters - LTI filters for bivariate signals" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/bispy.signals.bivariateAMFM.html" class="btn btn-neutral float-right" title="bispy.signals.bivariateAMFM" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2018, Julien Flamant.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

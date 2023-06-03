@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spectral - Spectral analysis routines &mdash; BiSPy 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="filters - LTI filters for bivariate signals" href="reference.filters.html" />
+    <link rel="prev" title="timefrequency - Time-Frequency representations" href="reference.timefrequency.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BiSPy
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="reference.html">Reference manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="reference.qfft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qfft</span></code> - Quaternion Fourier Transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> - Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.timefrequency.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">timefrequency</span></code> - Time-Frequency representations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">spectral</span></code> - Spectral analysis routines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#quaternion-psd">Quaternion PSD</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bispy.spectral.quaternionPSD"><code class="docutils literal notranslate"><span class="pre">quaternionPSD</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#periodogram">Periodogram</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bispy.spectral.Periodogram"><code class="docutils literal notranslate"><span class="pre">Periodogram</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#multitaper">Multitaper</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bispy.spectral.Multitaper"><code class="docutils literal notranslate"><span class="pre">Multitaper</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.filters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">filters</span></code> - LTI filters for bivariate signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.signals.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signals</span></code> - generating bivariate signals</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BiSPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="reference.html">Reference manual</a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">spectral</span></code> - Spectral analysis routines</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/reference.spectral.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spectral-spectral-analysis-routines">
+<span id="reference-spectral"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">spectral</span></code> - Spectral analysis routines<a class="headerlink" href="#spectral-spectral-analysis-routines" title="Permalink to this heading"></a></h1>
+<section id="quaternion-psd">
+<h2>Quaternion PSD<a class="headerlink" href="#quaternion-psd" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bispy.spectral.quaternionPSD">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bispy.spectral.</span></span><span class="sig-name descname"><span class="pre">quaternionPSD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S0x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mux</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#quaternionPSD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.quaternionPSD" title="Permalink to this definition"></a></dt>
+<dd><p>Quaternion Power Spectral Density constructor of the form:
+Gamma_xx(nu) = S_0x(nu)*[1 + Phi_x(nu)*mu_x(nu)]</p>
+<p>where S_0x is the PSD of the signal x, Phi_x(nu) is the degree of polarization of the signal and mu_x is the polarization axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>N</strong><span class="classifier">int</span></dt><dd><p>size of the frequencies array</p>
+</dd>
+<dt><strong>S0x</strong><span class="classifier">array_type</span></dt><dd><p>PSD array of the signal</p>
+</dd>
+<dt><strong>Phix</strong><span class="classifier">array_type</span></dt><dd><p>degree of polarization array</p>
+</dd>
+<dt><strong>mux</strong><span class="classifier">array_type (quaternion)</span></dt><dd><p>polarization axis array</p>
+</dd>
+<dt><strong>dt</strong><span class="classifier">float (optional)</span></dt><dd><p>time sampling size step</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>S0, S1, S2, S3</strong><span class="classifier">array_type</span></dt><dd><p>Stokes Parameters array</p>
+</dd>
+<dt><strong>density</strong><span class="classifier">array_type</span></dt><dd><p>quaternion PSD</p>
+</dd>
+<dt><strong>f</strong><span class="classifier">array_type</span></dt><dd><p>sampled frequencies array</p>
+</dd>
+<dt><strong>Phi</strong><span class="classifier">array_type</span></dt><dd><p>degree of polarization</p>
+</dd>
+<dt><strong>mu</strong><span class="classifier">array_type</span></dt><dd><p>polarization axis</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.spectral.quaternionPSD.plot" title="bispy.spectral.quaternionPSD.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([single_sided])</p></td>
+<td><p>Displays the quaternion PSD</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bispy.spectral.quaternionPSD.plotStokes" title="bispy.spectral.quaternionPSD.plotStokes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotStokes</span></code></a>([single_sided])</p></td>
+<td><p>Displays Stokes Parameters S0, S1, S2, S3</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.spectral.quaternionPSD.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">single_sided</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#quaternionPSD.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.quaternionPSD.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Displays the quaternion PSD</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.spectral.quaternionPSD.plotStokes">
+<span class="sig-name descname"><span class="pre">plotStokes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">single_sided</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#quaternionPSD.plotStokes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.quaternionPSD.plotStokes" title="Permalink to this definition"></a></dt>
+<dd><p>Displays Stokes Parameters S0, S1, S2, S3</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="periodogram">
+<h2>Periodogram<a class="headerlink" href="#periodogram" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bispy.spectral.Periodogram">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bispy.spectral.</span></span><span class="sig-name descname"><span class="pre">Periodogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">computeFlag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#Periodogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.Periodogram" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the periodogram of bivariate
+signals taken as (1, i)-quaternion valued signals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_type</span></dt><dd><p>time samples array</p>
+</dd>
+<dt><strong>x</strong><span class="classifier">array_type</span></dt><dd><p>input signal array (has to be of quaternion dtype)</p>
+</dd>
+<dt><strong>compute</strong><span class="classifier">bool, optional</span></dt><dd><p>Flag activating computation of the estimate. Default is true. If False
+one has to run the compute() method manually.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_type</span></dt><dd><p>time samples array</p>
+</dd>
+<dt><strong>signal</strong><span class="classifier">array_type</span></dt><dd><p>input signal array</p>
+</dd>
+<dt><strong>f</strong><span class="classifier">array_type</span></dt><dd><p>sampled frequencies array</p>
+</dd>
+<dt><strong>density</strong><span class="classifier">array_type</span></dt><dd><p>spectral density quaternion array</p>
+</dd>
+<dt><strong>S0, S1, S2, S3</strong><span class="classifier">array_type</span></dt><dd><p>Stokes parameters, non-normalized [w.r.t. S0]</p>
+</dd>
+<dt><strong>S1n, S2n, S3n</strong><span class="classifier">array_type</span></dt><dd><p>normalized Stokes parameters [w.r.t. S0] using the
+tolerance factor <cite>tol</cite>. They are not computed by
+default. See <cite>normalize</cite>.</p>
+</dd>
+<dt><strong>Phi</strong><span class="classifier">array_type</span></dt><dd><p>Degree of polarization. Not computed by default; See <cite>normalize</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.spectral.Periodogram.compute" title="bispy.spectral.Periodogram.compute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute</span></code></a>()</p></td>
+<td><p>Low-level function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bispy.spectral.Periodogram.normalize" title="bispy.spectral.Periodogram.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>([tol])</p></td>
+<td><p>Normalize Stokes parameters wrt S0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.spectral.Periodogram.plot" title="bispy.spectral.Periodogram.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>()</p></td>
+<td><p>Generic plot of spectral estimates</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.spectral.Periodogram.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#Periodogram.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.Periodogram.compute" title="Permalink to this definition"></a></dt>
+<dd><p>Low-level function. Compute Periodogram estimate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.spectral.Periodogram.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#Periodogram.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.Periodogram.normalize" title="Permalink to this definition"></a></dt>
+<dd><p>Normalize Stokes parameters wrt S0.
+In addition, compute the degree of polarization Phi.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>tol</strong><span class="classifier">float, optional</span></dt><dd><p>tolerance factor used in Stokes parameters normalization.
+Default is 0.0</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>self.S1n, self.S2n, self.S3n</strong><span class="classifier">array_type</span></dt><dd><p>normalized Stokes parameters</p>
+</dd>
+<dt><strong>self.Phi</strong><span class="classifier">array_type</span></dt><dd><p>degree of polarization</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.normalizeStokes</span></code></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.spectral.Periodogram.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#Periodogram.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.Periodogram.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Generic plot of spectral estimates</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="multitaper">
+<h2>Multitaper<a class="headerlink" href="#multitaper" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bispy.spectral.Multitaper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bispy.spectral.</span></span><span class="sig-name descname"><span class="pre">Multitaper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">computeFlag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#Multitaper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.Multitaper" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a multitaper spectral estimate of the spectrum of bivariate
+signals taken as (1, i)-quaternion valued signals.
+The data tapers are chosen as discrete-prolate spheroidal sequences
+(dpss or Slepian tapers).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_type</span></dt><dd><p>time samples array</p>
+</dd>
+<dt><strong>x</strong><span class="classifier">array_type</span></dt><dd><p>input signal array (has to be of quaternion dtype)</p>
+</dd>
+<dt><strong>bw</strong><span class="classifier">float, optional</span></dt><dd><p>spectral bandwidth. Default is 2.5</p>
+</dd>
+<dt><strong>computeFlag</strong><span class="classifier">bool, optional</span></dt><dd><p>Flag activating computation of the estimate. Default is true. If False
+one has to run the compute() method manually.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_type</span></dt><dd><p>time samples array</p>
+</dd>
+<dt><strong>signal</strong><span class="classifier">array_type</span></dt><dd><p>input signal array</p>
+</dd>
+<dt><strong>f</strong><span class="classifier">array_type</span></dt><dd><p>sampled frequencies array</p>
+</dd>
+<dt><strong>densities</strong><span class="classifier">array_type</span></dt><dd><p>spectral density quaternion array for each taper</p>
+</dd>
+<dt><strong>density</strong><span class="classifier">array_type</span></dt><dd><p>spectral density quaternion array</p>
+</dd>
+<dt><strong>dpss</strong><span class="classifier">array_type</span></dt><dd><p>data tapers used</p>
+</dd>
+<dt><strong>S0, S1, S2, S3</strong><span class="classifier">array_type</span></dt><dd><p>Stokes parameters, non-normalized [w.r.t. S0]</p>
+</dd>
+<dt><strong>S1n, S2n, S3n</strong><span class="classifier">array_type</span></dt><dd><p>normalized Stokes parameters [w.r.t. S0] using the
+tolerance factor <cite>tol</cite>. They are not computed by
+default. See <cite>normalize</cite>.</p>
+</dd>
+<dt><strong>Phi</strong><span class="classifier">array_type</span></dt><dd><p>Degree of polarization. Not computed by default; See <cite>normalize</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.spectral.Multitaper.compute" title="bispy.spectral.Multitaper.compute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute</span></code></a>([bw])</p></td>
+<td><p>Low-level method that computes the multitaper estimate</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bispy.spectral.Multitaper.normalize" title="bispy.spectral.Multitaper.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>([tol])</p></td>
+<td><p>Normalize Stokes parameters wrt S0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.spectral.Multitaper.plot" title="bispy.spectral.Multitaper.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>()</p></td>
+<td><p>Generic plot of spectral estimates</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.spectral.Multitaper.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#Multitaper.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.Multitaper.compute" title="Permalink to this definition"></a></dt>
+<dd><p>Low-level method that computes the multitaper estimate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.spectral.Multitaper.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#Multitaper.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.Multitaper.normalize" title="Permalink to this definition"></a></dt>
+<dd><p>Normalize Stokes parameters wrt S0.
+In addition, compute the degree of polarization Phi.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>tol</strong><span class="classifier">float, optional</span></dt><dd><p>tolerance factor used in Stokes parameters normalization.
+Default is 0.0</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>self.S1n, self.S2n, self.S3n</strong><span class="classifier">array_type</span></dt><dd><p>normalized Stokes parameters</p>
+</dd>
+<dt><strong>self.Phi</strong><span class="classifier">array_type</span></dt><dd><p>degree of polarization</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.normalizeStokes</span></code></dt><dd></dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.spectral.Multitaper.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/spectral.html#Multitaper.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.spectral.Multitaper.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Generic plot of spectral estimates</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="reference.timefrequency.html" class="btn btn-neutral float-left" title="timefrequency - Time-Frequency representations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reference.filters.html" class="btn btn-neutral float-right" title="filters - LTI filters for bivariate signals" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2018, Julien Flamant.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

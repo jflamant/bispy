@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bispy.utils.sympSplit &mdash; BiSPy 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bispy.utils.sympSynth" href="bispy.utils.sympSynth.html" />
+    <link rel="prev" title="utils - Utility functions" href="../reference.utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BiSPy
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference.html">Reference manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference.qfft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qfft</span></code> - Quaternion Fourier Transforms</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> - Utility functions</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../reference.utils.html#quaternion-specific-operations">Quaternion specific operations</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">bispy.utils.sympSplit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bispy.utils.sympSynth.html">bispy.utils.sympSynth</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bispy.utils.StokesNorm.html">bispy.utils.StokesNorm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bispy.utils.normalizeStokes.html">bispy.utils.normalizeStokes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bispy.utils.Stokes2geo.html">bispy.utils.Stokes2geo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bispy.utils.geo2Stokes.html">bispy.utils.geo2Stokes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bispy.utils.quat2euler.html">bispy.utils.quat2euler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bispy.utils.euler2quat.html">bispy.utils.euler2quat</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference.utils.html#windows-functions">Windows functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference.utils.html#graphical-tools">Graphical tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference.timefrequency.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">timefrequency</span></code> - Time-Frequency representations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference.spectral.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">spectral</span></code> - Spectral analysis routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference.filters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">filters</span></code> - LTI filters for bivariate signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference.signals.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signals</span></code> - generating bivariate signals</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BiSPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference.html">Reference manual</a></li>
+          <li class="breadcrumb-item"><a href="../reference.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> - Utility functions</a></li>
+      <li class="breadcrumb-item active">bispy.utils.sympSplit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/bispy.utils.sympSplit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bispy-utils-sympsplit">
+<h1>bispy.utils.sympSplit<a class="headerlink" href="#bispy-utils-sympsplit" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="bispy.utils.sympSplit">
+<span class="sig-prename descclassname"><span class="pre">bispy.utils.</span></span><span class="sig-name descname"><span class="pre">sympSplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bispy/utils.html#sympSplit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.utils.sympSplit" title="Permalink to this definition"></a></dt>
+<dd><p>Splits a quaternion array into two complex arrays.</p>
+<p>The decomposition reads:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">q_1</span> <span class="o">+</span> <span class="n">i</span> <span class="n">q_2</span>
+</pre></div>
+</div>
+<p>where q_1, q_2 are complex (1, 1j) numpy arrays</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>q</strong><span class="classifier">quaternion numpy array</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>q_1, q_2</strong><span class="classifier">complex numpy arrays</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="bispy.utils.sympSynth.html#bispy.utils.sympSynth" title="bispy.utils.sympSynth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sympSynth</span></code></a></dt><dd></dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q</span>
+<span class="go">array([[quaternion(0.3, 0.47, -0.86, -0.42),</span>
+<span class="go">        quaternion(0.24, -1.07, -2.11, 0.37),</span>
+<span class="go">        quaternion(-0.24, -1.36, -1.14, 1.69)],</span>
+<span class="go">       [quaternion(0.4, -0.61, 0.04, -0.03),</span>
+<span class="go">        quaternion(-1.58, -1.69, -1.18, -1.02),</span>
+<span class="go">        quaternion(0.78, -1.06, -1.05, -0.62)]], dtype=quaternion)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q_1</span><span class="p">,</span> <span class="n">q_2</span> <span class="o">=</span> <span class="n">sympSplit</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q_1</span>
+<span class="go">array([[ 0.30-0.86j,  0.24-2.11j, -0.24-1.14j],</span>
+<span class="go">   [ 0.40+0.04j, -1.58-1.18j,  0.78-1.05j]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q_2</span>
+<span class="go">array([[ 0.47-0.42j, -1.07+0.37j, -1.36+1.69j],</span>
+<span class="go">   [-0.61-0.03j, -1.69-1.02j, -1.06-0.62j]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../reference.utils.html" class="btn btn-neutral float-left" title="utils - Utility functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bispy.utils.sympSynth.html" class="btn btn-neutral float-right" title="bispy.utils.sympSynth" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2018, Julien Flamant.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

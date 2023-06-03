@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>timefrequency - Time-Frequency representations &mdash; BiSPy 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="spectral - Spectral analysis routines" href="reference.spectral.html" />
+    <link rel="prev" title="bispy.utils.euler2quat" href="generated/bispy.utils.euler2quat.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BiSPy
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="reference.html">Reference manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="reference.qfft.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qfft</span></code> - Quaternion Fourier Transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> - Utility functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">timefrequency</span></code> - Time-Frequency representations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#quaternion-embedding">Quaternion Embedding</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bispy.timefrequency.Hembedding"><code class="docutils literal notranslate"><span class="pre">Hembedding</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#q-stft">Q-STFT</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bispy.timefrequency.QSTFT"><code class="docutils literal notranslate"><span class="pre">QSTFT</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#q-cwt">Q-CWT</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bispy.timefrequency.QCWT"><code class="docutils literal notranslate"><span class="pre">QCWT</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="reference.spectral.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">spectral</span></code> - Spectral analysis routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.filters.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">filters</span></code> - LTI filters for bivariate signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference.signals.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signals</span></code> - generating bivariate signals</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BiSPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="reference.html">Reference manual</a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">timefrequency</span></code> - Time-Frequency representations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/reference.timefrequency.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="timefrequency-time-frequency-representations">
+<span id="reference-timefrequency"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">timefrequency</span></code> - Time-Frequency representations<a class="headerlink" href="#timefrequency-time-frequency-representations" title="Permalink to this heading"></a></h1>
+<section id="quaternion-embedding">
+<h2>Quaternion Embedding<a class="headerlink" href="#quaternion-embedding" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bispy.timefrequency.Hembedding">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bispy.timefrequency.</span></span><span class="sig-name descname"><span class="pre">Hembedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#Hembedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.Hembedding" title="Permalink to this definition"></a></dt>
+<dd><p>H-embedding class. Computes quaternion embedding of complex-valued
+signals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>q</strong><span class="classifier">array_type</span></dt><dd><p>quaternion input signal</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>signal</strong><span class="classifier">array_type</span></dt><dd><p>original input signal</p>
+</dd>
+<dt><strong>Hembedding</strong><span class="classifier">array_type</span></dt><dd><p>Quaternion-embedding of the input signal</p>
+</dd>
+<dt><strong>a</strong><span class="classifier">array_type</span></dt><dd><p>instantaneous amplitude</p>
+</dd>
+<dt><strong>theta</strong><span class="classifier">array_type</span></dt><dd><p>instantaneous orientation</p>
+</dd>
+<dt><strong>chi</strong><span class="classifier">array_type</span></dt><dd><p>instantaneous ellipticity</p>
+</dd>
+<dt><strong>phi</strong><span class="classifier">array_type</span></dt><dd><p>instantaneous phase</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="q-stft">
+<h2>Q-STFT<a class="headerlink" href="#q-stft" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bispy.timefrequency.QSTFT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bispy.timefrequency.</span></span><span class="sig-name descname"><span class="pre">QSTFT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QSTFT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QSTFT" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the Quaternion-Short Term Fourier Transform for bivariate
+signals taken as (1, i)-quaternion valued signals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>x</strong><span class="classifier">array_type</span></dt><dd><p>input signal array</p>
+</dd>
+<dt><strong>t</strong><span class="classifier">array_type (optional)</span></dt><dd><p>time samples array. Default is t = np.arange(x.shape[0])</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_type</span></dt><dd><p>time samples array</p>
+</dd>
+<dt><strong>x</strong><span class="classifier">array_type</span></dt><dd><p>input signal array</p>
+</dd>
+<dt><strong>params</strong><span class="classifier">dict</span></dt><dd><p>parameters used for the computation of the Q-STFT.</p>
+</dd>
+<dt><strong>sampled_time</strong><span class="classifier">array_type</span></dt><dd><p>sampled times instants</p>
+</dd>
+<dt><strong>f</strong><span class="classifier">array_type</span></dt><dd><p>sampled frequencies</p>
+</dd>
+<dt><strong>tfpr</strong><span class="classifier">array_type</span></dt><dd><p>Q-STFT coefficients array</p>
+</dd>
+<dt><strong>S0, S1, S2, S3</strong><span class="classifier">array_type</span></dt><dd><p>Time-frequency Stokes parameters, non-normalized [w.r.t. S0]</p>
+</dd>
+<dt><strong>S1n, S2n, S3n</strong><span class="classifier">array_type</span></dt><dd><p>normalized time-frequency Stokes parameters [w.r.t. S0] using the
+tolerance factor <cite>tol</cite>. See <cite>utils.normalizeStokes</cite>.</p>
+</dd>
+<dt><strong>ridges</strong><span class="classifier">list</span></dt><dd><p>List of ridges index and values extracted from the time-frequency
+energy density S0. Requires call of <cite>extractRidges</cite> for ridges to
+be added.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.timefrequency.QSTFT.compute" title="bispy.timefrequency.QSTFT.compute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute</span></code></a>([window, nperseg, noverlap, nfft, ...])</p></td>
+<td><p>Compute the Q-STFT of the signal x.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bispy.timefrequency.QSTFT.extractRidges" title="bispy.timefrequency.QSTFT.extractRidges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extractRidges</span></code></a>([parThresh, parMinD])</p></td>
+<td><p>Extracts ridges from the time-frequency energy density S0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.timefrequency.QSTFT.inverse" title="bispy.timefrequency.QSTFT.inverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse</span></code></a>([mask])</p></td>
+<td><p>Compute inverse Q-STFT</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalizeStokes</span></code>([tol])</p></td>
+<td><p>Re-compute normalized Stokes parameters with a different normalization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.timefrequency.QSTFT.plotRidges" title="bispy.timefrequency.QSTFT.plotRidges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotRidges</span></code></a>([quivertdecim])</p></td>
+<td><p>Plot S0, the orientation and ellipticity recovered from the ridges in time-frequency domain</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotSignal</span></code>([kind])</p></td>
+<td><p>Plot the bivariate signal x.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.timefrequency.QSTFT.plotStokes" title="bispy.timefrequency.QSTFT.plotStokes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotStokes</span></code></a>([S0_cmap, s_cmap, single_sided])</p></td>
+<td><p>Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.timefrequency.QSTFT.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hamming'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nperseg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noverlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zeros'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ridges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QSTFT.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QSTFT.compute" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the Q-STFT of the signal x.</p>
+<p>It takes advantages of the scipy.signal.stft function for greater
+flexibility.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>window, nperseg, noverlap, nfft, boundary</strong><span class="classifier">stft parameters</span></dt><dd><p>See <cite>scipy.signal.stft</cite></p>
+</dd>
+<dt><strong>tol</strong><span class="classifier">float, optional</span></dt><dd><p>tolerance factor used in normalization of Stokes parameters.
+Default to 0.01</p>
+</dd>
+<dt><strong>ridges: bool, optional</strong></dt><dd><p>If True, compute also the ridges of the transform.
+Default to <cite>False</cite>. Ridges can be later computed using
+<cite>extractRidges()</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.timefrequency.QSTFT.extractRidges">
+<span class="sig-name descname"><span class="pre">extractRidges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parThresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parMinD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QSTFT.extractRidges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QSTFT.extractRidges" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts ridges from the time-frequency energy density S0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parThresh</strong><span class="classifier">float, optional</span></dt><dd><p>Controls the threshold at which local maxima of S0 are accepted or
+rejected. Larger values of <a href="#id1"><span class="problematic" id="id2">`</span></a>parThresh`increase the number of
+eligible points.</p>
+</dd>
+<dt><strong>parMinD</strong><span class="classifier">float, optional</span></dt><dd><p>Ridge smoothness parameter. Controls at which maximal distance
+can be located two eligible same ridge points. The smaller
+<a href="#id3"><span class="problematic" id="id4">`</span></a>parMinD`is the smoother ridges are.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>ridges</strong><span class="classifier">list</span></dt><dd><p>list of detected ridges</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.timefrequency.QSTFT.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QSTFT.inverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QSTFT.inverse" title="Permalink to this definition"></a></dt>
+<dd><p>Compute inverse Q-STFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mask: array_type</strong></dt><dd><p>mask applied to Q-STFT coefficients prior to inversion.
+If mask=None, no mask is employed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.timefrequency.QSTFT.plotRidges">
+<span class="sig-name descname"><span class="pre">plotRidges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quivertdecim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QSTFT.plotRidges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QSTFT.plotRidges" title="Permalink to this definition"></a></dt>
+<dd><p>Plot S0, the orientation and ellipticity recovered from the
+ridges in time-frequency domain</p>
+<p>If ridges are not extracted yet, it runs <cite>extractRidges</cite> method first.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>quivertdecim</strong><span class="classifier">int, optional</span></dt><dd><p>time-decimation index (allows faster and cleaner visualization of
+orientation vector field)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig, ax</strong><span class="classifier">figure and axis handles</span></dt><dd><p>may be needed to tweak the plot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.timefrequency.QSTFT.plotStokes">
+<span class="sig-name descname"><span class="pre">plotStokes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S0_cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'coolwarm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">single_sided</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QSTFT.plotStokes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QSTFT.plotStokes" title="Permalink to this definition"></a></dt>
+<dd><p>Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>S0_cmap</strong><span class="classifier">colormap (sequential)</span></dt><dd><p>to use for S0 time-frequency distribution</p>
+</dd>
+<dt><strong>s_cmap</strong><span class="classifier">colormap (diverging)</span></dt><dd><p>to use for normalized Stokes time-frequency distribution</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig, ax</strong><span class="classifier">figure and axis handles</span></dt><dd><p>may be needed to tweak the plot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="q-cwt">
+<h2>Q-CWT<a class="headerlink" href="#q-cwt" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bispy.timefrequency.QCWT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bispy.timefrequency.</span></span><span class="sig-name descname"><span class="pre">QCWT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QCWT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QCWT" title="Permalink to this definition"></a></dt>
+<dd><p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bispy.timefrequency.QCWT.compute" title="bispy.timefrequency.QCWT.compute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute</span></code></a>(fmin, fmax, waveletParams[, ...])</p></td>
+<td><p>Compute the Q-CWT of x using a specified wavelet.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bispy.timefrequency.QCWT.extractRidges" title="bispy.timefrequency.QCWT.extractRidges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extractRidges</span></code></a>([parThresh, parMinD])</p></td>
+<td><p>Extracts ridges from the time-scale energy density S0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalizeStokes</span></code>([tol])</p></td>
+<td><p>Re-compute normalized Stokes parameters with a different normalization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bispy.timefrequency.QCWT.plotRidges" title="bispy.timefrequency.QCWT.plotRidges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotRidges</span></code></a>([quivertdecim])</p></td>
+<td><p>Plot S0, and the orientation and ellipticity recovered from the ridges in time-scale domain</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotSignal</span></code>([kind])</p></td>
+<td><p>Plot the bivariate signal x.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#bispy.timefrequency.QCWT.plotStokes" title="bispy.timefrequency.QCWT.plotStokes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotStokes</span></code></a>([S0_cmap, s_cmap])</p></td>
+<td><p>Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.timefrequency.QCWT.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waveletParams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nscales</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ridges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QCWT.compute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QCWT.compute" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the Q-CWT of x using a specified wavelet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fmin, fmax</strong><span class="classifier">float</span></dt><dd><p>min and max frequencies</p>
+</dd>
+<dt><strong>waveletParams</strong><span class="classifier">dict</span></dt><dd><p>dictionary containing wavelet features. Currently 2 types,
+‘Morlet’ and ‘Morse’ are supported.</p>
+</dd>
+<dt><strong>Nscales</strong><span class="classifier">int</span></dt><dd><p>number of scales to analyze. Controls the size of the
+sampled_frequencies array.</p>
+</dd>
+<dt><strong>tol</strong><span class="classifier">float, optional</span></dt><dd><p>tolerance factor used in normalization of Stokes parameters.
+Default to 0.01</p>
+</dd>
+<dt><strong>ridges: bool, optional</strong></dt><dd><p>If True, compute also the ridges of the transform.
+Default to <cite>False</cite>. Ridges can be later computed using
+<cite>extractRidges()</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.timefrequency.QCWT.extractRidges">
+<span class="sig-name descname"><span class="pre">extractRidges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parThresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parMinD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QCWT.extractRidges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QCWT.extractRidges" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts ridges from the time-scale energy density S0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parThresh</strong><span class="classifier">float, optional</span></dt><dd><p>Controls the threshold at which local maxima of S0 are accepted or
+rejected. Larger values of <a href="#id5"><span class="problematic" id="id6">`</span></a>parThresh`increase the number of
+eligible points.</p>
+</dd>
+<dt><strong>parMinD</strong><span class="classifier">float, optional</span></dt><dd><p>Ridge smoothness parameter. Controls at which maximal distance
+can be located two eligible same ridge points. The smaller
+<a href="#id7"><span class="problematic" id="id8">`</span></a>parMinD`is the smoother ridges are.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>ridges</strong><span class="classifier">list</span></dt><dd><p>list of detected ridges</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.timefrequency.QCWT.plotRidges">
+<span class="sig-name descname"><span class="pre">plotRidges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quivertdecim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QCWT.plotRidges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QCWT.plotRidges" title="Permalink to this definition"></a></dt>
+<dd><p>Plot S0, and the orientation and ellipticity recovered from the
+ridges in time-scale domain</p>
+<p>If ridges are not extracted yet, it runs <cite>extractRidges</cite> method first.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>quivertdecim</strong><span class="classifier">int, optional</span></dt><dd><p>time-decimation index (allows faster and cleaner visualization of
+orientation vector field)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig, ax</strong><span class="classifier">figure and axis handles</span></dt><dd><p>may be needed to tweak the plot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bispy.timefrequency.QCWT.plotStokes">
+<span class="sig-name descname"><span class="pre">plotStokes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S0_cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'coolwarm'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bispy/timefrequency.html#QCWT.plotStokes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bispy.timefrequency.QCWT.plotStokes" title="Permalink to this definition"></a></dt>
+<dd><p>Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>S0_cmap</strong><span class="classifier">colormap (sequential)</span></dt><dd><p>to use for S0 time-frequency distribution</p>
+</dd>
+<dt><strong>s_cmap</strong><span class="classifier">colormap (diverging)</span></dt><dd><p>to use for normalized Stokes time-frequency distribution</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig, ax</strong><span class="classifier">figure and axis handles</span></dt><dd><p>may be needed to tweak the plot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="generated/bispy.utils.euler2quat.html" class="btn btn-neutral float-left" title="bispy.utils.euler2quat" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reference.spectral.html" class="btn btn-neutral float-right" title="spectral - Spectral analysis routines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2018, Julien Flamant.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
