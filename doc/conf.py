@@ -49,7 +49,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
     'numpydoc',
-    'm2r',
+    'm2r2',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
