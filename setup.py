@@ -29,7 +29,7 @@ setup(
     description='An open-source python framework for processing \
     bivariate signals.',
     long_description=long_description,
-    long_description_content_type='text/markdown'
+    long_description_content_type='text/markdown',
     
     # The project's main homepage.
     url='https://github.com/jflamant/bispy',
