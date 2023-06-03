@@ -48,9 +48,9 @@ And execute `setup.py`
 pip install .
 ```
 
-Licence
+License
 =======
-This software is distributed under the [CeCILL Free Software Licence Agreement](http://www.cecill.info/licences/Licence_CeCILL_V2-en.html)
+This software is distributed under the [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) license.
 
 Cite this work
 ==============
