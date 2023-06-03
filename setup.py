@@ -13,9 +13,10 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-# Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+# read the contents of your README file
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='bispy',
@@ -28,13 +29,14 @@ setup(
     description='An open-source python framework for processing \
     bivariate signals.',
     long_description=long_description,
-
+    long_description_content_type='text/markdown'
+    
     # The project's main homepage.
     url='https://github.com/jflamant/bispy',
 
     # Author details
     author='Julien Flamant',
-    author_email='julien.flamant@phd.centralelille.fr',
+    author_email='julien.flamant@cnrs.fr',
 
     # Choose your license
     license='CeCIll',
