@@ -9,6 +9,10 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
+    - name: Install packages
+      run: |
+        pip install . -e
+        pip install numpydoc m2r2
     - name: Build HTML
       uses: ammaraskar/sphinx-action@master
     - name: Upload artifacts
