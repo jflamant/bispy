@@ -126,7 +126,8 @@ class quaternionPSD(object):
         return S0, Phi, mu
 
     def _getStokes(self):
-        '''Low-level function.
+        '''
+        Low-level function.
         Extract extract Stokes parameters from the spectral density
         \Gamma_{xx}.
         Recall that
