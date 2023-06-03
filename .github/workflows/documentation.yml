@@ -12,7 +12,7 @@ jobs:
         run: |
           git clone https://github.com/jflamant/bispy.git
           cd bispy
-          pip install bispy
+          pip install .
           pip install sphinx sphinx_rtd_theme numpydoc m2r2
       - name: Sphinx build
         run: |
