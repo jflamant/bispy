@@ -515,7 +515,7 @@ class visual(object):
             raise ValueError('Data should be a vector to be 3D plotted')
 
         fig = plt.figure()
-        ax_sig = fig.gca(projection='3d')
+        ax_sig = fig.add_subplot(projection = '3d')
         # ax_sig
         ax_sig.plot(t, np.real(x), np.imag(x), color='k')
 
@@ -548,20 +548,20 @@ class visual(object):
 
         # replot to avoid 'overlays'
         ax_sig.plot(t, np.real(x), np.imag(x), color='k')
-        proj3d.persp_transformation = _orthogonal_proj
+        #proj3d.persp_transformation = _orthogonal_proj
         fig.show()
         return fig, ax_sig
 
 
-# workaround orthographic projection
-from mpl_toolkits.mplot3d import proj3d
+# workaround orthographic projection (deprecated)
+# from mpl_toolkits.mplot3d import proj3d
 
-def _orthogonal_proj(zfront, zback):
-    a = (zfront+zback)/(zfront-zback)
-    b = -2*(zfront*zback)/(zfront-zback)
-    # -0.0001 added for numerical stability as suggested in:
-    # http://stackoverflow.com/questions/23840756
-    return np.array([[1,0,0,0],
-                        [0,1,0,0],
-                        [0,0,a,b],
-                        [0,0,-0.0001,zback]])
+# def _orthogonal_proj(zfront, zback):
+#     a = (zfront+zback)/(zfront-zback)
+#     b = -2*(zfront*zback)/(zfront-zback)
+#     # -0.0001 added for numerical stability as suggested in:
+#     # http://stackoverflow.com/questions/23840756
+#     return np.array([[1,0,0,0],
+#                         [0,1,0,0],
+#                         [0,0,a,b],
+#                         [0,0,-0.0001,zback]])
