@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bispy.timefrequency &mdash; BiSPy 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BiSPy
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reference manual</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BiSPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">bispy.timefrequency</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for bispy.timefrequency</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright © 2018 Julien Flamant</span>
+<span class="c1">#</span>
+<span class="c1"># Distributed under terms of the CeCILL Free Software Licence Agreement</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Module for the time-frequency analysis of bivariate signals.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="c1"># import modules and packages</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">quaternion</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">col</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span>  <span class="c1"># required for 3D plot</span>
+<span class="kn">from</span> <span class="nn">matplotlib.collections</span> <span class="kn">import</span> <span class="n">LineCollection</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">sg</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">qfft</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<div class="viewcode-block" id="Hembedding"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.Hembedding">[docs]</a><span class="k">class</span> <span class="nc">Hembedding</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; H-embedding class. Computes quaternion embedding of complex-valued</span>
+<span class="sd">    signals.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    q : array_type</span>
+<span class="sd">        quaternion input signal</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    signal : array_type</span>
+<span class="sd">        original input signal</span>
+
+<span class="sd">    Hembedding : array_type</span>
+<span class="sd">        Quaternion-embedding of the input signal</span>
+
+<span class="sd">    a : array_type</span>
+<span class="sd">        instantaneous amplitude</span>
+
+<span class="sd">    theta : array_type</span>
+<span class="sd">        instantaneous orientation</span>
+
+<span class="sd">    chi : array_type</span>
+<span class="sd">        instantaneous ellipticity</span>
+
+<span class="sd">    phi : array_type</span>
+<span class="sd">        instantaneous phase</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s1">&#39;quaternion&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;array should be of quaternion type&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="o">=</span> <span class="n">q</span>
+
+        <span class="c1"># compute H-extension of the signal</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">qfft</span><span class="o">.</span><span class="n">Qfft</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+
+        <span class="c1"># filter frequencies</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">h</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">h</span><span class="p">[</span><span class="n">N</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">h</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span> <span class="n">N</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">hq</span> <span class="o">=</span> <span class="n">quaternion</span><span class="o">.</span><span class="n">as_quat_array</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Hembedding</span> <span class="o">=</span> <span class="n">qfft</span><span class="o">.</span><span class="n">iQfft</span><span class="p">(</span><span class="n">Q</span> <span class="o">*</span> <span class="n">hq</span><span class="p">)</span>
+
+        <span class="c1"># Compute Euler angle form</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">chi</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">quat2euler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hembedding</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chi</span> <span class="o">=</span> <span class="n">chi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span></div>
+
+    <span class="c1"># TODO: routine for plotting the extracted parameters?</span>
+
+<span class="k">class</span> <span class="nc">TFPrepresentation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base time-frequency-polarization representation object.</span>
+<span class="sd">        This is a low-level function, not meant to be used directly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check dimension of input array</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="c1"># check dtype of signal x and convert if necessary</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s1">&#39;quaternion&#39;</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">sympSynth</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">imag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># timestamps of the signal x</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span>
+
+        <span class="c1"># # number of frequency bins</span>
+        <span class="c1"># NFFT = kwargs.get(&#39;NFFT&#39;)</span>
+        <span class="c1"># if NFFT is None:</span>
+        <span class="c1">#     NFFT = nextpow2(N)</span>
+        <span class="c1"># elif NFFT &lt; 0:</span>
+        <span class="c1">#     raise ValueError(&#39;Nfft should be greater than 0.&#39;)</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     NFFT = nextpow2(NFFT)</span>
+        <span class="c1"># self.NFFT = NFFT</span>
+        <span class="c1"># # sampled frequencies</span>
+        <span class="c1"># self.f = np.fft.fftfreq(NFFT) / (t[1] - t[0])</span>
+
+        <span class="c1"># sampled instants (spacing)</span>
+        <span class="c1"># spacing = kwargs.get(&#39;spacing&#39;)</span>
+        <span class="c1"># if spacing is None:</span>
+        <span class="c1">#     spacing = 1</span>
+        <span class="c1">#</span>
+        <span class="c1"># self.sampled_index = np.arange(0, N, spacing)</span>
+        <span class="c1"># self.sampled_time = t[::spacing]</span>
+
+
+        <span class="c1"># init representation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tfpr</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># init Stokes parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S0</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S3</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">S1n</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S2n</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S3n</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">normalizeStokes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Re-compute normalized Stokes parameters with a different normalization.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tol : float</span>
+<span class="sd">            tolerance parameter. Default is 0.01.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">S0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">S1n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S2n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S3n</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">normalizeStokes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S3</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">plotSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;2D&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Plot the bivariate signal x.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kind : string, &#39;2D&#39; or &#39;3D&#39;</span>
+<span class="sd">            type of plot. See `utils.visual`.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;2D&#39;</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">visual</span><span class="o">.</span><span class="n">plot2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;3D&#39;</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">visual</span><span class="o">.</span><span class="n">plot3D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
+
+    <span class="k">def</span> <span class="nf">_plotStokes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">S0_cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">s_cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">,</span> <span class="n">single_sided</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : array_type</span>
+<span class="sd">            sampled times array</span>
+<span class="sd">        f : array_type</span>
+<span class="sd">            frequencies array (assuming unshifted)</span>
+<span class="sd">        S0_cmap : colormap (sequential)</span>
+<span class="sd">            to use for S0 time-frequency distribution</span>
+<span class="sd">        s_cmap : colormap (diverging)</span>
+<span class="sd">            to use for normalized Stokes time-frequency distribution</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig, ax : figure and axis handles</span>
+<span class="sd">            may be needed to tweak the plot</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">affine</span><span class="p">:</span>
+            <span class="c1"># size of plot</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figaspect</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+            <span class="n">labelsize</span><span class="o">=</span> <span class="mi">20</span>
+
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gridspec_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+
+            <span class="n">im0</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">S0_cmap</span><span class="p">)</span>
+            <span class="n">im1</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S1n</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">s_cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">im2</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S2n</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">s_cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">im3</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S3n</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">s_cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=+</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># adjust figure</span>
+            <span class="n">cbarax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.96</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">])</span>
+            <span class="n">cbar1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbarax1</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="c1">#cbar1.ax.set_xticklabels([-1, 0, 1])</span>
+            <span class="c1">#cbar1.ax.xaxis.set_ticks_position(&#39;top&#39;)</span>
+
+            <span class="n">label</span> <span class="o">=</span><span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$S_0$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$s_1$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$s_2$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$s_3$&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">axis</span><span class="o">.</span><span class="n">get_data_ratio</span><span class="p">())</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_adjustable</span><span class="p">(</span><span class="s1">&#39;box&#39;</span><span class="p">)</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">label</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">0.85</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+            <span class="c1"># set ylabls</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.92</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="c1">#tt, ff = np.meshgrid(t, np.fft.fftshift(f))</span>
+            <span class="c1"># size of plot</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figaspect</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+            <span class="n">labelsize</span><span class="o">=</span> <span class="mi">20</span>
+
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gridspec_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+
+            <span class="n">im0</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">S0_cmap</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+            <span class="n">im1</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S1n</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">s_cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=+</span><span class="mi">1</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+            <span class="n">im2</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S2n</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">s_cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=+</span><span class="mi">1</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+            <span class="n">im3</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S3n</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">s_cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=+</span><span class="mi">1</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">single_sided</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="c1"># adjust figure</span>
+            <span class="n">cbarax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.96</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">])</span>
+            <span class="n">cbar1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbarax1</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="c1">#cbar1.ax.set_xticklabels([-1, 0, 1])</span>
+            <span class="c1">#cbar1.ax.xaxis.set_ticks_position(&#39;top&#39;)</span>
+
+            <span class="n">label</span> <span class="o">=</span><span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$S_0$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$s_1$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$s_2$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$s_3$&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">axis</span><span class="o">.</span><span class="n">get_data_ratio</span><span class="p">())</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_adjustable</span><span class="p">(</span><span class="s1">&#39;box&#39;</span><span class="p">)</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">label</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">0.85</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+            <span class="c1"># set ylabls</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.92</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
+
+
+<div class="viewcode-block" id="QSTFT"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QSTFT">[docs]</a><span class="k">class</span> <span class="nc">QSTFT</span><span class="p">(</span><span class="n">TFPrepresentation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; Compute the Quaternion-Short Term Fourier Transform for bivariate</span>
+<span class="sd">    signals taken as (1, i)-quaternion valued signals.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_type</span>
+<span class="sd">        input signal array</span>
+
+<span class="sd">    t : array_type (optional)</span>
+<span class="sd">        time samples array. Default is t = np.arange(x.shape[0])</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    t : array_type</span>
+<span class="sd">        time samples array</span>
+
+<span class="sd">    x : array_type</span>
+<span class="sd">        input signal array</span>
+
+<span class="sd">    params : dict</span>
+<span class="sd">        parameters used for the computation of the Q-STFT.</span>
+
+<span class="sd">    sampled_time : array_type</span>
+<span class="sd">        sampled times instants</span>
+
+<span class="sd">    f : array_type</span>
+<span class="sd">        sampled frequencies</span>
+
+<span class="sd">    tfpr : array_type</span>
+<span class="sd">        Q-STFT coefficients array</span>
+
+<span class="sd">    S0, S1, S2, S3 : array_type</span>
+<span class="sd">        Time-frequency Stokes parameters, non-normalized [w.r.t. S0]</span>
+
+<span class="sd">    S1n, S2n, S3n : array_type</span>
+<span class="sd">        normalized time-frequency Stokes parameters [w.r.t. S0] using the</span>
+<span class="sd">        tolerance factor `tol`. See `utils.normalizeStokes`.</span>
+
+<span class="sd">    ridges : list</span>
+<span class="sd">        List of ridges index and values extracted from the time-frequency</span>
+<span class="sd">        energy density S0. Requires call of `extractRidges` for ridges to</span>
+<span class="sd">        be added.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># init main base object</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">QSTFT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+        <span class="c1"># init frequencies, sampled times and params directly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampled_times</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1">#init ridges</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ridges</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="QSTFT.compute"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QSTFT.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hamming&#39;</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">noverlap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nfft</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">boundary</span><span class="o">=</span><span class="s1">&#39;zeros&#39;</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">ridges</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Compute the Q-STFT of the signal x.</span>
+
+<span class="sd">        It takes advantages of the scipy.signal.stft function for greater</span>
+<span class="sd">        flexibility.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        window, nperseg, noverlap, nfft, boundary : stft parameters</span>
+<span class="sd">            See `scipy.signal.stft`</span>
+<span class="sd">        tol : float, optional</span>
+<span class="sd">            tolerance factor used in normalization of Stokes parameters.</span>
+<span class="sd">            Default to 0.01</span>
+<span class="sd">        ridges: bool, optional</span>
+<span class="sd">            If True, compute also the ridges of the transform.</span>
+<span class="sd">            Default to `False`. Ridges can be later computed using</span>
+<span class="sd">            `extractRidges()`.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fs</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
+                    <span class="n">nperseg</span><span class="o">=</span><span class="n">nperseg</span><span class="p">,</span>
+                    <span class="n">noverlap</span><span class="o">=</span><span class="n">noverlap</span><span class="p">,</span>
+                    <span class="n">nfft</span><span class="o">=</span><span class="n">nfft</span><span class="p">,</span>
+                    <span class="n">boundary</span><span class="o">=</span><span class="n">boundary</span><span class="p">,</span>
+                    <span class="n">return_onesided</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">detrend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">padded</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># split x = x_1 + i x_2</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">sympSplit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Compute the Q-STFT using scipy.signal.stft on x1, x2</span>
+        <span class="n">f</span><span class="p">,</span> <span class="n">sampled_times</span><span class="p">,</span> <span class="n">temp1</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">stft</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="p">,</span> <span class="n">temp2</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">stft</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="c1"># update Attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampled_times</span> <span class="o">=</span> <span class="n">sampled_times</span>
+        <span class="c1"># recombine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tfpr</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">sympSynth</span><span class="p">(</span><span class="n">temp1</span><span class="p">,</span> <span class="n">temp2</span><span class="p">)</span>
+
+        <span class="c1"># old version</span>
+        <span class="c1"># sizewindow = np.size(self.window, 0)</span>
+        <span class="c1"># # check size of window is odd</span>
+        <span class="c1"># if sizewindow % 2 == 0:</span>
+        <span class="c1">#     raise ValueError(&#39;Window size must me odd.&#39;)</span>
+        <span class="c1">#</span>
+        <span class="c1"># Lh = (sizewindow - 1) // 2  # half size index</span>
+        <span class="c1"># N = self.x.shape[0]</span>
+        <span class="c1"># print(&#39;Computing Q-STFT coefficients&#39;)</span>
+        <span class="c1"># temp = np.zeros_like(self.tfpr)</span>
+        <span class="c1"># for ti, ts in enumerate(self.sampled_index):</span>
+        <span class="c1">#</span>
+        <span class="c1">#     taumin = - min([round(self.NFFT / 2) - 1, Lh, ts])</span>
+        <span class="c1">#     taumax = min([round(self.NFFT / 2) - 1, Lh, N - ts - 1])</span>
+        <span class="c1">#     tau = np.arange(taumin, taumax + 1)</span>
+        <span class="c1">#     indices = ((self.NFFT + tau) % self.NFFT).astype(int)</span>
+        <span class="c1">#</span>
+        <span class="c1">#     windowInd = self.window[(Lh + tau).astype(int)]</span>
+        <span class="c1">#     windowIndq = utils.sympSynth(np.conj(windowInd) / np.linalg.norm(windowInd), 0)</span>
+        <span class="c1">#</span>
+        <span class="c1">#     temp[indices, ti] = self.x[(ts + tau).astype(int)] * windowIndq</span>
+        <span class="c1">#</span>
+        <span class="c1"># temp = qfft.Qfft(temp, axis=0)</span>
+        <span class="c1">#self.tfpr = temp</span>
+
+        <span class="c1"># Compute the Time-Frequency Stokes parameters S0, S1, S2, S3</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing Time-Frequency Stokes parameters&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">S0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfpr</span><span class="p">)</span>  <span class="c1"># already squared norm with this definition</span>
+
+        <span class="c1"># compute the j-involution + conjugation</span>
+        <span class="n">qjq</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">StokesNorm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfpr</span><span class="p">)</span>
+        <span class="n">qjq_float</span> <span class="o">=</span> <span class="n">quaternion</span><span class="o">.</span><span class="n">as_float_array</span><span class="p">(</span><span class="n">qjq</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">S1</span> <span class="o">=</span> <span class="n">qjq_float</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S2</span> <span class="o">=</span> <span class="n">qjq_float</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S3</span> <span class="o">=</span> <span class="n">qjq_float</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># normalized Stokes parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S1n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S2n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S3n</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">normalizeStokes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S3</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ridges</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extractRidges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="QSTFT.inverse"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QSTFT.inverse">[docs]</a>    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Compute inverse Q-STFT</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            mask: array_type</span>
+<span class="sd">                mask applied to Q-STFT coefficients prior to inversion.</span>
+<span class="sd">                If mask=None, no mask is employed.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># construct dict for inversion</span>
+        <span class="n">inversion_dict</span> <span class="o">=</span>  <span class="nb">dict</span><span class="p">(</span><span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;fs&#39;</span><span class="p">],</span>
+                            <span class="n">window</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;window&#39;</span><span class="p">],</span>
+                            <span class="n">nperseg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;nperseg&#39;</span><span class="p">],</span>
+                            <span class="n">noverlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;noverlap&#39;</span><span class="p">],</span>
+                            <span class="n">nfft</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;nfft&#39;</span><span class="p">],</span>
+                            <span class="n">boundary</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;boundary&#39;</span><span class="p">],</span>
+                            <span class="n">input_onesided</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+        <span class="n">tfp1</span><span class="p">,</span> <span class="n">tfp2</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">sympSplit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfpr</span><span class="o">*</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">t</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">istft</span><span class="p">(</span><span class="n">tfp1</span><span class="p">,</span> <span class="o">**</span><span class="n">inversion_dict</span><span class="p">)</span>
+        <span class="n">__</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">istft</span><span class="p">(</span><span class="n">tfp2</span><span class="p">,</span> <span class="o">**</span><span class="n">inversion_dict</span><span class="p">)</span>
+
+        <span class="n">xr</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">sympSynth</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">,</span> <span class="n">xr</span></div>
+
+<div class="viewcode-block" id="QSTFT.extractRidges"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QSTFT.extractRidges">[docs]</a>    <span class="k">def</span> <span class="nf">extractRidges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parThresh</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">parMinD</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Extracts ridges from the time-frequency energy density S0.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parThresh : float, optional</span>
+<span class="sd">            Controls the threshold at which local maxima of S0 are accepted or</span>
+<span class="sd">            rejected. Larger values of `parThresh`increase the number of</span>
+<span class="sd">            eligible points.</span>
+
+<span class="sd">        parMinD : float, optional</span>
+<span class="sd">            Ridge smoothness parameter. Controls at which maximal distance</span>
+<span class="sd">            can be located two eligible same ridge points. The smaller</span>
+<span class="sd">            `parMinD`is the smoother ridges are.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ridges : list</span>
+<span class="sd">            list of detected ridges</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">nfft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;nfft&#39;</span><span class="p">]</span>
+        <span class="c1"># Extract ridges</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extracting ridges&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ridges</span> <span class="o">=</span> <span class="n">_extractRidges</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">[:</span><span class="n">nfft</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">parThresh</span><span class="p">,</span> <span class="n">parMinD</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QSTFT.plotRidges"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QSTFT.plotRidges">[docs]</a>    <span class="k">def</span> <span class="nf">plotRidges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quivertdecim</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Plot S0, the orientation and ellipticity recovered from the</span>
+<span class="sd">        ridges in time-frequency domain</span>
+
+<span class="sd">        If ridges are not extracted yet, it runs `extractRidges` method first.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quivertdecim : int, optional</span>
+<span class="sd">            time-decimation index (allows faster and cleaner visualization of</span>
+<span class="sd">            orientation vector field)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig, ax : figure and axis handles</span>
+<span class="sd">            may be needed to tweak the plot</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1">#  default colormaps</span>
+        <span class="n">cmap_S0</span> <span class="o">=</span> <span class="s1">&#39;Greys&#39;</span>
+        <span class="n">cmap_theta</span> <span class="o">=</span> <span class="s1">&#39;hsv&#39;</span>
+        <span class="n">cmap_chi</span> <span class="o">=</span> <span class="s1">&#39;coolwarm&#39;</span>
+
+        <span class="c1"># check whether ridges have been computed</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ridges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No ridges detected, computing ridges.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extractRidges</span><span class="p">()</span>
+
+        <span class="c1"># create ridge mask</span>
+        <span class="n">maskRidge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ridges</span><span class="p">:</span>
+            <span class="n">maskRidge</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Compute orientation and ellipticity values</span>
+
+        <span class="n">S1mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">maskRidge</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S1n</span><span class="p">)</span>
+        <span class="n">S2mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">maskRidge</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S2n</span><span class="p">)</span>
+        <span class="n">S3mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">maskRidge</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S3n</span><span class="p">)</span>
+
+        <span class="n">theta</span> <span class="o">=</span> <span class="mf">.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">S2mask</span><span class="p">,</span> <span class="n">S1mask</span><span class="p">)</span>
+        <span class="n">ori</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
+
+        <span class="n">chi</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">S3mask</span><span class="p">)</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+
+        <span class="c1"># prepare meshgrid</span>
+        <span class="n">tt</span><span class="p">,</span> <span class="n">ff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampled_times</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">))</span>
+        <span class="c1"># size of plot</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figaspect</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+        <span class="n">labelsize</span><span class="o">=</span> <span class="mi">20</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gridspec_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]})</span>
+
+        <span class="c1">#im0 = ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=cmap_S0,origin=&#39;lower&#39;, extent=[self.sampled_times.min(), self.sampled_times.max(), 0, self.f.max()], aspect=&#39;auto&#39;)</span>
+        <span class="n">im0</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap_S0</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sampled_times</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampled_times</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+
+        <span class="n">im1</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampled_times</span><span class="p">[::</span><span class="n">quivertdecim</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">ori</span><span class="p">[:,</span> <span class="p">::</span><span class="n">quivertdecim</span><span class="p">]),</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">ori</span><span class="p">[:,</span> <span class="p">::</span><span class="n">quivertdecim</span><span class="p">])),</span> <span class="n">theta</span><span class="p">[:,</span> <span class="p">::</span><span class="n">quivertdecim</span><span class="p">],</span> <span class="n">clim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap_theta</span><span class="p">,</span> <span class="n">headaxislength</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">headlength</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">pivot</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ridges</span><span class="p">:</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">sampled_times</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">segments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">points</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap_chi</span><span class="p">),</span>
+                                <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">))</span>
+            <span class="n">lc</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">chi</span><span class="p">[(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+            <span class="n">lc</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">im2</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+
+        <span class="c1">#im2 = ax[2].imshow(chi, vmin=-np.pi/4, vmax=np.pi/4,  interpolation=&#39;none&#39;, origin=&#39;lower&#39;, aspect=&#39;auto&#39;, cmap=&#39;coolwarm&#39;, extent=[self.t.min(), self.t.max(), 0, self.f[N/2-1]])</span>
+
+        <span class="c1"># adjust figure</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">max</span><span class="p">()])</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">axis</span><span class="o">.</span><span class="n">get_data_ratio</span><span class="p">())</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_adjustable</span><span class="p">(</span><span class="s1">&#39;box&#39;</span><span class="p">)</span>
+
+
+        <span class="n">cbarax0</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.09</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
+        <span class="n">cbar0</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im0</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbarax0</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">)])</span>
+        <span class="n">cbar0</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">])</span>
+        <span class="n">cbar0</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+
+        <span class="n">cbarax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.185</span><span class="o">+</span><span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
+        <span class="n">cbar1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbarax1</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">cbar1</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$-\frac{\pi}</span><span class="si">{2}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$0$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\frac{\pi}</span><span class="si">{2}</span><span class="s1">$&#39;</span><span class="p">])</span>
+        <span class="n">cbar1</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+
+        <span class="n">cbarax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.725</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
+        <span class="n">cbar2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im2</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbarax2</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">)</span>
+        <span class="n">cbar2</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$-\frac{\pi}</span><span class="si">{4}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$0$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\frac{\pi}</span><span class="si">{4}</span><span class="s1">$&#39;</span><span class="p">])</span>
+        <span class="n">cbar2</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+
+
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency [Hz]&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Time-Frequency energy density&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.14</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Instantaneous orientation&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.14</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Instantaneous ellipticity&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.14</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+<div class="viewcode-block" id="QSTFT.plotStokes"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QSTFT.plotStokes">[docs]</a>    <span class="k">def</span> <span class="nf">plotStokes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0_cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">s_cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">,</span> <span class="n">single_sided</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        S0_cmap : colormap (sequential)</span>
+<span class="sd">            to use for S0 time-frequency distribution</span>
+<span class="sd">        s_cmap : colormap (diverging)</span>
+<span class="sd">            to use for normalized Stokes time-frequency distribution</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig, ax : figure and axis handles</span>
+<span class="sd">            may be needed to tweak the plot</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plotStokes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampled_times</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="n">S0_cmap</span><span class="o">=</span><span class="n">S0_cmap</span><span class="p">,</span> <span class="n">s_cmap</span><span class="o">=</span><span class="n">s_cmap</span><span class="p">,</span> <span class="n">single_sided</span><span class="o">=</span><span class="n">single_sided</span><span class="p">)</span></div></div>
+
+
+<span class="c1">#!---- Quaternion Continuous Wavelet Transform --------------------------!#</span>
+<div class="viewcode-block" id="QCWT"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QCWT">[docs]</a><span class="k">class</span> <span class="nc">QCWT</span><span class="p">(</span><span class="n">TFPrepresentation</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Compute the Quaternion-Continuous Wavelet Transform for bivariate</span>
+<span class="sd">        signals taken as (1, i)-quaternion valued signals.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array_type</span>
+<span class="sd">            input signal array</span>
+
+<span class="sd">        t : array_type (optional)</span>
+<span class="sd">            time samples array. Default is t = np.arange(x.shape[0])</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : array_type</span>
+<span class="sd">            time samples array</span>
+
+<span class="sd">        x : array_type</span>
+<span class="sd">            input signal array</span>
+
+<span class="sd">        params : dict</span>
+<span class="sd">            parameters used for the computation of the Q-CWT.</span>
+
+<span class="sd">        sampled_frequencies : array_type</span>
+<span class="sd">            sampled frequencies</span>
+
+<span class="sd">        tfpr : array_type</span>
+<span class="sd">            Q-STFT coefficients array</span>
+
+<span class="sd">        S0, S1, S2, S3 : array_type</span>
+<span class="sd">            Time-frequency Stokes parameters, non-normalized [w.r.t. S0]</span>
+
+<span class="sd">        S1n, S2n, S3n : array_type</span>
+<span class="sd">            normalized time-frequency Stokes parameters [w.r.t. S0] using the</span>
+<span class="sd">            tolerance factor `tol`. See `utils.normalizeStokes`.</span>
+
+<span class="sd">        ridges : list</span>
+<span class="sd">            List of ridges index and values extracted from the time-frequency</span>
+<span class="sd">            energy density S0. Requires call of `extractRidges` for ridges to</span>
+<span class="sd">            be added.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># init main base object</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">QCWT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+        <span class="c1"># init frequencies, scales and params directly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1">#init ridges</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ridges</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">_getWavelet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Nscales</span><span class="p">,</span> <span class="o">**</span><span class="n">waveletParams</span><span class="p">):</span>
+        <span class="c1"># construct wavelet array (len(x), Nscales)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nscales</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;quaternion&#39;</span><span class="p">)</span>
+        <span class="n">Fs</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="n">Fs</span><span class="p">)</span>
+
+        <span class="n">wType</span> <span class="o">=</span> <span class="n">waveletParams</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">wType</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Morse&#39;</span><span class="p">,</span> <span class="s1">&#39;Morlet&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown value for wavelet type </span><span class="si">%s</span><span class="s2">, must be one of: &quot;</span>
+            <span class="s2">&quot;{&#39;Morse&#39;, &#39;Morlet&#39;}&quot;</span> <span class="o">%</span> <span class="n">wType</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">wType</span> <span class="o">==</span> <span class="s1">&#39;Morse&#39;</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">waveletParams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;beta&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">beta</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">beta</span> <span class="o">=</span> <span class="n">waveletParams</span><span class="p">[</span><span class="s1">&#39;beta&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">waveletParams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gamma&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gamma</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gamma</span> <span class="o">=</span> <span class="n">waveletParams</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">waveletParams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;norm&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;bandpass&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="n">waveletParams</span><span class="p">[</span><span class="s1">&#39;norm&#39;</span><span class="p">]</span>
+
+            <span class="n">fc</span> <span class="o">=</span> <span class="p">(</span><span class="n">beta</span><span class="o">/</span><span class="n">gamma</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">gamma</span><span class="p">)</span> <span class="c1"># central frequency of Morse wavelets</span>
+
+            <span class="k">for</span> <span class="n">fi</span><span class="p">,</span> <span class="n">fsampled</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span><span class="p">):</span>
+                <span class="n">fnorm</span> <span class="o">=</span> <span class="n">f</span><span class="p">[:</span><span class="n">N</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">fc</span><span class="o">/</span><span class="p">(</span><span class="n">fsampled</span><span class="p">)</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">fnorm</span><span class="o">**</span><span class="n">beta</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">fnorm</span><span class="o">**</span><span class="n">gamma</span><span class="p">)</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getNormalization</span><span class="p">(</span><span class="n">wType</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">Fs</span><span class="o">=</span><span class="n">Fs</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="n">fc</span><span class="p">,</span> <span class="n">fsampled</span><span class="o">=</span><span class="n">fsampled</span><span class="p">)</span>
+                <span class="n">W</span><span class="p">[</span><span class="n">fi</span><span class="p">,</span> <span class="p">:</span><span class="n">N</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">sympSynth</span><span class="p">(</span><span class="n">temp</span><span class="o">*</span><span class="n">norm</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">wType</span> <span class="o">==</span> <span class="s1">&#39;Morlet&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">waveletParams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eta&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">eta</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">eta</span> <span class="o">=</span> <span class="n">waveletParams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eta&#39;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">fi</span><span class="p">,</span> <span class="n">fsampled</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span><span class="p">):</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">eta</span> <span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">fsampled</span><span class="p">)</span> <span class="c1"># scale</span>
+
+                <span class="n">prefactor</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">eta</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="o">/</span><span class="mi">4</span><span class="o">*</span><span class="n">eta</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">**</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">prefactor</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span> <span class="o">-</span> <span class="n">eta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">((</span><span class="n">s</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">eta</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+                <span class="n">W</span><span class="p">[</span><span class="n">fi</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">sympSynth</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">W</span>
+
+
+    <span class="k">def</span> <span class="nf">_getNormalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wType</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fsampled</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bandpass&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">wType</span> <span class="o">==</span> <span class="s1">&#39;Morse&#39;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            See e.g.,</span>
+<span class="sd">            Lilly, Jonathan M., and Sofia C. Olhede. 2009. “Higher-Order Properties of Analytic Wavelets.” IEEE Transactions on Signal Processing 57 (1): 146–60. doi:10.1109/TSP.2008.2007607.</span>
+
+<span class="sd">            Olhede, Sofia C., and Andrew T. Walden. 2002. “Generalized Morse Wavelets.” IEEE Transactions on Signal Processing 50 (11): 2661–70. doi:10.1109/TSP.2002.804066.</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">sp</span>
+
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;bandpass&#39;</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">gamma</span><span class="o">/</span><span class="n">beta</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">beta</span><span class="o">/</span><span class="n">gamma</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;energy&#39;</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">beta</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">gamma</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">gamma</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">r</span><span class="p">)</span><span class="o">/</span><span class="n">sp</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">r</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Fs</span><span class="o">*</span><span class="n">fc</span><span class="o">/</span><span class="p">(</span><span class="n">fsampled</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">a</span>
+
+<div class="viewcode-block" id="QCWT.compute"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QCWT.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="p">,</span> <span class="n">waveletParams</span><span class="p">,</span> <span class="n">Nscales</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">ridges</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Compute the Q-CWT of x using a specified wavelet.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            fmin, fmax : float</span>
+<span class="sd">                min and max frequencies</span>
+<span class="sd">            waveletParams : dict</span>
+<span class="sd">                dictionary containing wavelet features. Currently 2 types,</span>
+<span class="sd">                &#39;Morlet&#39; and &#39;Morse&#39; are supported.</span>
+<span class="sd">            Nscales : int</span>
+<span class="sd">                number of scales to analyze. Controls the size of the</span>
+<span class="sd">                sampled_frequencies array.</span>
+<span class="sd">            tol : float, optional</span>
+<span class="sd">                tolerance factor used in normalization of Stokes parameters.</span>
+<span class="sd">                Default to 0.01</span>
+<span class="sd">            ridges: bool, optional</span>
+<span class="sd">                If True, compute also the ridges of the transform.</span>
+<span class="sd">                Default to `False`. Ridges can be later computed using</span>
+<span class="sd">                `extractRidges()`.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1">#deine sampled frequencies from fmin and fmax</span>
+        <span class="n">Fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">fmin</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">fmax</span><span class="p">),</span> <span class="n">Nscales</span><span class="p">)</span> <span class="c1"># note to self: allow other choices as well?</span>
+
+        <span class="n">W</span> <span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_getWavelet</span><span class="p">(</span><span class="n">Nscales</span><span class="o">=</span><span class="n">Nscales</span><span class="p">,</span> <span class="o">**</span><span class="n">waveletParams</span><span class="p">)</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="n">qfft</span><span class="o">.</span><span class="n">Qfft</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># Precompute the QFT of signal sarray</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nscales</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;quaternion&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nscales</span><span class="p">):</span>
+            <span class="n">temp</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">qfft</span><span class="o">.</span><span class="n">iQfft</span><span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">W</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tfpr</span> <span class="o">=</span> <span class="n">temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fmin</span><span class="o">=</span><span class="n">fmin</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="n">fmax</span><span class="p">,</span> <span class="n">wavelets</span> <span class="o">=</span> <span class="n">W</span><span class="p">)</span>
+
+        <span class="c1"># Compute the Time-Frequency Stokes parameters S0, S1, S2, S3</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing Time-Frequency Stokes parameters&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">S0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfpr</span><span class="p">)</span>  <span class="c1"># already squared norm with this definition</span>
+
+        <span class="c1"># compute the j-involution + conjugation</span>
+        <span class="n">qjq</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">StokesNorm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tfpr</span><span class="p">)</span>
+        <span class="n">qjq_float</span> <span class="o">=</span> <span class="n">quaternion</span><span class="o">.</span><span class="n">as_float_array</span><span class="p">(</span><span class="n">qjq</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">S1</span> <span class="o">=</span> <span class="n">qjq_float</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S2</span> <span class="o">=</span> <span class="n">qjq_float</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S3</span> <span class="o">=</span> <span class="n">qjq_float</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># normalized Stokes parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">S1n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S2n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S3n</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">normalizeStokes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S3</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ridges</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extractRidges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="QCWT.extractRidges"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QCWT.extractRidges">[docs]</a>    <span class="k">def</span> <span class="nf">extractRidges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parThresh</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">parMinD</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Extracts ridges from the time-scale energy density S0.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parThresh : float, optional</span>
+<span class="sd">            Controls the threshold at which local maxima of S0 are accepted or</span>
+<span class="sd">            rejected. Larger values of `parThresh`increase the number of</span>
+<span class="sd">            eligible points.</span>
+
+<span class="sd">        parMinD : float, optional</span>
+<span class="sd">            Ridge smoothness parameter. Controls at which maximal distance</span>
+<span class="sd">            can be located two eligible same ridge points. The smaller</span>
+<span class="sd">            `parMinD`is the smoother ridges are.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ridges : list</span>
+<span class="sd">            list of detected ridges</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extracting ridges&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ridges</span> <span class="o">=</span> <span class="n">_extractRidges</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="n">parThresh</span><span class="p">,</span> <span class="n">parMinD</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="QCWT.plotStokes"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QCWT.plotStokes">[docs]</a>    <span class="k">def</span> <span class="nf">plotStokes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0_cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">s_cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Time-frequency plot of time-frequency energy map (S0) and time-frequency polarization parameters (normalized Stokes parameters S1n, S2n, S3n)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        S0_cmap : colormap (sequential)</span>
+<span class="sd">            to use for S0 time-frequency distribution</span>
+<span class="sd">        s_cmap : colormap (diverging)</span>
+<span class="sd">            to use for normalized Stokes time-frequency distribution</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig, ax : figure and axis handles</span>
+<span class="sd">            may be needed to tweak the plot</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plotStokes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span><span class="p">,</span> <span class="n">S0_cmap</span><span class="o">=</span><span class="n">S0_cmap</span><span class="p">,</span> <span class="n">s_cmap</span><span class="o">=</span><span class="n">s_cmap</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QCWT.plotRidges"><a class="viewcode-back" href="../../reference.timefrequency.html#bispy.timefrequency.QCWT.plotRidges">[docs]</a>    <span class="k">def</span> <span class="nf">plotRidges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quivertdecim</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Plot S0, and the orientation and ellipticity recovered from the</span>
+<span class="sd">        ridges in time-scale domain</span>
+
+<span class="sd">        If ridges are not extracted yet, it runs `extractRidges` method first.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quivertdecim : int, optional</span>
+<span class="sd">            time-decimation index (allows faster and cleaner visualization of</span>
+<span class="sd">            orientation vector field)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig, ax : figure and axis handles</span>
+<span class="sd">            may be needed to tweak the plot</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1">#  default colormaps</span>
+        <span class="n">cmap_S0</span> <span class="o">=</span> <span class="s1">&#39;Greys&#39;</span>
+        <span class="n">cmap_theta</span> <span class="o">=</span> <span class="s1">&#39;hsv&#39;</span>
+        <span class="n">cmap_chi</span> <span class="o">=</span> <span class="s1">&#39;coolwarm&#39;</span>
+
+        <span class="c1"># check whether ridges have been computed</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ridges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No ridges detected, computing ridges.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extractRidges</span><span class="p">()</span>
+
+        <span class="c1"># create ridge mask</span>
+        <span class="n">maskRidge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ridges</span><span class="p">:</span>
+            <span class="n">maskRidge</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Compute orientation and ellipticity values</span>
+
+        <span class="n">S1mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">maskRidge</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S1n</span><span class="p">)</span>
+        <span class="n">S2mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">maskRidge</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S2n</span><span class="p">)</span>
+        <span class="n">S3mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">maskRidge</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S3n</span><span class="p">)</span>
+
+        <span class="n">theta</span> <span class="o">=</span> <span class="mf">.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">S2mask</span><span class="p">,</span> <span class="n">S1mask</span><span class="p">)</span>
+        <span class="n">ori</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
+
+        <span class="n">chi</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">S3mask</span><span class="p">)</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">im0</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap_S0</span><span class="p">)</span>
+
+        <span class="n">im1</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[::</span><span class="n">quivertdecim</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">ori</span><span class="p">[:,</span> <span class="p">::</span><span class="n">quivertdecim</span><span class="p">]),</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">ori</span><span class="p">[:,</span> <span class="p">::</span><span class="n">quivertdecim</span><span class="p">])),</span> <span class="n">theta</span><span class="p">[:,</span> <span class="p">::</span><span class="n">quivertdecim</span><span class="p">],</span> <span class="n">clim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap_theta</span><span class="p">,</span> <span class="n">headaxislength</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">headlength</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">pivot</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ridges</span><span class="p">:</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">segments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">points</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">lc</span> <span class="o">=</span> <span class="n">LineCollection</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap_chi</span><span class="p">),</span>
+                                <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">))</span>
+            <span class="n">lc</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">chi</span><span class="p">[(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+            <span class="n">lc</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">im2</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">lc</span><span class="p">)</span>
+
+        <span class="c1">#im2 = ax[2].imshow(chi, vmin=-np.pi/4, vmax=np.pi/4,  interpolation=&#39;none&#39;, origin=&#39;lower&#39;, aspect=&#39;auto&#39;, cmap=&#39;coolwarm&#39;, extent=[self.t.min(), self.t.max(), 0, self.f[N/2-1]])</span>
+
+        <span class="c1"># adjust figure</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+        <span class="n">cbarax0</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="mf">0.303</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
+        <span class="n">cbar0</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im0</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbarax0</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S0</span><span class="p">)])</span>
+        <span class="n">cbar0</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">])</span>
+        <span class="n">cbar0</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+
+        <span class="n">cbarax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.369</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="mf">0.303</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
+        <span class="n">cbar1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbarax1</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">cbar1</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$-\frac{\pi}</span><span class="si">{2}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$0$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\frac{\pi}</span><span class="si">{2}</span><span class="s1">$&#39;</span><span class="p">])</span>
+        <span class="n">cbar1</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+
+        <span class="n">cbarax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.686</span><span class="p">,</span> <span class="mf">0.83</span><span class="p">,</span> <span class="mf">0.303</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
+        <span class="n">cbar2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im2</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbarax2</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">)</span>
+        <span class="n">cbar2</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">r</span><span class="s1">&#39;$-\frac{\pi}</span><span class="si">{4}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$0$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\frac{\pi}</span><span class="si">{4}</span><span class="s1">$&#39;</span><span class="p">])</span>
+        <span class="n">cbar2</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">()])</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampled_frequencies</span><span class="o">.</span><span class="n">max</span><span class="p">()])</span>
+
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time [s]&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Frequency [Hz]&#39;</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Time-frequency energy density&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.14</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Instantaneous orientation&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.14</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Instantaneous ellipticity&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.14</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div></div>
+
+<span class="c1">#</span>
+<span class="c1"># Low-level functions</span>
+<span class="c1">#</span>
+
+
+<span class="k">def</span> <span class="nf">_extractRidges</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">parThresh</span><span class="p">,</span> <span class="n">parMinD</span><span class="p">):</span>
+
+    <span class="n">A</span><span class="p">,</span> <span class="n">B</span> <span class="o">=</span> <span class="n">density</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># A: len of frequency axis, B len of time axis</span>
+
+    <span class="c1"># find all local maximas</span>
+
+    <span class="n">locMax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">thresh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">density</span><span class="p">)</span> <span class="o">/</span> <span class="n">parThresh</span>
+    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+
+        <span class="n">detectmax</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">argrelextrema</span><span class="p">(</span><span class="n">density</span><span class="p">[:,</span> <span class="n">ind</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">greater</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ismaxOK</span> <span class="o">=</span> <span class="n">density</span><span class="p">[</span><span class="n">detectmax</span><span class="p">,</span> <span class="n">ind</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span>
+        <span class="n">locMax</span><span class="p">[</span><span class="n">detectmax</span><span class="p">,</span> <span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="o">*</span> <span class="n">ismaxOK</span>
+
+    <span class="c1"># chain the ridges</span>
+    <span class="n">ridges</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">currentRidget</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">currentRidgef</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">locMax</span><span class="p">):</span>
+
+        <span class="n">freqMask</span><span class="p">,</span> <span class="n">timeMask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">locMax</span><span class="p">)</span>
+
+        <span class="n">currentRidget</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timeMask</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">currentRidgef</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">freqMask</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">locMax</span><span class="p">[</span><span class="n">freqMask</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">timeMask</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">freqMask</span><span class="p">,</span> <span class="n">timeMask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">locMax</span><span class="p">)</span>
+
+        <span class="n">FLAG</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Avoid undifined FLAG if condition is false.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">timeMask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">FLAG</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">while</span> <span class="n">FLAG</span><span class="p">:</span>
+
+            <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">timeMask</span><span class="o">-</span><span class="n">currentRidget</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">freqMask</span><span class="o">-</span><span class="n">currentRidgef</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">minD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">distances</span> <span class="o">==</span> <span class="n">distances</span><span class="o">.</span><span class="n">min</span><span class="p">())[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">minD</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">parMinD</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">timeMask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">currentRidget</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timeMask</span><span class="p">[</span><span class="n">minD</span><span class="p">])</span>
+                <span class="n">currentRidgef</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">freqMask</span><span class="p">[</span><span class="n">minD</span><span class="p">])</span>
+                <span class="n">locMax</span><span class="p">[</span><span class="n">freqMask</span><span class="p">[</span><span class="n">minD</span><span class="p">],</span> <span class="n">timeMask</span><span class="p">[</span><span class="n">minD</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">freqMask</span><span class="p">,</span> <span class="n">timeMask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">locMax</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">FLAG</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">timeMask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">currentRidget</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timeMask</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">currentRidgef</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">freqMask</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">ridges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">currentRidgef</span><span class="p">,</span> <span class="n">currentRidget</span><span class="p">))</span>
+                <span class="n">currentRidget</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">currentRidgef</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ridge added&#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ridges</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; ridges were recovered.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ridges</span>
+
+
+<span class="k">def</span> <span class="nf">log2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">nextpow2</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span> <span class="n">n</span> <span class="o">*=</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2018, Julien Flamant.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
