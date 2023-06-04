@@ -75,8 +75,8 @@
              
   <section id="bispy-bivariate-signal-processing-with-python">
 <h1>BiSPy : Bivariate Signal Processing with Python<a class="headerlink" href="#bispy-bivariate-signal-processing-with-python" title="Permalink to this heading"></a></h1>
-<a class="reference external image-reference" href="https://bispy.readthedocs.org"><img alt="Documentation" src="https://readthedocs.org/projects/bispy/badge/?style=default" /></a>
-<a class="reference external image-reference" href="https://travis-ci.org/jflamant/bispy"><img alt="Build Status" src="https://travis-ci.org/jflamant/bispy.svg?branch=master" /></a>
+<a class="reference external image-reference" href="https://jflamant.github.io/bispy/"><img alt="docs-page" src="https://img.shields.io/badge/docs-latest-blue" /></a>
+<a class="reference external image-reference" href="https://badge.fury.io/py/bispy-polar"><img alt="PyPI version" src="https://badge.fury.io/py/bispy-polar.svg" /></a>
 <p>BiSPy is an open-source python framework for processing bivariate signals. It supports our papers on time-frequency analysis [1], spectral analysis [2] and linear time-invariant filtering [3] of bivariate signals.</p>
 <blockquote>
 <div><p>[1] Julien Flamant, Nicolas Le Bihan, Pierre Chainais: “Time-frequency analysis of bivariate signals”, In press, Applied and Computational Harmonic Analysis, 2017; <a class="reference external" href="http://arxiv.org/abs/1609.02463">arXiv:1609.0246</a>, <a class="reference external" href="https://doi.org/10.1016/j.acha.2017.05.007">doi:10.1016/j.acha.2017.05.007</a></p>
@@ -85,6 +85,18 @@
 </div></blockquote>
 <p>These papers contains theoretical results and several applications that can be reproduced with this toolbox.</p>
 <p>This python toolbox is currently under development and is hosted on GitHub. If you encounter a bug or something unexpected please let me know by <a class="reference external" href="https://github.com/jflamant/bispy/issues">raising an issue</a> on the project page.</p>
+<section id="install-from-pypi">
+<h2>Install from PyPi<a class="headerlink" href="#install-from-pypi" title="Permalink to this heading"></a></h2>
+<p>Due to name conflict the available version on PyPi is named <a href="#id1"><span class="problematic" id="id2">``</span></a>bispy-polar’’. To install from PyPi, simply type</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">bispy</span><span class="o">-</span><span class="n">polar</span>
+</pre></div>
+</div>
+<p>It will automatically install dependencies (see also below).</p>
+<p>To get started, simply use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bispy</span> <span class="k">as</span> <span class="nn">bsp</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="requirements">
 <h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h1>
@@ -100,19 +112,7 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>scipy<span class="w"> </span>matplotlib<span class="w"> </span>numpy-quaternion
 </pre></div>
 </div>
-<p><a class="reference external" href="https://github.com/moble/quaternion">quaternion</a> add quaternion dtype support to numpy. Implementation by [moble]. Since this python toolbox relies extensively on this module, you can check out first the nice introduction <a class="reference external" href="https://github.com/moble">here</a>.</p>
-<section id="install-from-sources">
-<h2>Install from sources<a class="headerlink" href="#install-from-sources" title="Permalink to this heading"></a></h2>
-<p>Clone this repository</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/jflamant/bispy.git
-<span class="nb">cd</span><span class="w"> </span>bispy
-</pre></div>
-</div>
-<p>And execute <code class="docutils literal notranslate"><span class="pre">setup.py</span></code></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
-</pre></div>
-</div>
-</section>
+<p><a class="reference external" href="https://github.com/moble/quaternion">numpy-quaternion</a> add quaternion dtype support to numpy. Implementation by [moble]. Since this python toolbox relies extensively on this module, you can check out first the nice introduction <a class="reference external" href="https://github.com/moble">here</a>.</p>
 </section>
 <section id="license">
 <h1>License<a class="headerlink" href="#license" title="Permalink to this heading"></a></h1>
