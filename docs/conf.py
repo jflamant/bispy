@@ -44,6 +44,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
+    "sphinx.ext.githubpages",  # Publish HTML docs in GitHub Pages
     'sphinx.ext.coverage',
     'sphinx.ext.imgmath',
     'sphinx.ext.viewcode',
