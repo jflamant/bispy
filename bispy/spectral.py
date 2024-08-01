@@ -683,7 +683,7 @@ def _plotResultSpectral(t, sig, spe):
 
     # replot to avoid 'overlays'
     ax_sig.plot(t, np.real(x), np.imag(x), color='k')
-    proj3d.persp_transformation = _orthogonal_proj
+    #proj3d.persp_transformation = _orthogonal_proj
     #########################################################
     # ax_S0
     end = N // 2 - 1
@@ -798,15 +798,15 @@ def _plotResultSpectral(t, sig, spe):
     axes = [ax_sig, ax_S0, ax_s1, ax_s2, ax_s3, ax_phi]
     return fig, axes
 
-# workaround orthographic projection
-from mpl_toolkits.mplot3d import proj3d
+# workaround orthographic projection (deprecated)
+# from mpl_toolkits.mplot3d import proj3d
 
-def _orthogonal_proj(zfront, zback):
-    a = (zfront+zback)/(zfront-zback)
-    b = -2*(zfront*zback)/(zfront-zback)
-    # -0.0001 added for numerical stability as suggested in:
-    # http://stackoverflow.com/questions/23840756
-    return np.array([[1,0,0,0],
-                        [0,1,0,0],
-                        [0,0,a,b],
-                        [0,0,-0.0001,zback]])
+# def _orthogonal_proj(zfront, zback):
+#     a = (zfront+zback)/(zfront-zback)
+#     b = -2*(zfront*zback)/(zfront-zback)
+#     # -0.0001 added for numerical stability as suggested in:
+#     # http://stackoverflow.com/questions/23840756
+#     return np.array([[1,0,0,0],
+#                         [0,1,0,0],
+#                         [0,0,a,b],
+#                         [0,0,-0.0001,zback]])
