@@ -178,22 +178,57 @@ def test_multitaper_snapshot(t, x_stable, bw, snapshot):
     snapshot(density=m.density)
 
 
-# --- known bugs (see the audit); remove the marker when fixed --------------------
+# --- combining and recomputing estimates ----------------------------------------
 
 
-@pytest.mark.xfail(reason="known bug: `np.any(...) is True` is always False, so the time check never fires")
 @pytest.mark.parametrize("estimator", ["Periodogram", "Multitaper"])
 def test_sum_rejects_different_time_arrays(t, x, estimator):
     cls = getattr(spectral, estimator)
     with quiet():
-        a, b = cls(t, x), cls(2 * t, x)
+        a = cls(t, x)
+        other_spacing = cls(2 * t, x)
+        other_length = cls(t[:-1], x[:-1])
+    with pytest.raises(ValueError):
+        a + other_spacing
+    with pytest.raises(ValueError):
+        a + other_length
+
+
+def test_multitaper_arithmetic_keeps_tapers(t, x):
+    with quiet():
+        m = spectral.Multitaper(t, x, bw=5)
+        results = {"sum": (m + m, 2), "product": (3 * m, 3)}
+    for r, factor in results.values():
+        assert r.bw == 5
+        np.testing.assert_array_equal(r.dpss, m.dpss)
+        np.testing.assert_allclose(as_float(r.densities), factor * as_float(m.densities))
+        # the overall density remains the average of the per-taper densities
+        np.testing.assert_allclose(as_float(r.density), as_float(r.densities).mean(axis=1))
+
+
+def test_multitaper_sum_rejects_different_bandwidths(t, x):
+    with quiet():
+        a, b = spectral.Multitaper(t, x, bw=3), spectral.Multitaper(t, x, bw=4)
     with pytest.raises(ValueError):
         a + b
 
 
-@pytest.mark.xfail(reason="known bug: Multitaper + and * rebuild the result with the default bw")
-def test_multitaper_arithmetic_keeps_bandwidth(t, x):
+def test_mixed_estimators_can_be_summed(t, x):
+    # Worked before the fixes; kept for compatibility.
     with quiet():
-        m = spectral.Multitaper(t, x, bw=5)
-        s = m + m
-    assert s.densities.shape == m.densities.shape
+        m, p = spectral.Multitaper(t, x), spectral.Periodogram(t, x)
+    expected = as_float(m.density) + as_float(p.density)
+    np.testing.assert_allclose(as_float((m + p).density), expected)
+    np.testing.assert_allclose(as_float((p + m).density), expected)
+
+
+@pytest.mark.parametrize("estimator, kwargs", [("Periodogram", {}), ("Multitaper", {"bw": 5})])
+def test_manual_compute_matches_automatic(t, x, estimator, kwargs):
+    cls = getattr(spectral, estimator)
+    with quiet():
+        auto = cls(t, x, **kwargs)
+        manual = cls(t, x, computeFlag=False, **kwargs)
+        manual.compute()
+    np.testing.assert_allclose(as_float(manual.density), as_float(auto.density))
+    for name in ["S0", "S1", "S2", "S3"]:
+        np.testing.assert_allclose(getattr(manual, name), getattr(auto, name))

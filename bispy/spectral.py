@@ -232,6 +232,17 @@ class quaternionPSD(object):
 
 
 
+def _n_tapers(bw):
+    ''' Number of data tapers used for the time-halfbandwidth product bw: floor(2 bw) - 1.'''
+    return int(np.floor(2 * bw)) - 1
+
+
+def _check_same_time(a, b):
+    ''' Spectral estimates can only be combined if computed on the same time array.'''
+    if not np.array_equal(a.t, b.t):
+        raise ValueError('Cannot sum spectral estimates computed on different time arrays')
+
+
 class Periodogram(object):
     '''
     Compute the periodogram of bivariate
@@ -318,12 +329,10 @@ class Periodogram(object):
         # then the spectral density Gamma_{xx}
 
         self.density = dt / N * (np.norm(QFTx) + utils.StokesNorm(QFTx))
-
+        self.S0, self.S1, self.S2, self.S3 = self._getStokes()
 
     def __add__(self, other):
-        if np.any(self.t != other.t) is True:
-            raise ValueError('Cannot sum Periodograms with differents time \
-                arrays')
+        _check_same_time(self, other)
 
         new = Periodogram(self.t, self.signal, computeFlag=False)  # keep self data
 
@@ -474,13 +483,14 @@ class Multitaper(object):
         # Store the signal and parameters
         self.t = t
         self.signal = x
+        self.bw = bw
 
         N = np.size(x, 0)
         dt = (t[1] - t[0])
         self.f = np.fft.fftfreq(N) / dt
 
         # compute number of tapers
-        Nmt = int(np.floor(2 * bw)) - 1  # add reference here
+        Nmt = _n_tapers(bw)
 
         # define multitaper array
 
@@ -504,16 +514,26 @@ class Multitaper(object):
 
         self.Phi = np.zeros_like(self.S0)
 
-    def compute(self, bw=2.5):
+    def compute(self, bw=None):
 
         ''' Low-level method that computes the multitaper estimate
+
+        Parameters
+        ----------
+        bw : float, optional
+            spectral bandwidth. Default is the value given to the constructor.
         '''
-        N = np.size(self.dpss, 0)
-        Nmt = np.size(self.dpss, 1)
+        if bw is None:
+            bw = self.bw
+        self.bw = bw
+
+        N = np.size(self.signal, 0)
+        Nmt = _n_tapers(bw)
         dt = (self.t[1] - self.t[0])
         # data tapers
         print('Number of data tapers: ' + str(Nmt))
         self.dpss = sg.windows.dpss(N, bw, Kmax=Nmt).T
+        self.densities = np.zeros((N, Nmt), dtype='quaternion')
 
         # compute Nmt tapered periodograms
         for n in range(Nmt):
@@ -523,12 +543,20 @@ class Multitaper(object):
             self.densities[:, n] = dt * (np.norm(QFTx) +
                 utils.StokesNorm(QFTx))
 
-    def __add__(self, other):
-        if np.any(self.t != other.t) is True:
-            raise ValueError('Cannot sum Periodograms with differents time \
-                arrays')
+        self.density = quaternion.as_quat_array(np.mean(quaternion.as_float_array(self.densities), axis=1))
+        self.S0, self.S1, self.S2, self.S3 = self._getStokes()
 
-        new = Multitaper(self.t, self.signal, computeFlag=False)  # keep self data
+    def __add__(self, other):
+        _check_same_time(self, other)
+
+        new = Multitaper(self.t, self.signal, bw=self.bw, computeFlag=False)  # keep self data
+        new.dpss = self.dpss
+
+        # per-taper densities can only be combined between estimates using the same tapers
+        if isinstance(other, Multitaper):
+            if other.bw != self.bw:
+                raise ValueError('Cannot sum multitaper estimates with different bandwidths')
+            new.densities = self.densities + other.densities
 
         # update density
         new.density = self.density + other.density
@@ -542,7 +570,9 @@ class Multitaper(object):
         if np.size(scalar) > 1:
             raise ValueError('Only scalar multiplication is supported')
 
-        new = Multitaper(self.t, self.signal, computeFlag=False)  # keep self data
+        new = Multitaper(self.t, self.signal, bw=self.bw, computeFlag=False)  # keep self data
+        new.dpss = self.dpss
+        new.densities = scalar * self.densities
 
         # update density
         new.density = scalar * self.density

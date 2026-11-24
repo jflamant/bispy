@@ -29,5 +29,14 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 - `HermitianFilter` and `UnitaryFilter` overwrote the caller's `K`, `eta`, `alpha` and `phi`
   arrays with their symmetrized versions. The symmetrized arrays remain available as the
   filter attributes `K`, `eta`, `alpha` and `phi`.
+- Adding two spectral estimates (`Periodogram`, `Multitaper`) computed on different time
+  arrays was silently accepted. It now raises `ValueError`, as intended.
+- `Multitaper` `+` and `*` returned an object with the default bandwidth, whose per-taper
+  `densities` and `dpss` did not match its `density`. Results now keep the bandwidth and the
+  combined per-taper densities. Adding two `Multitaper` estimates with different bandwidths
+  raises `ValueError`.
+- With `computeFlag=False`, a later call to `compute()` did not update the Stokes parameters
+  (nor, for `Multitaper`, `density`), and `Multitaper.compute()` ignored the bandwidth given to
+  the constructor.
 
 [Unreleased]: https://github.com/jflamant/bispy/compare/v0.9.4.dev...HEAD
