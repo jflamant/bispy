@@ -1,0 +1,84 @@
+[project]
+name = "bispy-polar"
+# Single source of truth for the version. Bump with `uv version --bump ...`
+# or set it with `uv version X.Y.Z`; the git tag must match (`vX.Y.Z`).
+version = "0.9.5.dev0"
+description = "An open-source Python framework for processing bivariate signals."
+readme = "README.md"
+requires-python = ">=3.10"
+# SPDX expression; must match the LICENCE file.
+license = "MIT"
+license-files = ["LICENCE"]
+authors = [{ name = "Julien Flamant", email = "julien.flamant@cnrs.fr" }]
+keywords = [
+    "signal processing",
+    "bivariate signals",
+    "polarization",
+    "quaternion",
+    "time-frequency analysis",
+    "spectral analysis",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+# Lower bounds are exercised by the "lowest-direct" CI job.
+# numpy-quaternion >= 2024.0.2 is the first release built for numpy 2.
+dependencies = [
+    "numpy>=1.25",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "numpy-quaternion>=2024.0.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/jflamant/bispy"
+Documentation = "https://jflamant.github.io/bispy/"
+Source = "https://github.com/jflamant/bispy"
+Issues = "https://github.com/jflamant/bispy/issues"
+
+# Development-only dependencies (not published). `uv sync` installs the `dev` group.
+[dependency-groups]
+test = ["pytest>=8", "pytest-cov>=5"]
+# ipython provides the "ipython3" syntax highlighter used by the tutorials.
+docs = ["sphinx>=7", "sphinx-rtd-theme>=2", "numpydoc>=1.6", "m2r2>=0.3", "ipython>=8"]
+lint = ["ruff>=0.8"]
+dev = [
+    { include-group = "test" },
+    { include-group = "docs" },
+    { include-group = "lint" },
+]
+
+[build-system]
+requires = ["uv_build>=0.13.10,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# Flat layout: the package lives in ./bispy, and the import name differs from
+# the distribution name.
+module-name = "bispy"
+module-root = ""
+# Ship the test suite in the source distribution.
+source-include = ["tests/**"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra"]
+
+[tool.ruff]
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+# Start with errors only (syntax errors, undefined names). Widen this once the
+# code clean-up (unused imports/variables, legacy RNG, ...) is done.
+select = ["E9", "F63", "F7", "F82"]
