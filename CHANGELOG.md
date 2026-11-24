@@ -13,6 +13,12 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 - Python 3.10 or later is required.
 - Packaging moved from `setup.py` to `pyproject.toml`, built with uv. The PyPI name
   (`bispy-polar`) and the import name (`bispy`) are unchanged.
+- Progress messages ("Computing Time-Frequency Stokes parameters", "Ridge added",
+  "Number of data tapers: ...") are no longer printed. They go through Python's `logging`
+  module (loggers `bispy.timefrequency` and `bispy.spectral`) and are silent unless enabled,
+  for example with `logging.basicConfig(level=logging.INFO)`.
+- `utils.visual.plot3D`, `Periodogram.plot` and `Multitaper.plot` no longer call
+  `fig.show()`. Figures still display in notebooks; scripts call `plt.show()` as usual.
 
 ### Added
 - `bispy.__version__`.

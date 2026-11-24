@@ -552,7 +552,6 @@ class visual(object):
         # replot to avoid 'overlays'
         ax_sig.plot(t, np.real(x), np.imag(x), color='k')
         #proj3d.persp_transformation = _orthogonal_proj
-        fig.show()
         return fig, ax_sig
 
 

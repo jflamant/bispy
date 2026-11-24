@@ -7,6 +7,8 @@
 Module for the time-frequency analysis of bivariate signals.
 '''
 # import modules and packages
+import logging
+
 import numpy as np
 import quaternion
 
@@ -18,6 +20,9 @@ import scipy.signal as sg
 
 from . import qfft
 from . import utils
+
+# Progress messages; silent unless enabled, e.g. logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def _hembedding(q):
@@ -385,7 +390,7 @@ class QSTFT(TFPrepresentation):
         #self.tfpr = temp
 
         # Compute the Time-Frequency Stokes parameters S0, S1, S2, S3
-        print('Computing Time-Frequency Stokes parameters')
+        logger.debug('Computing time-frequency Stokes parameters')
 
         self.S0 = np.norm(self.tfpr)  # already squared norm with this definition
 
@@ -455,7 +460,7 @@ class QSTFT(TFPrepresentation):
         # actual FFT size: scipy uses nperseg when nfft is None
         nfft = self.S0.shape[0]
         # Extract ridges
-        print('Extracting ridges')
+        logger.debug('Extracting ridges')
         self.ridges = _extractRidges(self.S0[:nfft//2, :], parThresh, parMinD)
 
     def plotRidges(self, quivertdecim=10):
@@ -484,7 +489,7 @@ class QSTFT(TFPrepresentation):
         # check whether ridges have been computed
 
         if len(self.ridges) == 0:
-            print('No ridges detected, computing ridges.')
+            logger.info('No ridges extracted yet, extracting them first')
             self.extractRidges()
 
         # create ridge mask
@@ -746,7 +751,7 @@ class QCWT(TFPrepresentation):
         self.params = dict(fmin=fmin, fmax=fmax, wavelets = W)
 
         # Compute the Time-Frequency Stokes parameters S0, S1, S2, S3
-        print('Computing Time-Frequency Stokes parameters')
+        logger.debug('Computing time-frequency Stokes parameters')
 
         self.S0 = np.norm(self.tfpr)  # already squared norm with this definition
 
@@ -785,7 +790,7 @@ class QCWT(TFPrepresentation):
             list of detected ridges
         '''
 
-        print('Extracting ridges')
+        logger.debug('Extracting ridges')
         self.ridges = _extractRidges(self.S0, parThresh, parMinD)
 
 
@@ -833,7 +838,7 @@ class QCWT(TFPrepresentation):
         # check whether ridges have been computed
 
         if len(self.ridges) == 0:
-            print('No ridges detected, computing ridges.')
+            logger.info('No ridges extracted yet, extracting them first')
             self.extractRidges()
 
         # create ridge mask
@@ -958,9 +963,9 @@ def _extractRidges(density, parThresh, parMinD):
                 ridges.append((currentRidgef, currentRidget))
                 currentRidget = []
                 currentRidgef = []
-                print('Ridge added')
+                logger.debug('Ridge %d added (%d points)', len(ridges), len(ridges[-1][0]))
 
-    print(str(len(ridges)) + ' ridges were recovered.')
+    logger.info('%d ridges extracted', len(ridges))
 
     return ridges
 

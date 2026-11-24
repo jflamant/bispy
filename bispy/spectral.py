@@ -7,6 +7,8 @@ This program contains several classes to perform spectral analysis of bivariate
 signals.
 """
 # import modules and packages
+import logging
+
 import numpy as np
 import quaternion
 import matplotlib.pyplot as plt
@@ -16,6 +18,9 @@ import scipy.signal as sg
 
 from . import qfft
 from . import utils
+
+# Progress messages; silent unless enabled, e.g. logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class quaternionPSD(object):
     '''
@@ -416,7 +421,6 @@ class Periodogram(object):
         '''Generic plot of spectral estimates'''
 
         fig, axes = _plotResultSpectral(self.t, self.signal, self)
-        fig.show()
         return fig, axes
 
 
@@ -531,7 +535,7 @@ class Multitaper(object):
         Nmt = _n_tapers(bw)
         dt = (self.t[1] - self.t[0])
         # data tapers
-        print('Number of data tapers: ' + str(Nmt))
+        logger.info('Number of data tapers: %d', Nmt)
         self.dpss = sg.windows.dpss(N, bw, Kmax=Nmt).T
         self.densities = np.zeros((N, Nmt), dtype='quaternion')
 
@@ -639,7 +643,6 @@ class Multitaper(object):
         '''Generic plot of spectral estimates'''
 
         fig, axes = _plotResultSpectral(self.t, self.signal, self)
-        fig.show()
         return fig, axes
 
 

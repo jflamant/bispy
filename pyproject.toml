@@ -77,12 +77,6 @@ addopts = ["-ra"]
 # Known bugs are marked xfail: once a bug is fixed, its test passes, and strict
 # mode turns that into a failure until the marker is removed.
 xfail_strict = true
-filterwarnings = [
-    # bispy calls fig.show(), which warns under the headless Agg backend
-    # (the message differs between matplotlib versions).
-    "ignore:FigureCanvasAgg is non-interactive:UserWarning",
-    "ignore:Matplotlib is currently using agg:UserWarning",
-]
 
 [tool.ruff]
 extend-exclude = ["notebooks"]
