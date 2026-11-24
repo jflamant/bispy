@@ -2,6 +2,7 @@
 
 [![docs-page](https://img.shields.io/badge/docs-latest-blue)](https://jflamant.github.io/bispy/)
 [![PyPI version](https://badge.fury.io/py/bispy-polar.svg)](https://badge.fury.io/py/bispy-polar)
+[![Tests](https://github.com/jflamant/bispy/actions/workflows/tests.yml/badge.svg)](https://github.com/jflamant/bispy/actions/workflows/tests.yml)
 
 BiSPy is an open-source python framework for processing bivariate signals. It supports our papers on time-frequency analysis [1], spectral analysis [2] and linear time-invariant filtering [3] of bivariate signals.
 
@@ -18,13 +19,13 @@ This python toolbox is currently under development and is hosted on GitHub. If y
 
 ### Install from PyPi
 
-Due to name conflict the available version on PyPi is named ``bispy-polar''. To install from PyPi, simply type
+Because of a name conflict, the package is published on PyPI as `bispy-polar`. To install it, type
 
 ```
 pip install bispy-polar
 ```
 
-It will automatically install dependencies (see also below). 
+or, in a [uv](https://docs.astral.sh/uv/) project, `uv add bispy-polar`. Dependencies are installed automatically (see below).
 
 To get started, simply use 
 ```
@@ -33,7 +34,7 @@ import bispy as bsp
 
 Requirements
 ============
-BiSPy works with python 3.5+.
+BiSPy works with Python 3.10+.
 
 Dependencies:
  -   [NumPy](http://www.numpy.org)
@@ -41,17 +42,12 @@ Dependencies:
  -   [Matplotlib](http://matplotlib.org)
  -   [numpy-quaternion](https://github.com/moble/quaternion)
 
-To install dependencies:
-```shell
-pip install numpy scipy matplotlib numpy-quaternion
-```
-
-[numpy-quaternion](https://github.com/moble/quaternion) add quaternion dtype support to numpy. Implementation by [moble]. Since this python toolbox relies extensively on this module, you can check out first the nice introduction [here](https://github.com/moble).
+[numpy-quaternion](https://github.com/moble/quaternion) adds quaternion dtype support to numpy. Implementation by [moble]. Since this python toolbox relies extensively on this module, you can check out first the nice introduction [here](https://github.com/moble).
 
 
 License
 =======
-This software is distributed under the [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) license.
+This software is distributed under the [MIT License](LICENCE).
 
 Cite this work
 ==============
@@ -67,3 +63,20 @@ If you use this package for your own work, please consider citing it with this p
     note =    {Code at https://github.com/jflamant/bispy/, documentation at https://bispy.readthedocs.io/}
 }
 ```
+
+Development
+===========
+The project is managed with [uv](https://docs.astral.sh/uv/). The file `uv.lock` pins the exact versions of every dependency used for development and CI.
+
+```shell
+git clone https://github.com/jflamant/bispy.git && cd bispy
+uv sync                      # create .venv with bispy and all dev tools
+uv run pytest                # run the test suite
+uv run ruff check            # lint
+uv run sphinx-build -b html docs docs/_build/html   # build the docs
+```
+
+To make a release:
+1. Set the version with `uv version X.Y.Z`. This updates `pyproject.toml` and `uv.lock`.
+2. Commit, then tag `vX.Y.Z`.
+3. Publish a GitHub Release from that tag. CI tests the package, builds it and uploads it to PyPI.

@@ -1,0 +1,55 @@
+name: Docs
+
+# Builds the documentation on every push and pull request. Deploys it to
+# GitHub Pages only from master. Requires Settings > Pages > Source:
+# "GitHub Actions".
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  UV_VERSION: "0.13.10"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: docs-build-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Install locked docs environment
+        run: uv sync --locked --no-default-groups --group docs
+      - name: Build HTML
+        run: uv run --no-sync sphinx-build -b html --keep-going docs docs/_build/html
+      # The built site is attached to every run (pull requests included), so it
+      # can be downloaded and previewed.
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/_build/html
+
+  deploy:
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

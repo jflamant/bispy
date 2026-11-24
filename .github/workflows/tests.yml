@@ -1,0 +1,96 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Monthly run to catch breakage caused by new upstream releases.
+    - cron: "0 6 1 * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: "0.13.10"
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv run --locked --only-group lint ruff check
+
+  test:
+    # Reproducible runs: exact versions from uv.lock.
+    name: Python ${{ matrix.python-version }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        include:
+          - os: macos-latest
+            python-version: "3.14"
+          - os: windows-latest
+            python-version: "3.14"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ matrix.python-version }}
+      - name: Install locked environment
+        run: uv sync --locked --no-default-groups --group test
+      - name: Run tests
+        run: uv run --no-sync pytest --cov=bispy --cov-report=term-missing
+
+  dependency-bounds:
+    # Ignore uv.lock: check the declared lower bounds in pyproject.toml, and the
+    # newest releases of every dependency.
+    name: ${{ matrix.resolution }} dependencies (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - resolution: lowest-direct
+            python-version: "3.10"
+          - resolution: highest
+            python-version: "3.14"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ matrix.python-version }}
+      - name: Resolve dependencies without the lockfile
+        run: uv sync --upgrade --resolution ${{ matrix.resolution }} --no-default-groups --group test
+      - name: Show resolved versions
+        run: uv pip list
+      - name: Run tests
+        run: uv run --no-sync pytest
+
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv build --no-sources
+      - name: Check the metadata renders on PyPI
+        run: uvx twine check --strict dist/*
+      - name: Import the wheel in a clean environment
+        run: uv run --isolated --no-project --with dist/*.whl python -c "import bispy; print(bispy.__version__)"

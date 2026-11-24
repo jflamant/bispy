@@ -1,0 +1,11 @@
+# Keeps the GitHub Actions used in .github/workflows up to date (one grouped
+# pull request per month). Delete this file if you'd rather update them by hand.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns: ["*"]

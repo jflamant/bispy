@@ -1,0 +1,88 @@
+name: Release
+
+# Publishing a GitHub Release (tag vX.Y.Z) builds the package and uploads it to
+# PyPI. Running this workflow by hand on a tag uploads it to TestPyPI instead (a
+# dry run); by hand on a branch, it only builds.
+#
+# Both uploads use PyPI Trusted Publishing (no API token). On pypi.org and
+# test.pypi.org, add a trusted publisher for project "bispy-polar" with:
+#   owner: jflamant, repository: bispy, workflow: release.yml,
+#   environment: pypi (resp. testpypi)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  UV_VERSION: "0.13.10"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Check that the tag matches the version in pyproject.toml
+        if: github.ref_type == 'tag'
+        run: |
+          version="$(uv version --short)"
+          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match pyproject.toml version ${version} (expected v${version})"
+            exit 1
+          fi
+      - name: Run the test suite
+        run: |
+          uv sync --locked --no-default-groups --group test
+          uv run --no-sync pytest
+      - run: uv build --no-sources
+      - name: Check the metadata renders on PyPI
+        run: uvx twine check --strict dist/*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  testpypi:
+    if: github.event_name == 'workflow_dispatch' && github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/bispy-polar
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv publish --publish-url https://test.pypi.org/legacy/
+
+  pypi:
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/bispy-polar
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv publish
