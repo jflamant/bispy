@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # Copyright © 2018 Julien Flamant
-#
-# Distributed under terms of the CeCILL Free Software Licence Agreement
+# SPDX-License-Identifier: MIT
 
 '''
 Module for the LTI filtering of bivariate signals.

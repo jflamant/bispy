@@ -51,7 +51,7 @@ pip install numpy scipy matplotlib numpy-quaternion
 
 License
 =======
-This software is distributed under the [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) license.
+This software is distributed under the [MIT License](LICENCE).
 
 Cite this work
 ==============
