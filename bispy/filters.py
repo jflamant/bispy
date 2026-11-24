@@ -21,10 +21,13 @@ class Filter:
 
 
 class HermitianFilter(Filter):
-    '''
+    r'''
     Hermitian filter for bivariate signals.
-    The Hermitian filtering relations reads in the QFT spectral domain:
-        Y(nu) = K(nu)*[X(nu) - eta(nu)*mu(nu)*X(nu)*qj]
+
+    The Hermitian filtering relation reads, in the QFT spectral domain,
+
+    .. math:: Y(\nu) = K(\nu)\left[X(\nu) - \eta(\nu)\mu(\nu)X(\nu)\boldsymbol{j}\right]
+
     where K is the homogeneous gain of the filter, eta is the polarizing power
     and mu the axis of the filter.
 
@@ -125,11 +128,14 @@ class HermitianFilter(Filter):
         return y
 
 class UnitaryFilter(Filter):
-    '''
+    r'''
     Unitary filter for bivariate signals.
-    The Unitary filtering relation reads in the QFT spectral domain:
-        Y(nu) = exp(mu(nu)*alpha(nu) / 2)*X(nu)exp(1j*phi(nu))
-    where phi is phase delay of the filter, mu its axis and alpha is the
+
+    The unitary filtering relation reads, in the QFT spectral domain,
+
+    .. math:: Y(\nu) = \exp\left(\mu(\nu)\alpha(\nu)/2\right) X(\nu) \exp\left(\boldsymbol{j}\varphi(\nu)\right)
+
+    where phi is the phase delay of the filter, mu its axis and alpha the
     birefringence angle.
 
     Parameters

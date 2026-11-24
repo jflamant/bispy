@@ -7,14 +7,14 @@
 
 
 
-Unitary Filter
---------------------
+Unitary filter
+--------------
 
 .. autoclass:: UnitaryFilter
    :members:
 
-HermitianFilter
-------
+Hermitian filter
+----------------
 
 .. autoclass:: HermitianFilter
    :members:

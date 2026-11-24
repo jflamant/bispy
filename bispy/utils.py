@@ -10,7 +10,7 @@ import numpy as np
 import quaternion
 
 __all__ = ['sympSplit', 'sympSynth', 'StokesNorm', 'normalizeStokes',
-    'Stokes2geo', 'geo2Stokes', 'quat2euler', 'euler2quat']
+    'Stokes2geo', 'geo2Stokes', 'quat2euler', 'euler2quat', 'polarizationEllipse']
 
 
 def sympSplit(q):
@@ -124,7 +124,7 @@ def StokesNorm(q):
 
     The Stokes-Poincaré norm is defined by::
 
-        StokesNorm(q) = -q*j*np.conj(q)
+        StokesNorm(q) = q*j*np.conj(q)
 
     with j = quaternion(0, 0, 1, 0).
 
