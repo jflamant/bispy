@@ -16,3 +16,4 @@ Prototype signals
 
 .. autoclass:: stationaryBivariate
   :members:
+  :inherited-members:

@@ -51,7 +51,7 @@ Issues = "https://github.com/jflamant/bispy/issues"
 [dependency-groups]
 test = ["pytest>=8", "pytest-cov>=5", "pytest-regressions>=2.5"]
 # ipython provides the "ipython3" syntax highlighter used by the tutorials.
-docs = ["sphinx>=7", "sphinx-rtd-theme>=2", "numpydoc>=1.6", "m2r2>=0.3", "ipython>=8"]
+docs = ["sphinx>=7", "sphinx-rtd-theme>=2", "numpydoc>=1.6", "myst-parser>=2", "ipython>=8"]
 lint = ["ruff>=0.8"]
 dev = [
     { include-group = "test" },

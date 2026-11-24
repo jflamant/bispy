@@ -8,6 +8,12 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 
 ## [Unreleased]
 
+### Added
+- The documentation includes this changelog and documents `utils.polarizationEllipse`.
+
+### Fixed
+- The formula in the `utils.StokesNorm` docstring had a wrong sign (the code was correct).
+
 ## [0.10.0] - 2026-11-25
 
 First release after the 0.9.x development snapshots. When upgrading, note that:

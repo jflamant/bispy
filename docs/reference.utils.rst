@@ -20,6 +20,7 @@ Quaternion specific operations
    geo2Stokes
    quat2euler
    euler2quat
+   polarizationEllipse
 
 
 Windows functions

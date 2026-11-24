@@ -389,13 +389,13 @@ class QSTFT(TFPrepresentation):
         ----------
         parThresh : float, optional
             Controls the threshold at which local maxima of S0 are accepted or
-            rejected. Larger values of `parThresh`increase the number of
+            rejected. Larger values of `parThresh` increase the number of
             eligible points.
 
         parMinD : float, optional
             Ridge smoothness parameter. Controls at which maximal distance
             can be located two eligible same ridge points. The smaller
-            `parMinD`is the smoother ridges are.
+            `parMinD` is the smoother ridges are.
 
         Returns
         -------
@@ -717,13 +717,13 @@ class QCWT(TFPrepresentation):
         ----------
         parThresh : float, optional
             Controls the threshold at which local maxima of S0 are accepted or
-            rejected. Larger values of `parThresh`increase the number of
+            rejected. Larger values of `parThresh` increase the number of
             eligible points.
 
         parMinD : float, optional
             Ridge smoothness parameter. Controls at which maximal distance
             can be located two eligible same ridge points. The smaller
-            `parMinD`is the smoother ridges are.
+            `parMinD` is the smoother ridges are.
 
         Returns
         -------

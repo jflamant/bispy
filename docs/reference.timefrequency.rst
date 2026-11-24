@@ -18,9 +18,11 @@ Q-STFT
 
 .. autoclass:: QSTFT
    :members:
+   :inherited-members:
 
 Q-CWT
 ------
 
 .. autoclass:: QCWT
    :members:
+   :inherited-members:
