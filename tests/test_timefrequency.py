@@ -56,6 +56,16 @@ def test_hembedding_recovers_instantaneous_parameters(amfm):
     np.testing.assert_allclose(H.chi[mid], p["chi"][mid], atol=1e-2)
 
 
+@pytest.mark.parametrize("n", [128, 127, 9])
+def test_hembedding_any_length(n):
+    rng = np.random.default_rng(n)
+    x = real_bivariate(rng.standard_normal(n), rng.standard_normal(n))
+    H = tf.Hembedding(x).Hembedding
+    np.testing.assert_allclose(as_float(H)[:, :2], as_float(x)[:, :2], atol=1e-12)
+    # no negative frequencies (bins n//2+1..n-1; Nyquist is kept)
+    np.testing.assert_allclose(as_float(bsp.qfft.Qfft(H))[n // 2 + 1 :], 0, atol=1e-12)
+
+
 def test_hembedding_rejects_non_quaternion():
     with pytest.raises(ValueError):
         tf.Hembedding(np.ones(8))

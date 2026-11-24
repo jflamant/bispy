@@ -10,6 +10,22 @@ import quaternion
 from .utils import euler2quat, sympSynth, sympSplit
 from .filters import HermitianFilter
 from .spectral import quaternionPSD
+from .timefrequency import _hembedding
+
+
+def _resolve_rng(rng):
+    ''' Source of random numbers for the `rng` arguments.
+
+    None uses numpy's global random state (``np.random``), as in earlier versions,
+    so results seeded with ``np.random.seed`` do not change. A RandomState is used
+    as is. Anything else (int seed, SeedSequence, Generator) goes through
+    ``np.random.default_rng``.
+    '''
+    if rng is None:
+        return np.random
+    if isinstance(rng, np.random.RandomState):
+        return rng
+    return np.random.default_rng(rng)
 
 class stationaryBivariate(HermitianFilter):
     '''
@@ -51,7 +67,7 @@ class stationaryBivariate(HermitianFilter):
 
         self.simulation = None
 
-    def simulate(self, M):
+    def simulate(self, M, rng=None):
         '''
         Simulate realizations of the stationary Gaussian random bivariate signal with specified quaternion PSD.
 
@@ -60,10 +76,16 @@ class stationaryBivariate(HermitianFilter):
         M : int
             number of independent realizations to simulate
 
+        rng : None, int, numpy.random.Generator or numpy.random.RandomState, optional
+            source of randomness, see `bivariatewhiteNoise`. A seed initializes
+            one generator shared by the M realizations.
+
         '''
+        if rng is not None:
+            rng = _resolve_rng(rng)  # one generator for all realizations
         self.simulation = np.zeros((M, self.N), dtype='quaternion')
         for m in range(M):
-            w = bivariatewhiteNoise(self.N, 1)
+            w = bivariatewhiteNoise(self.N, 1, rng=rng)
             self.simulation[m, :] =  self.output(w)
 
 
@@ -117,7 +139,7 @@ def bivariateAMFM(a, theta, chi, phi, Hembedding=True, complexOutput=False):
             return sympSynth(x1.real, x2.real)
 
 
-def bivariatewhiteNoise(N, S0, P=0, theta=0, complexOutput=False):
+def bivariatewhiteNoise(N, S0, P=0, theta=0, complexOutput=False, Hembedding=False, rng=None):
 
     ''' Generates a bivariate white noise with prescribed polarization
         properties using the Unpolarized/Polarized part decomposition.
@@ -135,7 +157,16 @@ def bivariatewhiteNoise(N, S0, P=0, theta=0, complexOutput=False):
         complexOutput: bool, optional
             If `True`, output is a complex numpy array. Otherwise output is a
             quaternion numpy array. Default is `False`.
-        returns
+        Hembedding : bool, optional
+            If `True`, output is the H-embedding of the noise (quaternion
+            analytic signal), as a quaternion numpy array. Cannot be combined
+            with `complexOutput`. Default is `False`.
+        rng : None, int, numpy.random.Generator or numpy.random.RandomState, optional
+            Source of randomness. With `None` (default), numpy's global random
+            state is used, so that ``np.random.seed`` gives the same results as
+            in earlier versions. An int seeds a new ``numpy.random.Generator``.
+
+        Returns
         -------
         w : array_type
             bivariate white noise signal
@@ -143,12 +174,16 @@ def bivariatewhiteNoise(N, S0, P=0, theta=0, complexOutput=False):
     # check value of P
     if (0 <= P <= 1) is False:
         raise ValueError('Degree of polarization P must be between 0 and 1 !')
+    if complexOutput and Hembedding:
+        raise ValueError('complexOutput and Hembedding cannot both be True')
+
+    rng = _resolve_rng(rng)
 
     #  unpolarized part
-    wu = 1 / np.sqrt(2) * (np.random.randn(N) + 1j * np.random.randn(N))
+    wu = 1 / np.sqrt(2) * (rng.standard_normal(N) + 1j * rng.standard_normal(N))
 
     #  polarized part
-    wp = np.random.randn(N)
+    wp = rng.standard_normal(N)
 
     #  use of the UP decomposition to construct the output
     w = (S0)**0.5 * (np.sqrt(1 - P) * wu + np.sqrt(P) *
@@ -156,5 +191,7 @@ def bivariatewhiteNoise(N, S0, P=0, theta=0, complexOutput=False):
 
     if complexOutput is True:
         return w
-    else:
-        return sympSynth(w.real, w.imag)
+    wq = sympSynth(w.real, w.imag)
+    if Hembedding is True:
+        return _hembedding(wq)
+    return wq

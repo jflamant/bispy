@@ -20,6 +20,25 @@ from . import qfft
 from . import utils
 
 
+def _hembedding(q):
+    ''' H-embedding (quaternion embedding) of a quaternion signal q.
+
+    In the QFT domain, positive frequencies are doubled, negative frequencies are
+    cancelled, and DC (and the Nyquist frequency, for even lengths) are kept.
+    '''
+    N = np.size(q, 0)
+    pos, _ = qfft._frequency_halves(N)
+
+    h = np.zeros((N, 4))
+    h[0, 0] = 1
+    h[pos, 0] = 2
+    if N % 2 == 0:  # Nyquist frequency
+        h[N // 2, 0] = 1
+    hq = quaternion.as_quat_array(h)
+
+    return qfft.iQfft(qfft.Qfft(q) * hq)
+
+
 class Hembedding(object):
     ''' H-embedding class. Computes quaternion embedding of complex-valued
     signals.
@@ -58,17 +77,7 @@ class Hembedding(object):
         self.signal = q
 
         # compute H-extension of the signal
-        N = np.size(q, 0)
-        Q = qfft.Qfft(q)
-
-        # filter frequencies
-        h = np.zeros((N, 4))
-        h[0, 0] = 1
-        h[N // 2, 0] = 1
-        h[1: N // 2, 0] = 2
-        hq = quaternion.as_quat_array(h)
-
-        self.Hembedding = qfft.iQfft(Q * hq)
+        self.Hembedding = _hembedding(q)
 
         # Compute Euler angle form
         a, theta, chi, phi = utils.quat2euler(self.Hembedding)

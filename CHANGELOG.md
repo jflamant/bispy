@@ -17,6 +17,12 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 ### Added
 - `bispy.__version__`.
 - A test suite covering all modules, run in CI on Linux, macOS and Windows.
+- `rng` argument for `signals.bivariatewhiteNoise` and `signals.stationaryBivariate.simulate`.
+  A seed or a `numpy.random.Generator` gives reproducible results without touching NumPy's
+  global random state. The default, `rng=None`, keeps using the global state, so results
+  seeded with `np.random.seed` are unchanged.
+- `Hembedding` option of `signals.bivariatewhiteNoise`, returning the H-embedding (quaternion
+  analytic signal) of the noise ([#8](https://github.com/jflamant/bispy/issues/8)).
 
 ### Fixed
 - `quaternionPSD.plot()` and `quaternionPSD.plotStokes()` crashed with matplotlib 3.1 and later.
@@ -39,6 +45,9 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
   (nor, for `Multitaper`, `density`), and `Multitaper.compute()` ignored the bandwidth given to
   the constructor.
 - `QSTFT.extractRidges()` (and `QSTFT.compute(ridges=True)`) failed when `nfft` was not given.
+- `timefrequency.Hembedding` was inexact for odd signal lengths: the highest positive frequency
+  was halved, so the embedding no longer contained the original signal. Even lengths are
+  unchanged.
 - **Values change:** `QCWT` with the Morlet wavelet used a wrong normalization constant
   (`(...)**1/2` instead of `(...)**(-1/2)`). Coefficients were too small by a factor
   2·sqrt(1 + exp(-η²) - 2 exp(-3η²/4)), which equals 2 for the default η = 2π. With the default,
