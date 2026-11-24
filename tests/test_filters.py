@@ -90,20 +90,22 @@ def test_unitary_snapshot(x, params, snapshot):
     snapshot(y=f.output(x), alpha=f.alpha, phi=f.phi, mu=f.mu)
 
 
-# --- known bugs (see the audit); remove the marker when fixed --------------------
+# --- any length, input handling ---------------------------------------------------
 
 
-@pytest.mark.xfail(reason="known bug: odd lengths fail in the symmetry code", raises=ValueError)
-@pytest.mark.parametrize("n", [7, 101])
-@pytest.mark.parametrize("kind", ["hermitian", "unitary"])
-def test_odd_length(kind, n):
-    if kind == "hermitian":
-        filters.HermitianFilter(n, np.ones(n), 0.5 * np.ones(n), np.ones(n) * quaternion.y)
-    else:
-        filters.UnitaryFilter(n, np.ones(n) * quaternion.y, np.ones(n), np.ones(n))
+@pytest.mark.parametrize("n", [5, 7, 101, 128])
+def test_any_length_keeps_signals_real_bivariate(n):
+    rng = np.random.default_rng(n)
+    x = real_bivariate(rng.standard_normal(n), rng.standard_normal(n))
+    mu = quaternion.as_quat_array(np.c_[np.zeros(n), rng.standard_normal((n, 3))])
+    h = filters.HermitianFilter(n, 1 + rng.random(n), 0.9 * rng.random(n), mu)
+    assert jk_part(h.output(x)) < 1e-12
+    u = filters.UnitaryFilter(n, mu, rng.random(n), rng.random(n))
+    y = u.output(x)
+    assert jk_part(y) < 1e-12
+    assert energy(y) == pytest.approx(energy(x), rel=1e-12)
 
 
-@pytest.mark.xfail(reason="known bug: filters modify the caller's parameter arrays in place")
 @pytest.mark.parametrize("kind", ["hermitian", "unitary"])
 def test_inputs_not_modified(kind, params):
     a, b = params["K"], params["eta"]

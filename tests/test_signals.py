@@ -108,6 +108,15 @@ def test_stationary_bivariate_simulate_shape(target_psd, legacy_seed):
     assert jk_part(sim.simulation) < 1e-12  # real bivariate realizations
 
 
+def test_stationary_bivariate_odd_length(legacy_seed):
+    n = 101
+    mu = np.ones(n) * quaternion.quaternion(0, 0.5, 1, 0)
+    sim = signals.stationaryBivariate(bsp.spectral.quaternionPSD(n, np.ones(n), 0.5 * np.ones(n), mu))
+    sim.simulate(2)
+    assert sim.simulation.shape == (2, n)
+    assert jk_part(sim.simulation) < 1e-12
+
+
 def test_stationary_bivariate_matches_target_psd(target_psd, legacy_seed):
     # The average periodogram of many realizations approaches the target PSD.
     M, N = 300, target_psd.N

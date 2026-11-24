@@ -24,5 +24,10 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 - Plotting functions advanced NumPy's global random number generator (a random array set
   the figure aspect ratio), so making a plot changed the random numbers drawn afterwards.
 - `utils.visual.plot2D` now accepts complex input, as documented.
+- `spectral.quaternionPSD`, `filters.HermitianFilter` and `filters.UnitaryFilter` (and therefore
+  `signals.stationaryBivariate`) failed for odd signal lengths.
+- `HermitianFilter` and `UnitaryFilter` overwrote the caller's `K`, `eta`, `alpha` and `phi`
+  arrays with their symmetrized versions. The symmetrized arrays remain available as the
+  filter attributes `K`, `eta`, `alpha` and `phi`.
 
 [Unreleased]: https://github.com/jflamant/bispy/compare/v0.9.4.dev...HEAD

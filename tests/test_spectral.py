@@ -33,14 +33,14 @@ def mean_power(x):
 # --- quaternionPSD --------------------------------------------------------------
 
 
-def make_psd(mu_i=0.0):
-    f = np.fft.fftfreq(N)
+def make_psd(mu_i=0.0, n=N):
+    f = np.fft.fftfreq(n)
     S0 = 1 / (1 + (np.abs(f) / 0.1) ** 2)
     Phi = 0.3 + 0.5 * np.exp(-(((np.abs(f) - 0.2) / 0.05) ** 2))
     ang = 0.5 + 2 * f
     c = np.sqrt(1 - mu_i**2)
-    mu = quaternion.as_quat_array(np.c_[np.zeros(N), mu_i * np.ones(N), c * np.cos(ang), c * np.sin(ang)])
-    return spectral.quaternionPSD(N, S0, Phi, mu), S0, Phi
+    mu = quaternion.as_quat_array(np.c_[np.zeros(n), mu_i * np.ones(n), c * np.cos(ang), c * np.sin(ang)])
+    return spectral.quaternionPSD(n, S0, Phi, mu), S0, Phi
 
 
 @pytest.mark.parametrize("mu_i", [0.0, 0.6])
@@ -64,9 +64,10 @@ def test_psd_no_circular_polarization_at_dc_and_nyquist():
     assert np.abs(psd.mu[0]) == pytest.approx(0.8)
 
 
-def test_psd_hermitian_symmetry():
-    psd, *_ = make_psd(mu_i=0.6)
-    k = np.arange(1, N // 2)
+@pytest.mark.parametrize("n", [N, 255, 7])
+def test_psd_hermitian_symmetry(n):
+    psd, *_ = make_psd(mu_i=0.6, n=n)
+    k = np.arange(1, (n - 1) // 2 + 1)  # all positive frequencies (Nyquist excluded)
     np.testing.assert_allclose(psd.S0[-k], psd.S0[k])
     np.testing.assert_allclose(psd.S1[-k], psd.S1[k])
     np.testing.assert_allclose(psd.S2[-k], psd.S2[k])
@@ -95,10 +96,13 @@ def test_psd_snapshot(snapshot):
     snapshot(density=psd.density)
 
 
-@pytest.mark.xfail(reason="known bug: odd lengths fail in the symmetry code", raises=ValueError)
 @pytest.mark.parametrize("n", [7, 101])
 def test_psd_odd_length(n):
-    spectral.quaternionPSD(n, np.ones(n), 0.5 * np.ones(n), np.ones(n) * quaternion.y)
+    psd, S0, Phi = make_psd(mu_i=0.6, n=n)
+    half = slice(0, (n + 1) // 2)  # DC and positive frequencies are kept as given
+    np.testing.assert_array_equal(psd.S0[half], S0[half])
+    np.testing.assert_array_equal(psd.Phi[half], Phi[half])
+    assert psd.S3[0] == pytest.approx(0, abs=1e-12)
 
 
 # --- Periodogram ----------------------------------------------------------------

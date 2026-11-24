@@ -103,25 +103,26 @@ class quaternionPSD(object):
             Gamma_xx(-nu) =-i*conj(Gamma_xx(nu))*i
         '''
         N = np.size(self.f)
-        #
+        pos, neg = qfft._frequency_halves(N)
         qi = quaternion.x
 
-        # SO(-v) = SO(v)
+        # S0(-v) = S0(v)
         S0 = np.zeros_like(S0xvec)
         S0[:N//2+1] = S0xvec[:N//2+1]
-        S0[N//2 +1:] = S0xvec[1:N//2][::-1]
+        S0[neg] = S0xvec[pos][::-1]
 
         # Phi(-v) = Phi(v)
         Phi = np.zeros_like(Phixvec)
         Phi[:N//2 +1] = Phixvec[:N//2+1]
-        Phi[N//2 +1:] = Phixvec[1:N//2][::-1]
+        Phi[neg] = Phixvec[pos][::-1]
 
         # mu(-v) = conj_i(mu(v))
         mu = np.zeros_like(muxvec)
-        mu[1:N//2] = muxvec[1:N//2]
-        mu[N//2 + 1:] = -qi*np.conj(muxvec[1:N//2][::-1])*qi
+        mu[pos] = muxvec[pos]
+        mu[neg] = -qi*np.conj(muxvec[pos][::-1])*qi
         mu[0] = .5*(mu[1] + mu[-1])
-        mu[N//2] = .5*(mu[N//2+1] + mu[N//2-1])
+        if N % 2 == 0:  # Nyquist frequency
+            mu[N//2] = .5*(mu[N//2+1] + mu[N//2-1])
 
         return S0, Phi, mu
 
