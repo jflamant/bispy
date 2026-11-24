@@ -505,39 +505,50 @@ class visual:
 
         '''
 
-        if q.dtype == 'quaternion':
-            u, v = sympSplit(q)
-            x = u.real + 1j * v.real
-        else:
-            x = q  # complex array
-
         if len(q.shape) > 2:
             raise ValueError('Data should be a vector to be 3D plotted')
 
         fig = plt.figure()
         ax_sig = fig.add_subplot(projection = '3d')
-        # ax_sig
-        ax_sig.plot(t, np.real(x), np.imag(x), color='k')
-
-        tmin = ax_sig.get_xlim3d()[0]
-        tmax = ax_sig.get_xlim3d()[1]
-        xmin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
-        xmax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
-        ymin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
-        ymax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
-
-        # projection on the complex plane
-        ax_sig.plot(x.real, x.imag, -.05*(tmin+tmax), zdir='x', color='gray')
-        ax_sig.set_xlim([-.05*(tmin+tmax), tmax])
-
-        # real proj
-        ax_sig.plot(t, x.real, ymin*1.05, zdir='z', color='gray')
-        ax_sig.set_zlim([1.05*ymin, ymax])
-
-        # imaginary proj
-        ax_sig.plot(t, x.imag, 1.05*xmax, zdir='y', color='gray')
-        ax_sig.set_ylim([xmin, 1.05*xmax])
-
-        # replot to avoid 'overlays'
-        ax_sig.plot(t, np.real(x), np.imag(x), color='k')
+        _plot3D_trace(ax_sig, t, q)
         return fig, ax_sig
+
+
+def _plot3D_trace(ax_sig, t, q):
+    ''' Draw a bivariate signal on 3D axes (time, u, v), with its projections.
+
+    Parameters
+    ----------
+    ax_sig : 3D axes
+    t, q : array_type
+        time and signal arrays (signal array may be either complex or quaternion type)
+    '''
+    if q.dtype == 'quaternion':
+        u, v = sympSplit(q)
+        x = u.real + 1j * v.real
+    else:
+        x = q  # complex array
+
+    ax_sig.plot(t, np.real(x), np.imag(x), color='k')
+
+    tmin = ax_sig.get_xlim3d()[0]
+    tmax = ax_sig.get_xlim3d()[1]
+    xmin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
+    xmax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
+    ymin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
+    ymax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
+
+    # projection on the complex plane
+    ax_sig.plot(x.real, x.imag, -.05*(tmin+tmax), zdir='x', color='gray')
+    ax_sig.set_xlim([-.05*(tmin+tmax), tmax])
+
+    # real proj
+    ax_sig.plot(t, x.real, ymin*1.05, zdir='z', color='gray')
+    ax_sig.set_zlim([1.05*ymin, ymax])
+
+    # imaginary proj
+    ax_sig.plot(t, x.imag, 1.05*xmax, zdir='y', color='gray')
+    ax_sig.set_ylim([xmin, 1.05*xmax])
+
+    # replot to avoid 'overlays'
+    ax_sig.plot(t, np.real(x), np.imag(x), color='k')
