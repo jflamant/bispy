@@ -2,7 +2,7 @@
 name = "bispy-polar"
 # Single source of truth for the version. Bump with `uv version --bump ...`
 # or set it with `uv version X.Y.Z`; the git tag must match (`vX.Y.Z`).
-version = "0.10.0"
+version = "0.10.1.dev0"
 description = "An open-source Python framework for processing bivariate signals."
 readme = "README.md"
 requires-python = ">=3.10"
