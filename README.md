@@ -73,8 +73,10 @@ git clone https://github.com/jflamant/bispy.git && cd bispy
 uv sync                      # create .venv with bispy and all dev tools
 uv run pytest                # run the test suite
 uv run ruff check            # lint
-uv run sphinx-build -b html docs docs/_build/html   # build the docs
+uv run sphinx-build -b html docs docs/_build/html   # build the docs (runs the tutorials)
 ```
+
+The tutorials are Jupyter notebooks in `docs/tutorials/`, stored without outputs. They run every time the documentation is built, so a tutorial that breaks fails the docs build.
 
 The test suite contains three kinds of tests:
 - **Property tests** check mathematical identities (round trips, Parseval, symmetries).

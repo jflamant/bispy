@@ -26,10 +26,10 @@ extensions = [
     "sphinx.ext.mathjax",  # rendered in the browser, no LaTeX install needed
     "sphinx.ext.viewcode",
     "numpydoc",
-    "myst_parser",  # Markdown pages (README, CHANGELOG)
+    "myst_nb",  # Markdown pages (README, CHANGELOG) and notebooks (tutorials)
 ]
 
-source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
+source_suffix = {".rst": "restructuredtext", ".md": "myst-nb", ".ipynb": "myst-nb"}
 exclude_patterns = ["_build"]
 language = "en"
 pygments_style = "sphinx"
@@ -40,6 +40,14 @@ autosummary_generate = True
 # numpydoc would add a "Methods" table to each class, linking to pages that are
 # never generated; autodoc's :members: already documents the methods.
 numpydoc_show_class_members = False
+
+# The tutorials are notebooks run at every build, so their outputs always come from
+# the current code, and an error in a tutorial fails the build. Cells tagged
+# "skip-execution" (those needing the external wind dataset) keep their stored outputs.
+nb_execution_mode = "force"
+nb_execution_timeout = 600
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

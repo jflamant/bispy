@@ -11,6 +11,11 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 ### Added
 - The documentation includes this changelog and documents `utils.polarizationEllipse`.
 
+### Changed
+- The tutorials are Jupyter notebooks run every time the documentation is built, so their
+  outputs always match the current code. The notebooks moved from `notebooks/` to
+  `docs/tutorials/`.
+
 ### Fixed
 - The formula in the `utils.StokesNorm` docstring had a wrong sign (the code was correct).
 

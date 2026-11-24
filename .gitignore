@@ -29,4 +29,4 @@ dist/
 
 # Notebooks
 *.ipynb_checkpoints
-/notebooks/datasets/
+/docs/tutorials/datasets/
