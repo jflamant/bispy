@@ -8,6 +8,14 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-25
+
+First release after the 0.9.x development snapshots. When upgrading, note that:
+- results change for `QCWT` with the Morlet wavelet (`S0` to `S3` are 4 times larger with the
+  default parameters) and for `Hembedding` of odd-length signals, which were wrong before;
+- progress messages are no longer printed but logged (see Changed);
+- some invalid operations now raise `ValueError` instead of silently giving wrong results.
+
 ### Changed
 - BiSPy is now distributed under the MIT License (previously CC-BY-4.0, and CeCILL before 2023).
 - Python 3.10 or later is required.
@@ -64,4 +72,5 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
   `tfpr` is now 2 times larger and `S0`, `S1`, `S2`, `S3` are 4 times larger. Normalized Stokes
   parameters, orientation, ellipticity and ridges are unchanged. Morse wavelets are not affected.
 
-[Unreleased]: https://github.com/jflamant/bispy/compare/v0.9.4.dev...HEAD
+[Unreleased]: https://github.com/jflamant/bispy/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/jflamant/bispy/compare/v0.9.4.dev...v0.10.0
