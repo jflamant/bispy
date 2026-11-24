@@ -1,19 +1,32 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
 
-*.pyc
+# Build artifacts
+build/
+dist/
+*.egg-info/
 
-# Vim ignoring swap files
+# Virtual environments (uv creates .venv/)
+.venv/
 
+# Editors and OS files
 *~
 *.swp
 *.swo
+.DS_Store
+.vscode/
+.idea/
 
-# doc files
+# Docs build output
 /docs/_build/
 /docs/generated/
 
-# notebooks
+# Notebooks
 *.ipynb_checkpoints
 /notebooks/datasets/
-
-# misc
-/bispy.egg-info
