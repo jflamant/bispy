@@ -49,7 +49,7 @@ Issues = "https://github.com/jflamant/bispy/issues"
 
 # Development-only dependencies (not published). `uv sync` installs the `dev` group.
 [dependency-groups]
-test = ["pytest>=8", "pytest-cov>=5"]
+test = ["pytest>=8", "pytest-cov>=5", "pytest-regressions>=2.5"]
 # ipython provides the "ipython3" syntax highlighter used by the tutorials.
 docs = ["sphinx>=7", "sphinx-rtd-theme>=2", "numpydoc>=1.6", "m2r2>=0.3", "ipython>=8"]
 lint = ["ruff>=0.8"]
@@ -74,6 +74,15 @@ source-include = ["tests/**"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["-ra"]
+# Known bugs are marked xfail: once a bug is fixed, its test passes, and strict
+# mode turns that into a failure until the marker is removed.
+xfail_strict = true
+filterwarnings = [
+    # bispy calls fig.show(), which warns under the headless Agg backend
+    # (the message differs between matplotlib versions).
+    "ignore:FigureCanvasAgg is non-interactive:UserWarning",
+    "ignore:Matplotlib is currently using agg:UserWarning",
+]
 
 [tool.ruff]
 extend-exclude = ["notebooks"]
