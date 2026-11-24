@@ -207,13 +207,17 @@ def test_qcwt_snapshot(rs, wavelet, snapshot):
 # --- known bugs (see the audit); remove the marker when fixed --------------------
 
 
-@pytest.mark.xfail(reason="known bug: extractRidges fails when nfft is left at None", raises=TypeError)
 def test_qstft_ridges_with_default_nfft(chirp):
+    # nfft=None means nfft=nperseg (scipy): both must give the same ridges.
     t, x = chirp
-    S = tf.QSTFT(x, t)
+    default, explicit = tf.QSTFT(x, t), tf.QSTFT(x, t)
     with quiet():
-        S.compute(nperseg=101)
-        S.extractRidges()
+        default.compute(nperseg=101, noverlap=96)
+        default.extractRidges()
+        explicit.compute(nperseg=101, noverlap=96, nfft=101)
+        explicit.extractRidges()
+    assert len(default.ridges) == 1
+    assert default.ridges == explicit.ridges
 
 
 @pytest.mark.xfail(reason="known bug: Morlet normalization uses `**1/2` instead of `**0.5` (factor 2)")

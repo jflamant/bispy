@@ -38,5 +38,6 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 - With `computeFlag=False`, a later call to `compute()` did not update the Stokes parameters
   (nor, for `Multitaper`, `density`), and `Multitaper.compute()` ignored the bandwidth given to
   the constructor.
+- `QSTFT.extractRidges()` (and `QSTFT.compute(ridges=True)`) failed when `nfft` was not given.
 
 [Unreleased]: https://github.com/jflamant/bispy/compare/v0.9.4.dev...HEAD

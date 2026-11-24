@@ -443,7 +443,8 @@ class QSTFT(TFPrepresentation):
         ridges : list
             list of detected ridges
         '''
-        nfft = self.params['nfft']
+        # actual FFT size: scipy uses nperseg when nfft is None
+        nfft = self.S0.shape[0]
         # Extract ridges
         print('Extracting ridges')
         self.ridges = _extractRidges(self.S0[:nfft//2, :], parThresh, parMinD)
