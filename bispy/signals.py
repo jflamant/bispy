@@ -1,16 +1,14 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 Module for the synthesis of prototype bivariate signals
 """
 import numpy as np
-import quaternion
 
-from .utils import euler2quat, sympSynth, sympSplit
 from .filters import HermitianFilter
 from .spectral import quaternionPSD
 from .timefrequency import _hembedding
+from .utils import euler2quat, sympSplit, sympSynth
 
 
 def _resolve_rng(rng):
@@ -63,7 +61,7 @@ class stationaryBivariate(HermitianFilter):
         eta[valid] = (1-np.sqrt(1-targetPSD.Phi[valid]**2))/targetPSD.Phi[valid]
         K = np.sqrt(targetPSD.S0/(1+eta**2))
 
-        super(stationaryBivariate, self).__init__(N, K, eta, mu, dt=dt)
+        super().__init__(N, K, eta, mu, dt=dt)
 
         self.simulation = None
 

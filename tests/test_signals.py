@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 import quaternion
-from helpers import as_float, jk_part, quiet
+from helpers import as_float, jk_part
 
 import bispy as bsp
 from bispy import signals
@@ -198,8 +198,7 @@ def test_stationary_bivariate_matches_target_psd(target_psd, legacy_seed):
     t = np.arange(N, dtype=float)
     dens = np.zeros((N, 4))
     for m in range(M):
-        with quiet():
-            dens += as_float(bsp.spectral.Periodogram(t, sim.simulation[m]).density)
+        dens += as_float(bsp.spectral.Periodogram(t, sim.simulation[m]).density)
     dens /= M
     target = as_float(target_psd.density)
     ratio = dens[:, 0] / target[:, 0]

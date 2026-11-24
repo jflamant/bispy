@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright © 2018 Julien Flamant
 # SPDX-License-Identifier: MIT
 
@@ -12,19 +11,13 @@ import quaternion
 
 from . import qfft
 
-class Filter(object):
+
+class Filter:
     def __init__(self, N, dt=1.0):
 
         self.f = np.fft.fftfreq(N, d=dt)
         self.N = N
         self.dt = dt
-
-    # def plot(self):
-    #     # ''' Displays the spectral response of the filter for different input types'''
-    #     # fig, ax = plt.subplots()
-
-    #     # N = len(self.f)
-    #     # ax.plot(self.f, randn(N))
 
 
 class HermitianFilter(Filter):

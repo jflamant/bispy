@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 import quaternion
-from helpers import as_float, quiet, real_bivariate
+from helpers import as_float, real_bivariate
 
 from bispy import spectral
 
@@ -109,22 +109,19 @@ def test_psd_odd_length(n):
 
 
 def test_periodogram_parseval(t, x):
-    with quiet():
-        p = spectral.Periodogram(t, x)
+    p = spectral.Periodogram(t, x)
     assert np.sum(p.S0) / (N * DT) == pytest.approx(mean_power(x))
     np.testing.assert_allclose(p.f, np.fft.fftfreq(N, d=DT))
 
 
 def test_periodogram_single_realization_fully_polarized(t, x):
-    with quiet():
-        p = spectral.Periodogram(t, x)
+    p = spectral.Periodogram(t, x)
     p.normalize()
     np.testing.assert_allclose(p.Phi, 1)
 
 
 def test_periodogram_arithmetic(t, x):
-    with quiet():
-        p = spectral.Periodogram(t, x)
+    p = spectral.Periodogram(t, x)
     np.testing.assert_array_equal(as_float((p + p).density), 2 * as_float(p.density))
     np.testing.assert_array_equal(as_float((3 * p).density), 3 * as_float(p.density))
     np.testing.assert_array_equal(as_float((p * 3).density), 3 * as_float(p.density))
@@ -139,8 +136,7 @@ def test_periodogram_rejects_non_quaternion(t):
 
 
 def test_periodogram_snapshot(t, x_stable, snapshot):
-    with quiet():
-        p = spectral.Periodogram(t, x_stable)
+    p = spectral.Periodogram(t, x_stable)
     snapshot(density=p.density)
 
 
@@ -149,8 +145,7 @@ def test_periodogram_snapshot(t, x_stable, snapshot):
 
 @pytest.mark.parametrize("bw", [2.5, 4])
 def test_multitaper_properties(t, x, bw):
-    with quiet():
-        m = spectral.Multitaper(t, x, bw=bw)
+    m = spectral.Multitaper(t, x, bw=bw)
     n_tapers = int(np.floor(2 * bw)) - 1
     assert m.densities.shape == (N, n_tapers)
     assert m.dpss.shape == (N, n_tapers)
@@ -165,16 +160,14 @@ def test_multitaper_properties(t, x, bw):
 
 
 def test_multitaper_arithmetic(t, x):
-    with quiet():
-        m = spectral.Multitaper(t, x)
-        np.testing.assert_allclose(as_float((m + m).density), 2 * as_float(m.density))
-        np.testing.assert_allclose(as_float((0.5 * m).density), 0.5 * as_float(m.density))
+    m = spectral.Multitaper(t, x)
+    np.testing.assert_allclose(as_float((m + m).density), 2 * as_float(m.density))
+    np.testing.assert_allclose(as_float((0.5 * m).density), 0.5 * as_float(m.density))
 
 
 @pytest.mark.parametrize("bw", [2.5, 4])
 def test_multitaper_snapshot(t, x_stable, bw, snapshot):
-    with quiet():
-        m = spectral.Multitaper(t, x_stable, bw=bw)
+    m = spectral.Multitaper(t, x_stable, bw=bw)
     snapshot(density=m.density)
 
 
@@ -184,10 +177,9 @@ def test_multitaper_snapshot(t, x_stable, bw, snapshot):
 @pytest.mark.parametrize("estimator", ["Periodogram", "Multitaper"])
 def test_sum_rejects_different_time_arrays(t, x, estimator):
     cls = getattr(spectral, estimator)
-    with quiet():
-        a = cls(t, x)
-        other_spacing = cls(2 * t, x)
-        other_length = cls(t[:-1], x[:-1])
+    a = cls(t, x)
+    other_spacing = cls(2 * t, x)
+    other_length = cls(t[:-1], x[:-1])
     with pytest.raises(ValueError):
         a + other_spacing
     with pytest.raises(ValueError):
@@ -195,9 +187,8 @@ def test_sum_rejects_different_time_arrays(t, x, estimator):
 
 
 def test_multitaper_arithmetic_keeps_tapers(t, x):
-    with quiet():
-        m = spectral.Multitaper(t, x, bw=5)
-        results = {"sum": (m + m, 2), "product": (3 * m, 3)}
+    m = spectral.Multitaper(t, x, bw=5)
+    results = {"sum": (m + m, 2), "product": (3 * m, 3)}
     for r, factor in results.values():
         assert r.bw == 5
         np.testing.assert_array_equal(r.dpss, m.dpss)
@@ -207,16 +198,14 @@ def test_multitaper_arithmetic_keeps_tapers(t, x):
 
 
 def test_multitaper_sum_rejects_different_bandwidths(t, x):
-    with quiet():
-        a, b = spectral.Multitaper(t, x, bw=3), spectral.Multitaper(t, x, bw=4)
+    a, b = spectral.Multitaper(t, x, bw=3), spectral.Multitaper(t, x, bw=4)
     with pytest.raises(ValueError):
         a + b
 
 
 def test_mixed_estimators_can_be_summed(t, x):
     # Worked before the fixes; kept for compatibility.
-    with quiet():
-        m, p = spectral.Multitaper(t, x), spectral.Periodogram(t, x)
+    m, p = spectral.Multitaper(t, x), spectral.Periodogram(t, x)
     expected = as_float(m.density) + as_float(p.density)
     np.testing.assert_allclose(as_float((m + p).density), expected)
     np.testing.assert_allclose(as_float((p + m).density), expected)
@@ -225,10 +214,9 @@ def test_mixed_estimators_can_be_summed(t, x):
 @pytest.mark.parametrize("estimator, kwargs", [("Periodogram", {}), ("Multitaper", {"bw": 5})])
 def test_manual_compute_matches_automatic(t, x, estimator, kwargs):
     cls = getattr(spectral, estimator)
-    with quiet():
-        auto = cls(t, x, **kwargs)
-        manual = cls(t, x, computeFlag=False, **kwargs)
-        manual.compute()
+    auto = cls(t, x, **kwargs)
+    manual = cls(t, x, computeFlag=False, **kwargs)
+    manual.compute()
     np.testing.assert_allclose(as_float(manual.density), as_float(auto.density))
     for name in ["S0", "S1", "S2", "S3"]:
         np.testing.assert_allclose(getattr(manual, name), getattr(auto, name))

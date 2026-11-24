@@ -82,6 +82,15 @@ xfail_strict = true
 extend-exclude = ["notebooks"]
 
 [tool.ruff.lint]
-# Start with errors only (syntax errors, undefined names). Widen this once the
-# code clean-up (unused imports/variables, legacy RNG, ...) is done.
-select = ["E9", "F63", "F7", "F82"]
+select = [
+    "E9",   # syntax errors
+    "F",    # pyflakes: undefined names, unused imports and variables
+    "B",    # bugbear: likely bugs (mutable defaults, ...)
+    "UP",   # pyupgrade: modern syntax for the supported Python versions
+    "NPY",  # numpy-specific rules (legacy random API, deprecated aliases)
+    "I",    # import sorting
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The tests use the legacy global RNG on purpose, to check np.random.seed compatibility.
+"tests/**" = ["NPY002"]

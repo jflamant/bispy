@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import quaternion
-from helpers import quiet, two_chirps
+from helpers import two_chirps
 
 import bispy as bsp
 from bispy import timefrequency as tf
@@ -19,8 +19,7 @@ def chirps():
 def qstft(chirps):
     t, x = chirps
     S = tf.QSTFT(x, t)
-    with quiet():
-        S.compute(nperseg=51, noverlap=48, nfft=256, ridges=True)
+    S.compute(nperseg=51, noverlap=48, nfft=256, ridges=True)
     return S
 
 
@@ -28,8 +27,7 @@ def qstft(chirps):
 def qcwt(chirps):
     t, x = chirps
     C = tf.QCWT(x, t)
-    with quiet():
-        C.compute(5, 120, dict(type="Morse", beta=12, gamma=3), Nscales=32, ridges=True)
+    C.compute(5, 120, dict(type="Morse", beta=12, gamma=3), Nscales=32, ridges=True)
     return C
 
 
@@ -64,8 +62,7 @@ def test_qstft_plot_stokes(qstft, single_sided):
 
 
 def test_qstft_plot_ridges(qstft):
-    with quiet():
-        fig, ax = qstft.plotRidges(quivertdecim=10)
+    fig, ax = qstft.plotRidges(quivertdecim=10)
     assert is_figure(fig) and len(ax) == 3
 
 
@@ -75,16 +72,14 @@ def test_qcwt_plot_stokes(qcwt):
 
 
 def test_qcwt_plot_ridges(qcwt):
-    with quiet():
-        fig, ax = qcwt.plotRidges(quivertdecim=10)
+    fig, ax = qcwt.plotRidges(quivertdecim=10)
     assert is_figure(fig) and len(ax) == 3
 
 
 @pytest.mark.parametrize("estimator", ["Periodogram", "Multitaper"])
 def test_spectral_estimate_plot(chirps, estimator):
     t, x = chirps
-    with quiet():
-        est = getattr(bsp.spectral, estimator)(t, x)
+    est = getattr(bsp.spectral, estimator)(t, x)
     est.normalize(tol=0.01)
     fig, axes = est.plot()
     assert is_figure(fig) and len(axes) == 6
@@ -121,6 +116,5 @@ def test_plots_leave_global_rng_untouched(qstft, qcwt, psd, which):
     np.random.seed(0)
     expected = np.random.random()
     np.random.seed(0)
-    with quiet():
-        plot()
+    plot()
     assert np.random.random() == expected

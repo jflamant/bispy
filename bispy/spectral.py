@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 This file is part of BiSPy.
@@ -9,20 +8,18 @@ signals.
 # import modules and packages
 import logging
 
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
 import numpy as np
 import quaternion
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  # required for 3D plot
-import matplotlib.gridspec as gridspec
 import scipy.signal as sg
 
-from . import qfft
-from . import utils
+from . import qfft, utils
 
 # Progress messages; silent unless enabled, e.g. logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class quaternionPSD(object):
+class quaternionPSD:
     '''
     Quaternion Power Spectral Density constructor of the form:
     Gamma_xx(nu) = S_0x(nu)*[1 + Phi_x(nu)*mu_x(nu)]
@@ -166,10 +163,10 @@ class quaternionPSD(object):
 
         fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
 
-        im0 = ax[0].plot(f, np.fft.fftshift(self.S0))
-        im1 = ax[1].plot(f, np.fft.fftshift(self.S1))
-        im2 = ax[2].plot(f, np.fft.fftshift(self.S2))
-        im3 = ax[3].plot(f, np.fft.fftshift(self.S3))
+        ax[0].plot(f, np.fft.fftshift(self.S0))
+        ax[1].plot(f, np.fft.fftshift(self.S1))
+        ax[2].plot(f, np.fft.fftshift(self.S2))
+        ax[3].plot(f, np.fft.fftshift(self.S3))
 
         label =[r'$S_0$', r'$S_1$', r'$S_2$', r'$S_3$']
         for i, axis in enumerate(ax):
@@ -248,7 +245,7 @@ def _check_same_time(a, b):
         raise ValueError('Cannot sum spectral estimates computed on different time arrays')
 
 
-class Periodogram(object):
+class Periodogram:
     '''
     Compute the periodogram of bivariate
     signals taken as (1, i)-quaternion valued signals.
@@ -424,7 +421,7 @@ class Periodogram(object):
         return fig, axes
 
 
-class Multitaper(object):
+class Multitaper:
     '''
     Compute a multitaper spectral estimate of the spectrum of bivariate
     signals taken as (1, i)-quaternion valued signals.
@@ -689,29 +686,20 @@ def _plotResultSpectral(t, sig, spe):
     ymin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
     ymax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
 
-    # surfaces
-
-    # complex plane
-    xx_c, yy_c = np.meshgrid(np.linspace(xmin, xmax), np.linspace(ymin, ymax))
-    #ax_sig.plot_surface(-.05*(tmin+tmax), xx_c, yy_c,  alpha=0.05, color='gray', rstride = 100, cstride=100)
+    # projection on the complex plane
     ax_sig.plot(x.real, x.imag, -.05*(tmin+tmax), zdir='x', color='gray')
     ax_sig.set_xlim([-.05*(tmin+tmax), tmax])
 
     # real proj
-    xx_r, yy_r = np.meshgrid(np.linspace(tmin, tmax), np.linspace(xmin, xmax))
-    #ax_sig.plot_surface(xx_r, yy_r, 1.05*ymin, alpha=0.05, color='gray', rstride = 100, cstride=100)
     ax_sig.plot(t, x.real, ymin*1.05, zdir='z', color='gray')
     ax_sig.set_zlim([1.05*ymin, ymax])
 
-    #imaginary proj
-    xx_i, yy_i = np.meshgrid(np.linspace(tmin, tmax), np.linspace(ymin, ymax))
-    #ax_sig.plot_surface(xx_i, 1.05*xmax, yy_i,  alpha=0.05, color='gray',rstride = 100, cstride=100)
+    # imaginary proj
     ax_sig.plot(t, x.imag, 1.05*xmax, zdir='y', color='gray')
     ax_sig.set_ylim([xmin, 1.05*xmax])
 
     # replot to avoid 'overlays'
     ax_sig.plot(t, np.real(x), np.imag(x), color='k')
-    #proj3d.persp_transformation = _orthogonal_proj
     #########################################################
     # ax_S0
     end = N // 2 - 1
@@ -825,16 +813,3 @@ def _plotResultSpectral(t, sig, spe):
 
     axes = [ax_sig, ax_S0, ax_s1, ax_s2, ax_s3, ax_phi]
     return fig, axes
-
-# workaround orthographic projection (deprecated)
-# from mpl_toolkits.mplot3d import proj3d
-
-# def _orthogonal_proj(zfront, zback):
-#     a = (zfront+zback)/(zfront-zback)
-#     b = -2*(zfront*zback)/(zfront-zback)
-#     # -0.0001 added for numerical stability as suggested in:
-#     # http://stackoverflow.com/questions/23840756
-#     return np.array([[1,0,0,0],
-#                         [0,1,0,0],
-#                         [0,0,a,b],
-#                         [0,0,-0.0001,zback]])

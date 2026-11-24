@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # BiSPy documentation build configuration file, created by
 # sphinx-quickstart on Tue Jan 31 16:28:23 2017.
@@ -304,4 +303,5 @@ intersphinx_mapping = {
 # -----------------------------------------------------------------------------
 
 import glob
+
 autosummary_generate = glob.glob("*.rst")

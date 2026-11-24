@@ -1,7 +1,6 @@
 import numpy as np
 import pytest
-import quaternion
-from helpers import as_float, jk_part, quiet, real_bivariate, two_chirps
+from helpers import as_float, jk_part, real_bivariate, two_chirps
 
 import bispy as bsp
 from bispy import timefrequency as tf
@@ -94,8 +93,7 @@ def test_qstft_default_time_axis(chirp):
 def test_qstft_perfect_reconstruction(chirp):
     t, x = chirp
     S = tf.QSTFT(x, t)
-    with quiet():
-        S.compute(nperseg=101, noverlap=96, nfft=len(x))
+    S.compute(nperseg=101, noverlap=96, nfft=len(x))
     _, xr = S.inverse()
     assert len(xr) >= len(x)  # scipy's istft returns the padded length
     np.testing.assert_allclose(as_float(xr[: len(x)]), as_float(x), atol=1e-12)
@@ -105,8 +103,7 @@ def test_qstft_perfect_reconstruction(chirp):
 def test_qstft_masked_inverse_removes_energy(chirp):
     t, x = chirp
     S = tf.QSTFT(x, t)
-    with quiet():
-        S.compute(nperseg=101, noverlap=96, nfft=len(x))
+    S.compute(nperseg=101, noverlap=96, nfft=len(x))
     _, xr = S.inverse(mask=np.zeros(S.S0.shape, dtype=bool))
     np.testing.assert_allclose(as_float(xr), 0, atol=1e-12)
 
@@ -114,8 +111,7 @@ def test_qstft_masked_inverse_removes_energy(chirp):
 def test_qstft_fully_polarized_pointwise(chirp):
     t, x = chirp
     S = tf.QSTFT(x, t)
-    with quiet():
-        S.compute(nperseg=101, noverlap=96, nfft=len(x))
+    S.compute(nperseg=101, noverlap=96, nfft=len(x))
     np.testing.assert_allclose(np.sqrt(S.S1**2 + S.S2**2 + S.S3**2), S.S0, atol=1e-12 * S.S0.max())
     assert np.max(np.sqrt(S.S1n**2 + S.S2n**2 + S.S3n**2)) <= 1
 
@@ -123,8 +119,7 @@ def test_qstft_fully_polarized_pointwise(chirp):
 def test_qstft_ridge_follows_chirp(chirp):
     t, x = chirp
     S = tf.QSTFT(x, t)
-    with quiet():
-        S.compute(nperseg=101, noverlap=96, nfft=len(x), ridges=True)
+    S.compute(nperseg=101, noverlap=96, nfft=len(x), ridges=True)
     assert len(S.ridges) == 1
     fr, tr = np.array(S.ridges[0][0]), np.array(S.ridges[0][1])
     ft, tt = S.f[fr], S.sampled_times[tr]
@@ -138,9 +133,8 @@ def test_qstft_ridge_follows_chirp(chirp):
 def test_qstft_two_chirps_two_ridges():
     t, x = two_chirps(1024)
     S = tf.QSTFT(x, t)
-    with quiet():
-        S.compute(nperseg=101, noverlap=100, nfft=1024)
-        S.extractRidges()
+    S.compute(nperseg=101, noverlap=100, nfft=1024)
+    S.extractRidges()
     assert len(S.ridges) == 2
 
 
@@ -149,8 +143,7 @@ def test_qstft_snapshot(rs, snapshot):
     t = np.arange(N) * 0.01
     x = real_bivariate(rs.standard_normal(N), rs.standard_normal(N))
     S = tf.QSTFT(x, t)
-    with quiet():
-        S.compute(nperseg=31, noverlap=24, nfft=N)
+    S.compute(nperseg=31, noverlap=24, nfft=N)
     snapshot(f=S.f, times=S.sampled_times, S0=S.S0, S1=S.S1, S2=S.S2, S3=S.S3)
 
 
@@ -165,8 +158,7 @@ def test_qstft_snapshot(rs, snapshot):
 def test_qcwt_locates_tone_and_polarization(tone, wavelet):
     t, x = tone
     C = tf.QCWT(x, t)
-    with quiet():
-        C.compute(10, 200, wavelet, Nscales=40)
+    C.compute(10, 200, wavelet, Nscales=40)
     assert C.tfpr.shape == (40, len(t))
     k = np.argmax(C.S0[:, len(t) // 2])
     step = np.log(C.sampled_frequencies[1] / C.sampled_frequencies[0])
@@ -180,8 +172,7 @@ def test_qcwt_locates_tone_and_polarization(tone, wavelet):
 def test_qcwt_morse_bandpass_normalization(tone):
     t, x = tone
     C = tf.QCWT(x, t)
-    with quiet():
-        C.compute(10, 200, dict(type="Morse", beta=12, gamma=3), Nscales=40)
+    C.compute(10, 200, dict(type="Morse", beta=12, gamma=3), Nscales=40)
     peaks = np.max(as_float(C.params["wavelets"])[..., 0], axis=1)
     assert np.all(peaks <= 2 + 1e-12) and np.all(peaks > 1.9)  # peak value 2 at the center frequency
 
@@ -195,8 +186,7 @@ def test_qcwt_rejects_unknown_wavelet(tone):
 def test_qcwt_ridges():
     t, x = two_chirps(512)
     C = tf.QCWT(x, t)
-    with quiet():
-        C.compute(5, 250, dict(type="Morse", beta=12, gamma=3), Nscales=64, ridges=True)
+    C.compute(5, 250, dict(type="Morse", beta=12, gamma=3), Nscales=64, ridges=True)
     assert len(C.ridges) >= 1
 
 
@@ -209,8 +199,7 @@ def test_qcwt_snapshot(rs, wavelet, snapshot):
     t = np.arange(N) / N
     x = real_bivariate(rs.standard_normal(N), rs.standard_normal(N))
     C = tf.QCWT(x, t)
-    with quiet():
-        C.compute(4, 50, wavelet, Nscales=16)
+    C.compute(4, 50, wavelet, Nscales=16)
     snapshot(freqs=C.sampled_frequencies, S0=C.S0, S1=C.S1, S2=C.S2, S3=C.S3)
 
 
@@ -221,11 +210,10 @@ def test_qstft_ridges_with_default_nfft(chirp):
     # nfft=None means nfft=nperseg (scipy): both must give the same ridges.
     t, x = chirp
     default, explicit = tf.QSTFT(x, t), tf.QSTFT(x, t)
-    with quiet():
-        default.compute(nperseg=101, noverlap=96)
-        default.extractRidges()
-        explicit.compute(nperseg=101, noverlap=96, nfft=101)
-        explicit.extractRidges()
+    default.compute(nperseg=101, noverlap=96)
+    default.extractRidges()
+    explicit.compute(nperseg=101, noverlap=96, nfft=101)
+    explicit.extractRidges()
     assert len(default.ridges) == 1
     assert default.ridges == explicit.ridges
 
@@ -236,8 +224,7 @@ def test_qcwt_morlet_normalization(tone, eta):
     params = dict(type="Morlet") if eta is None else dict(type="Morlet", eta=eta)
     eta = 2 * np.pi if eta is None else eta
     C = tf.QCWT(x, t)
-    with quiet():
-        C.compute(10, 200, params, Nscales=8)
+    C.compute(10, 200, params, Nscales=8)
     f = np.fft.fftfreq(len(t), d=t[1] - t[0])
     for k, fs in enumerate(C.sampled_frequencies):
         s = eta / (2 * np.pi * fs)

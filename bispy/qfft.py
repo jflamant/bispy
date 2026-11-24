@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
 
 
 """
@@ -7,6 +6,7 @@ This module contains QFT routines
 
 """
 import numpy as np
+
 from .utils import sympSplit, sympSynth
 
 __all__ = ['Qfft', 'iQfft', 'Qfftshift', 'iQfftshift', 'Qfftfreq']
