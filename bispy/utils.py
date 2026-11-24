@@ -1,16 +1,13 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 This program contains utility tools.
 """
 
+import matplotlib.gridspec as gridspec  # required for 2D plot
+import matplotlib.pyplot as plt
 import numpy as np
 import quaternion
-
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D # required for 3D plot
-import matplotlib.gridspec as gridspec # required for 2D plot
 
 __all__ = ['sympSplit', 'sympSynth', 'StokesNorm', 'normalizeStokes',
     'Stokes2geo', 'geo2Stokes', 'quat2euler', 'euler2quat']
@@ -335,7 +332,7 @@ def euler2quat(a, theta, chi, phi):
 ''' Windows related functions '''
 
 
-class windows(object):
+class windows:
 
     ''' Windows functions static methods.
 
@@ -410,7 +407,7 @@ def polarizationEllipse(theta, chi, a=1, N=128):
     return phi, ell
 
 
-class visual(object):
+class visual:
     '''
     Static methods for visualization of bivariate signals.
     '''
@@ -419,7 +416,7 @@ class visual(object):
         pass
 
     @staticmethod
-    def plot2D(t, q, labels=['u(t)', 'v(t)']):
+    def plot2D(t, q, labels=('u(t)', 'v(t)')):
         ''' 2D plot of a bivariate signal.
 
         Plots the 2D trace, and time evolution of each component.
@@ -438,8 +435,11 @@ class visual(object):
 
         fig = plt.figure(figsize=(10, 4))
 
-        N = np.size(t)
-        q1, q2 = sympSplit(q)
+        if q.dtype == 'quaternion':
+            q1, q2 = sympSplit(q)
+            u, v = q1.real, q2.real
+        else:  # complex array u + 1j*v
+            u, v = np.real(q), np.imag(q)
 
         gs = gridspec.GridSpec(2, 5)
         gs.update(hspace=0.1, wspace=0.1, bottom=0.18, left=0.09, top=0.95, right=0.94)
@@ -470,9 +470,9 @@ class visual(object):
         ax3.spines['bottom'].set_position(('outward', 10))
 
         # plots
-        ax1.plot(t, q1.real)
-        ax2.plot(t, q2.real)
-        ax3.plot(q1.real, q2.real)
+        ax1.plot(t, u)
+        ax2.plot(t, v)
+        ax3.plot(u, v)
 
         ax3.set_aspect('equal', 'box')
         # get limits
@@ -505,63 +505,50 @@ class visual(object):
 
         '''
 
-        if q.dtype == 'quaternion':
-            u, v = sympSplit(q)
-            x = u.real + 1j * v.real
-        else:
-            x = q  # complex array
-
         if len(q.shape) > 2:
             raise ValueError('Data should be a vector to be 3D plotted')
 
         fig = plt.figure()
         ax_sig = fig.add_subplot(projection = '3d')
-        # ax_sig
-        ax_sig.plot(t, np.real(x), np.imag(x), color='k')
-
-        tmin = ax_sig.get_xlim3d()[0]
-        tmax = ax_sig.get_xlim3d()[1]
-        xmin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
-        xmax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
-        ymin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
-        ymax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
-
-        # surfaces
-
-        # complex plane
-        xx_c, yy_c = np.meshgrid(np.linspace(xmin, xmax), np.linspace(ymin, ymax))
-        #ax_sig.plot_surface(-.05*(tmin+tmax), xx_c, yy_c,  alpha=0.05, color='gray', rstride = 100, cstride=100)
-        ax_sig.plot(x.real, x.imag, -.05*(tmin+tmax), zdir='x', color='gray')
-        ax_sig.set_xlim([-.05*(tmin+tmax), tmax])
-
-        # real proj
-        xx_r, yy_r = np.meshgrid(np.linspace(tmin, tmax), np.linspace(xmin, xmax))
-        #ax_sig.plot_surface(xx_r, yy_r, 1.05*ymin, alpha=0.05, color='gray', rstride = 100, cstride=100)
-        ax_sig.plot(t, x.real, ymin*1.05, zdir='z', color='gray')
-        ax_sig.set_zlim([1.05*ymin, ymax])
-
-        #imaginary proj
-        xx_i, yy_i = np.meshgrid(np.linspace(tmin, tmax), np.linspace(ymin, ymax))
-        #ax_sig.plot_surface(xx_i, 1.05*xmax, yy_i,  alpha=0.05, color='gray',rstride = 100, cstride=100)
-        ax_sig.plot(t, x.imag, 1.05*xmax, zdir='y', color='gray')
-        ax_sig.set_ylim([xmin, 1.05*xmax])
-
-        # replot to avoid 'overlays'
-        ax_sig.plot(t, np.real(x), np.imag(x), color='k')
-        #proj3d.persp_transformation = _orthogonal_proj
-        fig.show()
+        _plot3D_trace(ax_sig, t, q)
         return fig, ax_sig
 
 
-# workaround orthographic projection (deprecated)
-# from mpl_toolkits.mplot3d import proj3d
+def _plot3D_trace(ax_sig, t, q):
+    ''' Draw a bivariate signal on 3D axes (time, u, v), with its projections.
 
-# def _orthogonal_proj(zfront, zback):
-#     a = (zfront+zback)/(zfront-zback)
-#     b = -2*(zfront*zback)/(zfront-zback)
-#     # -0.0001 added for numerical stability as suggested in:
-#     # http://stackoverflow.com/questions/23840756
-#     return np.array([[1,0,0,0],
-#                         [0,1,0,0],
-#                         [0,0,a,b],
-#                         [0,0,-0.0001,zback]])
+    Parameters
+    ----------
+    ax_sig : 3D axes
+    t, q : array_type
+        time and signal arrays (signal array may be either complex or quaternion type)
+    '''
+    if q.dtype == 'quaternion':
+        u, v = sympSplit(q)
+        x = u.real + 1j * v.real
+    else:
+        x = q  # complex array
+
+    ax_sig.plot(t, np.real(x), np.imag(x), color='k')
+
+    tmin = ax_sig.get_xlim3d()[0]
+    tmax = ax_sig.get_xlim3d()[1]
+    xmin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
+    xmax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
+    ymin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
+    ymax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
+
+    # projection on the complex plane
+    ax_sig.plot(x.real, x.imag, -.05*(tmin+tmax), zdir='x', color='gray')
+    ax_sig.set_xlim([-.05*(tmin+tmax), tmax])
+
+    # real proj
+    ax_sig.plot(t, x.real, ymin*1.05, zdir='z', color='gray')
+    ax_sig.set_zlim([1.05*ymin, ymax])
+
+    # imaginary proj
+    ax_sig.plot(t, x.imag, 1.05*xmax, zdir='y', color='gray')
+    ax_sig.set_ylim([xmin, 1.05*xmax])
+
+    # replot to avoid 'overlays'
+    ax_sig.plot(t, np.real(x), np.imag(x), color='k')

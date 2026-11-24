@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
 
 
 """
@@ -7,6 +6,7 @@ This module contains QFT routines
 
 """
 import numpy as np
+
 from .utils import sympSplit, sympSynth
 
 __all__ = ['Qfft', 'iQfft', 'Qfftshift', 'iQfftshift', 'Qfftfreq']
@@ -89,6 +89,18 @@ def iQfftshift(X):
     '''
 
     return np.fft.ifftshift(X)
+
+
+def _frequency_halves(N):
+    ''' Index slices of the positive and negative frequency bins of an FFT of size N.
+
+    Bins 1..npos hold the positive frequencies, in increasing order, and bins
+    N-npos..N-1 the negative ones, so that ``x[neg] = f(x[pos][::-1])`` applies a
+    symmetry relation between v and -v. DC (bin 0) and, for even N, the Nyquist
+    frequency (bin N//2) belong to neither half.
+    '''
+    npos = (N - 1) // 2
+    return slice(1, npos + 1), slice(N - npos, N)
 
 
 def Qfftfreq(N, dt=1.0):

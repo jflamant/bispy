@@ -2,7 +2,7 @@
 name = "bispy-polar"
 # Single source of truth for the version. Bump with `uv version --bump ...`
 # or set it with `uv version X.Y.Z`; the git tag must match (`vX.Y.Z`).
-version = "0.9.5.dev0"
+version = "0.10.0"
 description = "An open-source Python framework for processing bivariate signals."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -77,17 +77,20 @@ addopts = ["-ra"]
 # Known bugs are marked xfail: once a bug is fixed, its test passes, and strict
 # mode turns that into a failure until the marker is removed.
 xfail_strict = true
-filterwarnings = [
-    # bispy calls fig.show(), which warns under the headless Agg backend
-    # (the message differs between matplotlib versions).
-    "ignore:FigureCanvasAgg is non-interactive:UserWarning",
-    "ignore:Matplotlib is currently using agg:UserWarning",
-]
 
 [tool.ruff]
 extend-exclude = ["notebooks"]
 
 [tool.ruff.lint]
-# Start with errors only (syntax errors, undefined names). Widen this once the
-# code clean-up (unused imports/variables, legacy RNG, ...) is done.
-select = ["E9", "F63", "F7", "F82"]
+select = [
+    "E9",   # syntax errors
+    "F",    # pyflakes: undefined names, unused imports and variables
+    "B",    # bugbear: likely bugs (mutable defaults, ...)
+    "UP",   # pyupgrade: modern syntax for the supported Python versions
+    "NPY",  # numpy-specific rules (legacy random API, deprecated aliases)
+    "I",    # import sorting
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The tests use the legacy global RNG on purpose, to check np.random.seed compatibility.
+"tests/**" = ["NPY002"]

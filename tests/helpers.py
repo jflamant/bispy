@@ -1,8 +1,5 @@
 """Shared helpers for the test suite (imported by the test modules)."""
 
-import contextlib
-import io
-
 import numpy as np
 import quaternion
 
@@ -35,8 +32,3 @@ def two_chirps(N=256):
     x1 = bsp.signals.bivariateAMFM(env, np.pi / 4, np.pi / 6 - t, b * t + a * t**2)
     x2 = bsp.signals.bivariateAMFM(env, np.pi / 4 * 10 * t, 0, c * t + a * t**2)
     return t, x1 + x2
-
-
-def quiet():
-    """Silence bispy's progress prints."""
-    return contextlib.redirect_stdout(io.StringIO())

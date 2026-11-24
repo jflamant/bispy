@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 This file is part of BiSPy.
@@ -7,17 +6,45 @@ This program contains several classes to perform spectral analysis of bivariate
 signals.
 """
 # import modules and packages
+import logging
+
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
 import numpy as np
 import quaternion
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  # required for 3D plot
-import matplotlib.gridspec as gridspec
 import scipy.signal as sg
 
-from . import qfft
-from . import utils
+from . import qfft, utils
 
-class quaternionPSD(object):
+# Progress messages; silent unless enabled, e.g. logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class _StokesDensity:
+    ''' Base class for objects holding a quaternion spectral density `density`.'''
+
+    def _getStokes(self):
+        '''
+        Low-level function.
+        Extract Stokes parameters from the spectral density. Recall that
+
+            Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
+
+        Returns
+        -------
+        S0, S1, S2, S3: array_type
+            Stokes parameters
+        '''
+        g1, g2 = utils.sympSplit(self.density)
+
+        S0 = g1.real
+        S1 = g1.imag
+        S3 = g2.real
+        S2 = g2.imag
+
+        return S0, S1, S2, S3
+
+
+class quaternionPSD(_StokesDensity):
     '''
     Quaternion Power Spectral Density constructor of the form:
     Gamma_xx(nu) = S_0x(nu)*[1 + Phi_x(nu)*mu_x(nu)]
@@ -103,49 +130,28 @@ class quaternionPSD(object):
             Gamma_xx(-nu) =-i*conj(Gamma_xx(nu))*i
         '''
         N = np.size(self.f)
-        #
+        pos, neg = qfft._frequency_halves(N)
         qi = quaternion.x
 
-        # SO(-v) = SO(v)
+        # S0(-v) = S0(v)
         S0 = np.zeros_like(S0xvec)
         S0[:N//2+1] = S0xvec[:N//2+1]
-        S0[N//2 +1:] = S0xvec[1:N//2][::-1]
+        S0[neg] = S0xvec[pos][::-1]
 
         # Phi(-v) = Phi(v)
         Phi = np.zeros_like(Phixvec)
         Phi[:N//2 +1] = Phixvec[:N//2+1]
-        Phi[N//2 +1:] = Phixvec[1:N//2][::-1]
+        Phi[neg] = Phixvec[pos][::-1]
 
         # mu(-v) = conj_i(mu(v))
         mu = np.zeros_like(muxvec)
-        mu[1:N//2] = muxvec[1:N//2]
-        mu[N//2 + 1:] = -qi*np.conj(muxvec[1:N//2][::-1])*qi
+        mu[pos] = muxvec[pos]
+        mu[neg] = -qi*np.conj(muxvec[pos][::-1])*qi
         mu[0] = .5*(mu[1] + mu[-1])
-        mu[N//2] = .5*(mu[N//2+1] + mu[N//2-1])
+        if N % 2 == 0:  # Nyquist frequency
+            mu[N//2] = .5*(mu[N//2+1] + mu[N//2-1])
 
         return S0, Phi, mu
-
-    def _getStokes(self):
-        '''
-        Low-level function.
-        Extract extract Stokes parameters from the spectral density
-        Recall that
-
-            Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
-
-        Returns
-        -------
-        S0, S1, S2, S2: array_type
-            Stokes parameters
-        '''
-        g1, g2 = utils.sympSplit(self.density)
-
-        S0 = g1.real
-        S1 = g1.imag
-        S3 = g2.real
-        S2 = g2.imag
-
-        return S0, S1, S2, S3
 
     def plotStokes(self, single_sided=True):
         '''
@@ -155,24 +161,22 @@ class quaternionPSD(object):
         f = np.fft.fftshift(self.f)
 
         # size of plot
-        A = np.random.rand(1, 4)
-        w, h = plt.figaspect(A)
+        w, h = plt.figaspect(1 / 4)
         labelsize= 20
 
         fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
 
-        im0 = ax[0].plot(f, np.fft.fftshift(self.S0))
-        im1 = ax[1].plot(f, np.fft.fftshift(self.S1))
-        im2 = ax[2].plot(f, np.fft.fftshift(self.S2))
-        im3 = ax[3].plot(f, np.fft.fftshift(self.S3))
+        ax[0].plot(f, np.fft.fftshift(self.S0))
+        ax[1].plot(f, np.fft.fftshift(self.S1))
+        ax[2].plot(f, np.fft.fftshift(self.S2))
+        ax[3].plot(f, np.fft.fftshift(self.S3))
 
         label =[r'$S_0$', r'$S_1$', r'$S_2$', r'$S_3$']
         for i, axis in enumerate(ax):
             if single_sided is True:
                 axis.set_xlim(0, f.max())
             axis.set_xlabel('Frequency [Hz]')
-            axis.set_aspect(1./axis.get_data_ratio())
-            axis.set_adjustable('box-forced')
+            axis.set_box_aspect(1)
             axis.set_title(label[i], y = 0.85, size=labelsize)
 
 
@@ -191,8 +195,7 @@ class quaternionPSD(object):
         __, theta, chi, Phi = utils.Stokes2geo(np.fft.fftshift(self.S0), np.fft.fftshift(self.S1), np.fft.fftshift(self.S2), np.fft.fftshift(self.S3))
 
         # size of plot
-        A = np.random.rand(1, 3)
-        w, h = plt.figaspect(A)
+        w, h = plt.figaspect(1 / 3)
         labelsize= 20
 
         fig, ax = plt.subplots(ncols=3, figsize=(w, h), gridspec_kw = {'width_ratios':[1, 1, 1]})
@@ -211,21 +214,18 @@ class quaternionPSD(object):
         axchi.plot(f, chi, color='g')
         axchi.tick_params('y', colors='g')
         axchi.set_ylim(-np.pi/4, np.pi/4)
-        axchi.set_xlim(-np.pi/4, np.pi/4)
 
         label =[r'$S_0$', r'$\Phi$', '']
 
         if single_sided is True:
             axchi.set_xlim(0, f.max())
-        axchi.set_aspect(1./axchi.get_data_ratio())
-        axchi.set_adjustable('box-forced')
+        axchi.set_box_aspect(1)
 
         for i, axis in enumerate(ax):
             if single_sided is True:
                 axis.set_xlim(0, f.max())
             axis.set_xlabel('Frequency [Hz]')
-            axis.set_aspect(1./axis.get_data_ratio())
-            axis.set_adjustable('box-forced')
+            axis.set_box_aspect(1)
             axis.set_title(label[i], y = 0.85, size=labelsize)
 
 
@@ -237,7 +237,105 @@ class quaternionPSD(object):
 
 
 
-class Periodogram(object):
+def _n_tapers(bw):
+    ''' Number of data tapers used for the time-halfbandwidth product bw: floor(2 bw) - 1.'''
+    return int(np.floor(2 * bw)) - 1
+
+
+def _check_same_time(a, b):
+    ''' Spectral estimates can only be combined if computed on the same time array.'''
+    if not np.array_equal(a.t, b.t):
+        raise ValueError('Cannot sum spectral estimates computed on different time arrays')
+
+
+class _SpectralEstimate(_StokesDensity):
+    ''' Base class of the spectral estimators (Periodogram, Multitaper).
+
+    Subclasses compute `density` and implement `_empty_like`, which returns a
+    new estimate with the same signal and parameters, not yet computed.
+    '''
+
+    def _empty_like(self):
+        raise NotImplementedError
+
+    def _init_stokes(self):
+        ''' Stokes parameters of the current density; normalized ones are set by `normalize`.'''
+        self.S0, self.S1, self.S2, self.S3 = self._getStokes()
+
+        # initialize normalized Stokes and degree of polarization
+        self.S1n = np.zeros_like(self.S0)
+        self.S2n = np.zeros_like(self.S0)
+        self.S3n = np.zeros_like(self.S0)
+
+        self.Phi = np.zeros_like(self.S0)
+
+    def __add__(self, other):
+        _check_same_time(self, other)
+
+        new = self._empty_like()  # keep self data
+
+        # update density
+        new.density = self.density + other.density
+
+        # and SO, S1, S2, S3 associated
+        new.S0, new.S1, new.S2, new.S3 = new._getStokes()
+
+        return new
+
+    def __mul__(self, scalar):
+        if np.size(scalar) > 1:
+            raise ValueError('Only scalar multiplication is supported')
+
+        new = self._empty_like()  # keep self data
+
+        # update density
+        new.density = scalar * self.density
+
+        # and SO, S1, S2, S3 associated
+        new.S0, new.S1, new.S2, new.S3 = new._getStokes()
+
+        return new
+
+    def __rmul__(self, scalar):
+        return self * scalar
+
+    def normalize(self, tol=0.0):
+
+        ''' Normalize Stokes parameters wrt S0.
+        In addition, compute the degree of polarization Phi.
+
+        Parameters
+        ----------
+        tol : float, optional
+            tolerance factor used in Stokes parameters normalization.
+            Default is 0.0
+
+        Returns
+        -------
+        self.S1n, self.S2n, self.S3n : array_type
+            normalized Stokes parameters
+
+        self.Phi : array_type
+            degree of polarization
+
+        See also
+        --------
+        utils.normalizeStokes
+        '''
+
+        self.S1n, self.S2n, self.S3n = utils.normalizeStokes(self.S0, self.S1,
+            self.S2, self.S3, tol=tol)
+
+        self.Phi = np.sqrt(self.S1n**2 + self.S2n**2 + self.S3n**2)
+
+    def plot(self):
+        '''Generic plot of spectral estimates'''
+
+        fig, axes = _plotResultSpectral(self.t, self.signal, self)
+        return fig, axes
+
+
+class Periodogram(_SpectralEstimate):
     '''
     Compute the periodogram of bivariate
     signals taken as (1, i)-quaternion valued signals.
@@ -250,7 +348,7 @@ class Periodogram(object):
     x : array_type
         input signal array (has to be of quaternion dtype)
 
-    compute : bool, optional
+    computeFlag : bool, optional
         Flag activating computation of the estimate. Default is true. If False
         one has to run the compute() method manually.
 
@@ -299,16 +397,7 @@ class Periodogram(object):
         if computeFlag is True:
             self.compute()
 
-        # and SO, S1, S2, S3 associated
-
-        self.S0, self.S1, self.S2, self.S3 = self._getStokes()
-
-        # initialize normalized Stokes and degree of polarization
-        self.S1n = np.zeros_like(self.S0)
-        self.S2n = np.zeros_like(self.S0)
-        self.S3n = np.zeros_like(self.S0)
-
-        self.Phi = np.zeros_like(self.S0)
+        self._init_stokes()
 
     def compute(self):
         '''
@@ -323,100 +412,13 @@ class Periodogram(object):
         # then the spectral density Gamma_{xx}
 
         self.density = dt / N * (np.norm(QFTx) + utils.StokesNorm(QFTx))
+        self.S0, self.S1, self.S2, self.S3 = self._getStokes()
+
+    def _empty_like(self):
+        return Periodogram(self.t, self.signal, computeFlag=False)
 
 
-    def __add__(self, other):
-        if np.any(self.t != other.t) is True:
-            raise ValueError('Cannot sum Periodograms with differents time \
-                arrays')
-
-        new = Periodogram(self.t, self.signal, computeFlag=False)  # keep self data
-
-        # update density
-        new.density = self.density + other.density
-
-        # and SO, S1, S2, S3 associated
-        new.S0, new.S1, new.S2, new.S3 = new._getStokes()
-
-        return new
-
-    def __mul__(self, scalar):
-        if np.size(scalar) > 1:
-            raise ValueError('Only scalar multiplication is supported')
-
-        new = Periodogram(self.t, self.signal, computeFlag=False)  # keep self data
-
-        # update density
-        new.density = scalar * self.density
-
-        # and SO, S1, S2, S3 associated
-        new.S0, new.S1, new.S2, new.S3 = new._getStokes()
-
-        return new
-
-    def __rmul__(self, scalar):
-        return self * scalar
-
-    def _getStokes(self):
-        '''
-        Low-level function.
-        Extract extract Stokes parameters from the spectral density
-        Recall that
-
-            Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
-
-        Returns
-        -------
-        S0, S1, S2, S2: array_type
-            Stokes parameters
-        '''
-        g1, g2 = utils.sympSplit(self.density)
-
-        S0 = g1.real
-        S1 = g1.imag
-        S3 = g2.real
-        S2 = g2.imag
-
-        return S0, S1, S2, S3
-
-    def normalize(self, tol=0.0):
-
-        ''' Normalize Stokes parameters wrt S0.
-        In addition, compute the degree of polarization Phi.
-
-        Parameters
-        ----------
-        tol : float, optional
-            tolerance factor used in Stokes parameters normalization.
-            Default is 0.0
-
-        Returns
-        -------
-        self.S1n, self.S2n, self.S3n : array_type
-            normalized Stokes parameters
-
-        self.Phi : array_type
-            degree of polarization
-
-        See also
-        --------
-        utils.normalizeStokes
-        '''
-
-        self.S1n, self.S2n, self.S3n = utils.normalizeStokes(self.S0, self.S1,
-            self.S2, self.S3, tol=tol)
-
-        self.Phi = np.sqrt(self.S1n**2 + self.S2n**2 + self.S3n**2)
-
-    def plot(self):
-        '''Generic plot of spectral estimates'''
-
-        fig, axes = _plotResultSpectral(self.t, self.signal, self)
-        fig.show()
-        return fig, axes
-
-
-class Multitaper(object):
+class Multitaper(_SpectralEstimate):
     '''
     Compute a multitaper spectral estimate of the spectrum of bivariate
     signals taken as (1, i)-quaternion valued signals.
@@ -479,13 +481,14 @@ class Multitaper(object):
         # Store the signal and parameters
         self.t = t
         self.signal = x
+        self.bw = bw
 
         N = np.size(x, 0)
         dt = (t[1] - t[0])
         self.f = np.fft.fftfreq(N) / dt
 
         # compute number of tapers
-        Nmt = int(np.floor(2 * bw)) - 1  # add reference here
+        Nmt = _n_tapers(bw)
 
         # define multitaper array
 
@@ -499,26 +502,28 @@ class Multitaper(object):
         # averaged simply)
         self.density = quaternion.as_quat_array(np.mean(quaternion.as_float_array(self.densities), axis=1))
 
-        # and SO, S1, S2, S3 associated
-        self.S0, self.S1, self.S2, self.S3 = self._getStokes()
+        self._init_stokes()
 
-        # initialize normalized Stokes and degree of polarization
-        self.S1n = np.zeros_like(self.S0)
-        self.S2n = np.zeros_like(self.S0)
-        self.S3n = np.zeros_like(self.S0)
-
-        self.Phi = np.zeros_like(self.S0)
-
-    def compute(self, bw=2.5):
+    def compute(self, bw=None):
 
         ''' Low-level method that computes the multitaper estimate
+
+        Parameters
+        ----------
+        bw : float, optional
+            spectral bandwidth. Default is the value given to the constructor.
         '''
-        N = np.size(self.dpss, 0)
-        Nmt = np.size(self.dpss, 1)
+        if bw is None:
+            bw = self.bw
+        self.bw = bw
+
+        N = np.size(self.signal, 0)
+        Nmt = _n_tapers(bw)
         dt = (self.t[1] - self.t[0])
         # data tapers
-        print('Number of data tapers: ' + str(Nmt))
+        logger.info('Number of data tapers: %d', Nmt)
         self.dpss = sg.windows.dpss(N, bw, Kmax=Nmt).T
+        self.densities = np.zeros((N, Nmt), dtype='quaternion')
 
         # compute Nmt tapered periodograms
         for n in range(Nmt):
@@ -528,94 +533,29 @@ class Multitaper(object):
             self.densities[:, n] = dt * (np.norm(QFTx) +
                 utils.StokesNorm(QFTx))
 
+        self.density = quaternion.as_quat_array(np.mean(quaternion.as_float_array(self.densities), axis=1))
+        self.S0, self.S1, self.S2, self.S3 = self._getStokes()
+
+    def _empty_like(self):
+        new = Multitaper(self.t, self.signal, bw=self.bw, computeFlag=False)
+        new.dpss = self.dpss
+        return new
+
     def __add__(self, other):
-        if np.any(self.t != other.t) is True:
-            raise ValueError('Cannot sum Periodograms with differents time \
-                arrays')
+        new = super().__add__(other)  # checks the time arrays, sums the densities
 
-        new = Multitaper(self.t, self.signal, computeFlag=False)  # keep self data
-
-        # update density
-        new.density = self.density + other.density
-
-        # and SO, S1, S2, S3 associated
-        new.S0, new.S1, new.S2, new.S3 = new._getStokes()
+        # per-taper densities can only be combined between estimates using the same tapers
+        if isinstance(other, Multitaper):
+            if other.bw != self.bw:
+                raise ValueError('Cannot sum multitaper estimates with different bandwidths')
+            new.densities = self.densities + other.densities
 
         return new
 
     def __mul__(self, scalar):
-        if np.size(scalar) > 1:
-            raise ValueError('Only scalar multiplication is supported')
-
-        new = Multitaper(self.t, self.signal, computeFlag=False)  # keep self data
-
-        # update density
-        new.density = scalar * self.density
-
-        # and SO, S1, S2, S3 associated
-        new.S0, new.S1, new.S2, new.S3 = new._getStokes()
-
+        new = super().__mul__(scalar)
+        new.densities = scalar * self.densities
         return new
-
-    def __rmul__(self, scalar):
-        return self * scalar
-
-    def _getStokes(self):
-        r'''Low-level function.
-        Extract extract Stokes parameters from the spectral density
-        Recall that
-
-            Gamma_{xx} = S0 + iS_3 + jS_1 + kS_2
-
-        Returns
-        -------
-        S0, S1, S2, S2: array_type
-            Stokes parameters
-        '''
-        g1, g2 = utils.sympSplit(self.density)
-
-        S0 = g1.real
-        S1 = g1.imag
-        S3 = g2.real
-        S2 = g2.imag
-
-        return S0, S1, S2, S3
-
-    def normalize(self, tol=0.0):
-
-        ''' Normalize Stokes parameters wrt S0.
-        In addition, compute the degree of polarization Phi.
-
-        Parameters
-        ----------
-        tol : float, optional
-            tolerance factor used in Stokes parameters normalization.
-            Default is 0.0
-
-        Returns
-        -------
-        self.S1n, self.S2n, self.S3n : array_type
-            normalized Stokes parameters
-
-        self.Phi : array_type
-            degree of polarization
-
-        See also
-        --------
-        utils.normalizeStokes
-        '''
-
-        self.S1n, self.S2n, self.S3n = utils.normalizeStokes(self.S0, self.S1,
-            self.S2, self.S3, tol=tol)
-
-        self.Phi = np.sqrt(self.S1n**2 + self.S2n**2 + self.S3n**2)
-
-    def plot(self):
-        '''Generic plot of spectral estimates'''
-
-        fig, axes = _plotResultSpectral(self.t, self.signal, self)
-        fig.show()
-        return fig, axes
 
 
 def _plotResultSpectral(t, sig, spe):
@@ -646,44 +586,7 @@ def _plotResultSpectral(t, sig, spe):
 
     #########################################################
     #ax_sig
-    if sig.dtype == 'quaternion':
-        x1, x2 = utils.sympSplit(sig)
-        x = x1.real + 1j * x2.real
-    else:
-        x = sig
-
-    ax_sig.plot(t, np.real(x), np.imag(x), color='k')
-
-    tmin = ax_sig.get_xlim3d()[0]
-    tmax = ax_sig.get_xlim3d()[1]
-    xmin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
-    xmax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
-    ymin = min(ax_sig.get_ylim3d()[0], ax_sig.get_zlim3d()[0])
-    ymax = max(ax_sig.get_ylim3d()[1], ax_sig.get_zlim3d()[1])
-
-    # surfaces
-
-    # complex plane
-    xx_c, yy_c = np.meshgrid(np.linspace(xmin, xmax), np.linspace(ymin, ymax))
-    #ax_sig.plot_surface(-.05*(tmin+tmax), xx_c, yy_c,  alpha=0.05, color='gray', rstride = 100, cstride=100)
-    ax_sig.plot(x.real, x.imag, -.05*(tmin+tmax), zdir='x', color='gray')
-    ax_sig.set_xlim([-.05*(tmin+tmax), tmax])
-
-    # real proj
-    xx_r, yy_r = np.meshgrid(np.linspace(tmin, tmax), np.linspace(xmin, xmax))
-    #ax_sig.plot_surface(xx_r, yy_r, 1.05*ymin, alpha=0.05, color='gray', rstride = 100, cstride=100)
-    ax_sig.plot(t, x.real, ymin*1.05, zdir='z', color='gray')
-    ax_sig.set_zlim([1.05*ymin, ymax])
-
-    #imaginary proj
-    xx_i, yy_i = np.meshgrid(np.linspace(tmin, tmax), np.linspace(ymin, ymax))
-    #ax_sig.plot_surface(xx_i, 1.05*xmax, yy_i,  alpha=0.05, color='gray',rstride = 100, cstride=100)
-    ax_sig.plot(t, x.imag, 1.05*xmax, zdir='y', color='gray')
-    ax_sig.set_ylim([xmin, 1.05*xmax])
-
-    # replot to avoid 'overlays'
-    ax_sig.plot(t, np.real(x), np.imag(x), color='k')
-    #proj3d.persp_transformation = _orthogonal_proj
+    utils._plot3D_trace(ax_sig, t, sig)
     #########################################################
     # ax_S0
     end = N // 2 - 1
@@ -797,16 +700,3 @@ def _plotResultSpectral(t, sig, spe):
 
     axes = [ax_sig, ax_S0, ax_s1, ax_s2, ax_s3, ax_phi]
     return fig, axes
-
-# workaround orthographic projection (deprecated)
-# from mpl_toolkits.mplot3d import proj3d
-
-# def _orthogonal_proj(zfront, zback):
-#     a = (zfront+zback)/(zfront-zback)
-#     b = -2*(zfront*zback)/(zfront-zback)
-#     # -0.0001 added for numerical stability as suggested in:
-#     # http://stackoverflow.com/questions/23840756
-#     return np.array([[1,0,0,0],
-#                         [0,1,0,0],
-#                         [0,0,a,b],
-#                         [0,0,-0.0001,zback]])

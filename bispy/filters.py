@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright © 2018 Julien Flamant
 # SPDX-License-Identifier: MIT
 
@@ -12,19 +11,13 @@ import quaternion
 
 from . import qfft
 
-class Filter(object):
+
+class Filter:
     def __init__(self, N, dt=1.0):
 
         self.f = np.fft.fftfreq(N, d=dt)
         self.N = N
         self.dt = dt
-
-    # def plot(self):
-    #     # ''' Displays the spectral response of the filter for different input types'''
-    #     # fig, ax = plt.subplots()
-
-    #     # N = len(self.f)
-    #     # ax.plot(self.f, randn(N))
 
 
 class HermitianFilter(Filter):
@@ -81,29 +74,32 @@ class HermitianFilter(Filter):
                 raise ValueError('Parameters should be either scalar or of size N')
 
 
+        # copies: the caller's arrays must not be modified below
         if np.size(K) == 1:
             Kvec = np.ones(N)*K
         else:
-            Kvec = K
+            Kvec = np.array(K)
         if np.size(eta) == 1:
             etavec = np.ones(N)*eta
         else:
-            etavec = eta
+            etavec = np.array(eta)
         if np.size(mu) ==1:
             muvec = np.ones(N)*mu/np.abs(mu)
         else:
             muvec = np.zeros(N, dtype='quaternion')
             muvec[np.abs(mu) > 0] = mu[np.abs(mu) > 0]/np.abs(mu)[np.abs(mu) > 0]
         # ensure symmetry relations
+        pos, neg = qfft._frequency_halves(N)
         qi = quaternion.x
 
-        Kvec[N//2 +1:] = Kvec[1:N//2][::-1] # K(-v) = K(v)
-        etavec[N//2 +1:] = etavec[1:N//2][::-1] # eta(-v) = eta(v)
+        Kvec[neg] = Kvec[pos][::-1] # K(-v) = K(v)
+        etavec[neg] = etavec[pos][::-1] # eta(-v) = eta(v)
 
         # mu(-v) = conj_i(mu(v))
-        muvec[N//2 + 1:] = -qi*np.conj(muvec[1:N//2][::-1])*qi
+        muvec[neg] = -qi*np.conj(muvec[pos][::-1])*qi
         muvec[0] = .5*(muvec[1] + muvec[-1])
-        muvec[N//2] = .5*(muvec[N//2+1] + muvec[N//2-1])
+        if N % 2 == 0:  # Nyquist frequency
+            muvec[N//2] = .5*(muvec[N//2+1] + muvec[N//2-1])
 
 
         # save
@@ -185,27 +181,30 @@ class UnitaryFilter(Filter):
             muvec = np.zeros(N, dtype='quaternion')
             muvec[np.abs(mu) > 0] = mu[np.abs(mu) > 0]/np.abs(mu)[np.abs(mu) > 0]
 
+        # copies: the caller's arrays must not be modified below
         if np.size(alpha) == 1:
             alphavec = np.ones(N)*alpha
         else:
-            alphavec = alpha
+            alphavec = np.array(alpha)
 
         if np.size(phi) == 1:
             phivec = np.ones(N)*phi
         else:
-            phivec = phi
+            phivec = np.array(phi)
         # ensure symmetry relations
+        pos, neg = qfft._frequency_halves(N)
         qi = quaternion.x
 
-        alphavec[N//2 +1:] = alphavec[1:N//2][::-1] # alpha(-v) = alpha(v)
-        phivec[N//2 +1:] = -phivec[1:N//2][::-1] # phi(-v) = -phi(v)
+        alphavec[neg] = alphavec[pos][::-1] # alpha(-v) = alpha(v)
+        phivec[neg] = -phivec[pos][::-1] # phi(-v) = -phi(v)
         phivec[0] = 0
-        phivec[N//2] = 0
 
         # mu(-v) = invol_i(mu(v))
-        muvec[N//2 + 1:] = -(qi*muvec[1:N//2][::-1])*qi
+        muvec[neg] = -(qi*muvec[pos][::-1])*qi
         muvec[0] = .5*(muvec[1] + muvec[-1])
-        muvec[N//2] = .5*(muvec[N//2+1] + muvec[N//2-1])
+        if N % 2 == 0:  # Nyquist frequency
+            phivec[N//2] = 0
+            muvec[N//2] = .5*(muvec[N//2+1] + muvec[N//2-1])
 
 
         # save

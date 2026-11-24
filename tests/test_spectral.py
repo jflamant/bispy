@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 import quaternion
-from helpers import as_float, quiet, real_bivariate
+from helpers import as_float, real_bivariate
 
 from bispy import spectral
 
@@ -33,14 +33,14 @@ def mean_power(x):
 # --- quaternionPSD --------------------------------------------------------------
 
 
-def make_psd(mu_i=0.0):
-    f = np.fft.fftfreq(N)
+def make_psd(mu_i=0.0, n=N):
+    f = np.fft.fftfreq(n)
     S0 = 1 / (1 + (np.abs(f) / 0.1) ** 2)
     Phi = 0.3 + 0.5 * np.exp(-(((np.abs(f) - 0.2) / 0.05) ** 2))
     ang = 0.5 + 2 * f
     c = np.sqrt(1 - mu_i**2)
-    mu = quaternion.as_quat_array(np.c_[np.zeros(N), mu_i * np.ones(N), c * np.cos(ang), c * np.sin(ang)])
-    return spectral.quaternionPSD(N, S0, Phi, mu), S0, Phi
+    mu = quaternion.as_quat_array(np.c_[np.zeros(n), mu_i * np.ones(n), c * np.cos(ang), c * np.sin(ang)])
+    return spectral.quaternionPSD(n, S0, Phi, mu), S0, Phi
 
 
 @pytest.mark.parametrize("mu_i", [0.0, 0.6])
@@ -64,9 +64,10 @@ def test_psd_no_circular_polarization_at_dc_and_nyquist():
     assert np.abs(psd.mu[0]) == pytest.approx(0.8)
 
 
-def test_psd_hermitian_symmetry():
-    psd, *_ = make_psd(mu_i=0.6)
-    k = np.arange(1, N // 2)
+@pytest.mark.parametrize("n", [N, 255, 7])
+def test_psd_hermitian_symmetry(n):
+    psd, *_ = make_psd(mu_i=0.6, n=n)
+    k = np.arange(1, (n - 1) // 2 + 1)  # all positive frequencies (Nyquist excluded)
     np.testing.assert_allclose(psd.S0[-k], psd.S0[k])
     np.testing.assert_allclose(psd.S1[-k], psd.S1[k])
     np.testing.assert_allclose(psd.S2[-k], psd.S2[k])
@@ -95,32 +96,32 @@ def test_psd_snapshot(snapshot):
     snapshot(density=psd.density)
 
 
-@pytest.mark.xfail(reason="known bug: odd lengths fail in the symmetry code", raises=ValueError)
 @pytest.mark.parametrize("n", [7, 101])
 def test_psd_odd_length(n):
-    spectral.quaternionPSD(n, np.ones(n), 0.5 * np.ones(n), np.ones(n) * quaternion.y)
+    psd, S0, Phi = make_psd(mu_i=0.6, n=n)
+    half = slice(0, (n + 1) // 2)  # DC and positive frequencies are kept as given
+    np.testing.assert_array_equal(psd.S0[half], S0[half])
+    np.testing.assert_array_equal(psd.Phi[half], Phi[half])
+    assert psd.S3[0] == pytest.approx(0, abs=1e-12)
 
 
 # --- Periodogram ----------------------------------------------------------------
 
 
 def test_periodogram_parseval(t, x):
-    with quiet():
-        p = spectral.Periodogram(t, x)
+    p = spectral.Periodogram(t, x)
     assert np.sum(p.S0) / (N * DT) == pytest.approx(mean_power(x))
     np.testing.assert_allclose(p.f, np.fft.fftfreq(N, d=DT))
 
 
 def test_periodogram_single_realization_fully_polarized(t, x):
-    with quiet():
-        p = spectral.Periodogram(t, x)
+    p = spectral.Periodogram(t, x)
     p.normalize()
     np.testing.assert_allclose(p.Phi, 1)
 
 
 def test_periodogram_arithmetic(t, x):
-    with quiet():
-        p = spectral.Periodogram(t, x)
+    p = spectral.Periodogram(t, x)
     np.testing.assert_array_equal(as_float((p + p).density), 2 * as_float(p.density))
     np.testing.assert_array_equal(as_float((3 * p).density), 3 * as_float(p.density))
     np.testing.assert_array_equal(as_float((p * 3).density), 3 * as_float(p.density))
@@ -135,8 +136,7 @@ def test_periodogram_rejects_non_quaternion(t):
 
 
 def test_periodogram_snapshot(t, x_stable, snapshot):
-    with quiet():
-        p = spectral.Periodogram(t, x_stable)
+    p = spectral.Periodogram(t, x_stable)
     snapshot(density=p.density)
 
 
@@ -145,8 +145,7 @@ def test_periodogram_snapshot(t, x_stable, snapshot):
 
 @pytest.mark.parametrize("bw", [2.5, 4])
 def test_multitaper_properties(t, x, bw):
-    with quiet():
-        m = spectral.Multitaper(t, x, bw=bw)
+    m = spectral.Multitaper(t, x, bw=bw)
     n_tapers = int(np.floor(2 * bw)) - 1
     assert m.densities.shape == (N, n_tapers)
     assert m.dpss.shape == (N, n_tapers)
@@ -161,35 +160,63 @@ def test_multitaper_properties(t, x, bw):
 
 
 def test_multitaper_arithmetic(t, x):
-    with quiet():
-        m = spectral.Multitaper(t, x)
-        np.testing.assert_allclose(as_float((m + m).density), 2 * as_float(m.density))
-        np.testing.assert_allclose(as_float((0.5 * m).density), 0.5 * as_float(m.density))
+    m = spectral.Multitaper(t, x)
+    np.testing.assert_allclose(as_float((m + m).density), 2 * as_float(m.density))
+    np.testing.assert_allclose(as_float((0.5 * m).density), 0.5 * as_float(m.density))
 
 
 @pytest.mark.parametrize("bw", [2.5, 4])
 def test_multitaper_snapshot(t, x_stable, bw, snapshot):
-    with quiet():
-        m = spectral.Multitaper(t, x_stable, bw=bw)
+    m = spectral.Multitaper(t, x_stable, bw=bw)
     snapshot(density=m.density)
 
 
-# --- known bugs (see the audit); remove the marker when fixed --------------------
+# --- combining and recomputing estimates ----------------------------------------
 
 
-@pytest.mark.xfail(reason="known bug: `np.any(...) is True` is always False, so the time check never fires")
 @pytest.mark.parametrize("estimator", ["Periodogram", "Multitaper"])
 def test_sum_rejects_different_time_arrays(t, x, estimator):
     cls = getattr(spectral, estimator)
-    with quiet():
-        a, b = cls(t, x), cls(2 * t, x)
+    a = cls(t, x)
+    other_spacing = cls(2 * t, x)
+    other_length = cls(t[:-1], x[:-1])
+    with pytest.raises(ValueError):
+        a + other_spacing
+    with pytest.raises(ValueError):
+        a + other_length
+
+
+def test_multitaper_arithmetic_keeps_tapers(t, x):
+    m = spectral.Multitaper(t, x, bw=5)
+    results = {"sum": (m + m, 2), "product": (3 * m, 3)}
+    for r, factor in results.values():
+        assert r.bw == 5
+        np.testing.assert_array_equal(r.dpss, m.dpss)
+        np.testing.assert_allclose(as_float(r.densities), factor * as_float(m.densities))
+        # the overall density remains the average of the per-taper densities
+        np.testing.assert_allclose(as_float(r.density), as_float(r.densities).mean(axis=1))
+
+
+def test_multitaper_sum_rejects_different_bandwidths(t, x):
+    a, b = spectral.Multitaper(t, x, bw=3), spectral.Multitaper(t, x, bw=4)
     with pytest.raises(ValueError):
         a + b
 
 
-@pytest.mark.xfail(reason="known bug: Multitaper + and * rebuild the result with the default bw")
-def test_multitaper_arithmetic_keeps_bandwidth(t, x):
-    with quiet():
-        m = spectral.Multitaper(t, x, bw=5)
-        s = m + m
-    assert s.densities.shape == m.densities.shape
+def test_mixed_estimators_can_be_summed(t, x):
+    # Worked before the fixes; kept for compatibility.
+    m, p = spectral.Multitaper(t, x), spectral.Periodogram(t, x)
+    expected = as_float(m.density) + as_float(p.density)
+    np.testing.assert_allclose(as_float((m + p).density), expected)
+    np.testing.assert_allclose(as_float((p + m).density), expected)
+
+
+@pytest.mark.parametrize("estimator, kwargs", [("Periodogram", {}), ("Multitaper", {"bw": 5})])
+def test_manual_compute_matches_automatic(t, x, estimator, kwargs):
+    cls = getattr(spectral, estimator)
+    auto = cls(t, x, **kwargs)
+    manual = cls(t, x, computeFlag=False, **kwargs)
+    manual.compute()
+    np.testing.assert_allclose(as_float(manual.density), as_float(auto.density))
+    for name in ["S0", "S1", "S2", "S3"]:
+        np.testing.assert_allclose(getattr(manual, name), getattr(auto, name))

@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright © 2018 Julien Flamant
 # SPDX-License-Identifier: MIT
 
@@ -7,20 +6,41 @@
 Module for the time-frequency analysis of bivariate signals.
 '''
 # import modules and packages
-import numpy as np
-import quaternion
+import logging
 
 import matplotlib.pyplot as plt
-import matplotlib.colors as col
-from mpl_toolkits.mplot3d import Axes3D  # required for 3D plot
-from matplotlib.collections import LineCollection
+import numpy as np
+import quaternion
 import scipy.signal as sg
+from matplotlib.cm import ScalarMappable
+from matplotlib.collections import LineCollection
 
-from . import qfft
-from . import utils
+from . import qfft, utils
+
+# Progress messages; silent unless enabled, e.g. logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-class Hembedding(object):
+def _hembedding(q):
+    ''' H-embedding (quaternion embedding) of a quaternion signal q.
+
+    In the QFT domain, positive frequencies are doubled, negative frequencies are
+    cancelled, and DC (and the Nyquist frequency, for even lengths) are kept.
+    '''
+    N = np.size(q, 0)
+    pos, _ = qfft._frequency_halves(N)
+
+    h = np.zeros((N, 4))
+    h[0, 0] = 1
+    h[pos, 0] = 2
+    if N % 2 == 0:  # Nyquist frequency
+        h[N // 2, 0] = 1
+    hq = quaternion.as_quat_array(h)
+
+    return qfft.iQfft(qfft.Qfft(q) * hq)
+
+
+class Hembedding:
     ''' H-embedding class. Computes quaternion embedding of complex-valued
     signals.
 
@@ -58,17 +78,7 @@ class Hembedding(object):
         self.signal = q
 
         # compute H-extension of the signal
-        N = np.size(q, 0)
-        Q = qfft.Qfft(q)
-
-        # filter frequencies
-        h = np.zeros((N, 4))
-        h[0, 0] = 1
-        h[N // 2, 0] = 1
-        h[1: N // 2, 0] = 2
-        hq = quaternion.as_quat_array(h)
-
-        self.Hembedding = qfft.iQfft(Q * hq)
+        self.Hembedding = _hembedding(q)
 
         # Compute Euler angle form
         a, theta, chi, phi = utils.quat2euler(self.Hembedding)
@@ -80,7 +90,7 @@ class Hembedding(object):
 
     # TODO: routine for plotting the extracted parameters?
 
-class TFPrepresentation(object):
+class TFPrepresentation:
 
     def __init__(self, x, **kwargs):
         """
@@ -101,27 +111,6 @@ class TFPrepresentation(object):
         if t is None:
             t = np.arange(N)
         self.t = t
-
-        # # number of frequency bins
-        # NFFT = kwargs.get('NFFT')
-        # if NFFT is None:
-        #     NFFT = nextpow2(N)
-        # elif NFFT < 0:
-        #     raise ValueError('Nfft should be greater than 0.')
-        # else:
-        #     NFFT = nextpow2(NFFT)
-        # self.NFFT = NFFT
-        # # sampled frequencies
-        # self.f = np.fft.fftfreq(NFFT) / (t[1] - t[0])
-
-        # sampled instants (spacing)
-        # spacing = kwargs.get('spacing')
-        # if spacing is None:
-        #     spacing = 1
-        #
-        # self.sampled_index = np.arange(0, N, spacing)
-        # self.sampled_time = t[::spacing]
-
 
         # init representation
         self.tfpr = None
@@ -185,22 +174,19 @@ class TFPrepresentation(object):
         '''
         if affine:
             # size of plot
-            A = np.random.rand(1, 4)
-            w, h = plt.figaspect(A)
+            w, h = plt.figaspect(1 / 4)
             labelsize= 20
 
             fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
 
-            im0 = ax[0].pcolormesh(t, f, self.S0, cmap=S0_cmap)
+            ax[0].pcolormesh(t, f, self.S0, cmap=S0_cmap)
             im1 = ax[1].pcolormesh(t, f, self.S1n, cmap=s_cmap, vmin=-1, vmax=+1)
-            im2 = ax[2].pcolormesh(t, f, self.S2n, cmap=s_cmap, vmin=-1, vmax=+1)
-            im3 = ax[3].pcolormesh(t, f, self.S3n, cmap=s_cmap, vmin=-1, vmax=+1)
+            ax[2].pcolormesh(t, f, self.S2n, cmap=s_cmap, vmin=-1, vmax=+1)
+            ax[3].pcolormesh(t, f, self.S3n, cmap=s_cmap, vmin=-1, vmax=+1)
 
             # adjust figure
             cbarax1 = fig.add_axes([0.96, 0.12, 0.01, 0.8])
-            cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='vertical', ticks=[-1, 0, 1])
-            #cbar1.ax.set_xticklabels([-1, 0, 1])
-            #cbar1.ax.xaxis.set_ticks_position('top')
+            fig.colorbar(im1, cax=cbarax1, orientation='vertical', ticks=[-1, 0, 1])
 
             label =[r'$S_0$', r'$s_1$', r'$s_2$', r'$s_3$']
             for i, axis in enumerate(ax):
@@ -217,26 +203,22 @@ class TFPrepresentation(object):
         else:
 
             f = np.fft.fftshift(f)
-            #tt, ff = np.meshgrid(t, np.fft.fftshift(f))
             # size of plot
-            A = np.random.rand(1, 4)
-            w, h = plt.figaspect(A)
+            w, h = plt.figaspect(1 / 4)
             labelsize= 20
 
             fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
 
-            im0 = ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=S0_cmap, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+            ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=S0_cmap, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
             im1 = ax[1].imshow(np.fft.fftshift(self.S1n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
-            im2 = ax[2].imshow(np.fft.fftshift(self.S2n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
-            im3 = ax[3].imshow(np.fft.fftshift(self.S3n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+            ax[2].imshow(np.fft.fftshift(self.S2n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
+            ax[3].imshow(np.fft.fftshift(self.S3n, axes=0), cmap=s_cmap, vmin=-1, vmax=+1, extent=[t.min(), t.max(), f.min(), f.max()], origin='lower')
 
             if single_sided is True:
                 ax[0].set_ylim(0, f.max())
             # adjust figure
             cbarax1 = fig.add_axes([0.96, 0.12, 0.01, 0.8])
-            cbar1 = fig.colorbar(im1, cax=cbarax1, orientation='vertical', ticks=[-1, 0, 1])
-            #cbar1.ax.set_xticklabels([-1, 0, 1])
-            #cbar1.ax.xaxis.set_ticks_position('top')
+            fig.colorbar(im1, cax=cbarax1, orientation='vertical', ticks=[-1, 0, 1])
 
             label =[r'$S_0$', r'$s_1$', r'$s_2$', r'$s_3$']
             for i, axis in enumerate(ax):
@@ -299,7 +281,7 @@ class QSTFT(TFPrepresentation):
 
     def __init__(self, x, t=None):
         # init main base object
-        super(QSTFT, self).__init__(x=x, t=t)
+        super().__init__(x=x, t=t)
         # init frequencies, sampled times and params directly
         self.f = None
         self.sampled_times = None
@@ -352,33 +334,8 @@ class QSTFT(TFPrepresentation):
         # recombine
         self.tfpr = utils.sympSynth(temp1, temp2)
 
-        # old version
-        # sizewindow = np.size(self.window, 0)
-        # # check size of window is odd
-        # if sizewindow % 2 == 0:
-        #     raise ValueError('Window size must me odd.')
-        #
-        # Lh = (sizewindow - 1) // 2  # half size index
-        # N = self.x.shape[0]
-        # print('Computing Q-STFT coefficients')
-        # temp = np.zeros_like(self.tfpr)
-        # for ti, ts in enumerate(self.sampled_index):
-        #
-        #     taumin = - min([round(self.NFFT / 2) - 1, Lh, ts])
-        #     taumax = min([round(self.NFFT / 2) - 1, Lh, N - ts - 1])
-        #     tau = np.arange(taumin, taumax + 1)
-        #     indices = ((self.NFFT + tau) % self.NFFT).astype(int)
-        #
-        #     windowInd = self.window[(Lh + tau).astype(int)]
-        #     windowIndq = utils.sympSynth(np.conj(windowInd) / np.linalg.norm(windowInd), 0)
-        #
-        #     temp[indices, ti] = self.x[(ts + tau).astype(int)] * windowIndq
-        #
-        # temp = qfft.Qfft(temp, axis=0)
-        #self.tfpr = temp
-
         # Compute the Time-Frequency Stokes parameters S0, S1, S2, S3
-        print('Computing Time-Frequency Stokes parameters')
+        logger.debug('Computing time-frequency Stokes parameters')
 
         self.S0 = np.norm(self.tfpr)  # already squared norm with this definition
 
@@ -445,9 +402,10 @@ class QSTFT(TFPrepresentation):
         ridges : list
             list of detected ridges
         '''
-        nfft = self.params['nfft']
+        # actual FFT size: scipy uses nperseg when nfft is None
+        nfft = self.S0.shape[0]
         # Extract ridges
-        print('Extracting ridges')
+        logger.debug('Extracting ridges')
         self.ridges = _extractRidges(self.S0[:nfft//2, :], parThresh, parMinD)
 
     def plotRidges(self, quivertdecim=10):
@@ -476,7 +434,7 @@ class QSTFT(TFPrepresentation):
         # check whether ridges have been computed
 
         if len(self.ridges) == 0:
-            print('No ridges detected, computing ridges.')
+            logger.info('No ridges extracted yet, extracting them first')
             self.extractRidges()
 
         # create ridge mask
@@ -486,27 +444,20 @@ class QSTFT(TFPrepresentation):
 
         # Compute orientation and ellipticity values
 
-        S1mask = np.ma.masked_where(maskRidge == False, self.S1n)
-        S2mask = np.ma.masked_where(maskRidge == False, self.S2n)
-        S3mask = np.ma.masked_where(maskRidge == False, self.S3n)
+        S1mask = np.ma.masked_where(~maskRidge,self.S1n)
+        S2mask = np.ma.masked_where(~maskRidge,self.S2n)
+        S3mask = np.ma.masked_where(~maskRidge,self.S3n)
 
         theta = .5 * np.arctan2(S2mask, S1mask)
         ori = np.exp(1j * theta)
 
         chi = 0.5 * np.arcsin(S3mask)
 
-        N = np.size(self.t)
-
-        # prepare meshgrid
-        tt, ff = np.meshgrid(self.sampled_times, np.fft.fftshift(self.f))
         # size of plot
-        A = np.random.rand(1, 3)
-        w, h = plt.figaspect(A)
-        labelsize= 20
+        w, h = plt.figaspect(1 / 3)
 
         fig, ax = plt.subplots(ncols=3, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1]})
 
-        #im0 = ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=cmap_S0,origin='lower', extent=[self.sampled_times.min(), self.sampled_times.max(), 0, self.f.max()], aspect='auto')
         im0 = ax[0].imshow(np.fft.fftshift(self.S0, 0), cmap=cmap_S0, extent=[self.sampled_times.min(), self.sampled_times.max(), self.f.min(), self.f.max()], origin='lower')
 
         im1 = ax[1].quiver(self.sampled_times[::quivertdecim], self.f, np.real(ori[:, ::quivertdecim]), (np.imag(ori[:, ::quivertdecim])), theta[:, ::quivertdecim], clim=[-np.pi/2, np.pi/2], cmap=cmap_theta, headaxislength=0,headlength=0.001, pivot='middle',width=0.005, scale=15)
@@ -519,14 +470,12 @@ class QSTFT(TFPrepresentation):
                                 norm=plt.Normalize(-np.pi / 4, np.pi / 4))
             lc.set_array(chi[(r[0], r[1])])
             lc.set_linewidth(5)
-            im2 = ax[2].add_collection(lc)
-
-        #im2 = ax[2].imshow(chi, vmin=-np.pi/4, vmax=np.pi/4,  interpolation='none', origin='lower', aspect='auto', cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[N/2-1]])
+            ax[2].add_collection(lc)
 
         # adjust figure
         fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
 
-        for i, axis in enumerate(ax):
+        for axis in ax:
             axis.set_xlabel('Time')
             axis.set_ylim([0, self.f.max()])
             axis.set_xlim(self.t.min(), self.t.max())
@@ -545,6 +494,8 @@ class QSTFT(TFPrepresentation):
         cbar1.ax.xaxis.set_ticks_position('top')
 
         cbarax2 = fig.add_axes([0.725, 0.83, 0.224, 0.03])
+        # ellipticity scale, independent of the ridges drawn (there may be none)
+        im2 = ScalarMappable(norm=plt.Normalize(-np.pi / 4, np.pi / 4), cmap=cmap_chi)
         cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.pi/4, 0, np.pi/4], orientation='horizontal')
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')
@@ -621,7 +572,7 @@ class QCWT(TFPrepresentation):
         '''
 
         # init main base object
-        super(QCWT, self).__init__(x=x, t=t)
+        super().__init__(x=x, t=t)
         # init frequencies, scales and params directly
         self.sampled_frequencies = None
         self.params = None
@@ -639,8 +590,8 @@ class QCWT(TFPrepresentation):
         wType = waveletParams['type']
 
         if wType not in ['Morse', 'Morlet']:
-            raise ValueError("Unknown value for wavelet type %s, must be one of: "
-            "{'Morse', 'Morlet'}" % wType)
+            raise ValueError(f"Unknown value for wavelet type {wType}, must be one of: "
+                             "{'Morse', 'Morlet'}")
 
         if wType == 'Morse':
 
@@ -657,6 +608,9 @@ class QCWT(TFPrepresentation):
                 mode = 'bandpass'
             else:
                 mode = waveletParams['norm']
+            if mode not in ('bandpass', 'energy'):
+                raise ValueError(f"Unknown normalization {mode!r} for Morse wavelets, "
+                                 "must be 'bandpass' or 'energy'")
 
             fc = (beta/gamma)**(1./gamma) # central frequency of Morse wavelets
 
@@ -675,7 +629,7 @@ class QCWT(TFPrepresentation):
             for fi, fsampled in enumerate(self.sampled_frequencies):
                 s = eta /(2*np.pi*fsampled) # scale
 
-                prefactor = (np.pi)**(-1/4)/(1+np.exp(-eta**2)-2*np.exp(-3/4*eta**2))**1/2*np.sqrt(s)
+                prefactor = np.pi**(-1/4) * (1 + np.exp(-eta**2) - 2*np.exp(-3/4*eta**2))**(-1/2) * np.sqrt(s)
 
                 temp = prefactor*(np.exp(-0.5*(s*2*np.pi*f - eta)**2) - np.exp(-0.5*((s*2*np.pi*f)**2 + eta**2)))
                 W[fi, :] = utils.sympSynth(temp, 0)
@@ -723,8 +677,7 @@ class QCWT(TFPrepresentation):
 
         '''
 
-        #deine sampled frequencies from fmin and fmax
-        Fs = self.t[1]-self.t[0]
+        # define sampled frequencies from fmin and fmax
         N = self.x.shape[0]
         self.sampled_frequencies = np.logspace(np.log10(fmin), np.log10(fmax), Nscales) # note to self: allow other choices as well?
 
@@ -739,7 +692,7 @@ class QCWT(TFPrepresentation):
         self.params = dict(fmin=fmin, fmax=fmax, wavelets = W)
 
         # Compute the Time-Frequency Stokes parameters S0, S1, S2, S3
-        print('Computing Time-Frequency Stokes parameters')
+        logger.debug('Computing time-frequency Stokes parameters')
 
         self.S0 = np.norm(self.tfpr)  # already squared norm with this definition
 
@@ -778,7 +731,7 @@ class QCWT(TFPrepresentation):
             list of detected ridges
         '''
 
-        print('Extracting ridges')
+        logger.debug('Extracting ridges')
         self.ridges = _extractRidges(self.S0, parThresh, parMinD)
 
 
@@ -826,7 +779,7 @@ class QCWT(TFPrepresentation):
         # check whether ridges have been computed
 
         if len(self.ridges) == 0:
-            print('No ridges detected, computing ridges.')
+            logger.info('No ridges extracted yet, extracting them first')
             self.extractRidges()
 
         # create ridge mask
@@ -836,16 +789,15 @@ class QCWT(TFPrepresentation):
 
         # Compute orientation and ellipticity values
 
-        S1mask = np.ma.masked_where(maskRidge == False, self.S1n)
-        S2mask = np.ma.masked_where(maskRidge == False, self.S2n)
-        S3mask = np.ma.masked_where(maskRidge == False, self.S3n)
+        S1mask = np.ma.masked_where(~maskRidge,self.S1n)
+        S2mask = np.ma.masked_where(~maskRidge,self.S2n)
+        S3mask = np.ma.masked_where(~maskRidge,self.S3n)
 
         theta = .5*np.arctan2(S2mask, S1mask)
         ori = np.exp(1j * theta)
 
         chi = 0.5 * np.arcsin(S3mask)
 
-        N = np.size(self.t)
         fig, ax = plt.subplots(ncols=3, figsize=(12, 5), sharey=True)
         im0 = ax[0].pcolormesh(self.t, self.sampled_frequencies, self.S0, cmap=cmap_S0)
 
@@ -859,9 +811,7 @@ class QCWT(TFPrepresentation):
                                 norm=plt.Normalize(-np.pi / 4, np.pi / 4))
             lc.set_array(chi[(r[0], r[1])])
             lc.set_linewidth(3)
-            im2 = ax[2].add_collection(lc)
-
-        #im2 = ax[2].imshow(chi, vmin=-np.pi/4, vmax=np.pi/4,  interpolation='none', origin='lower', aspect='auto', cmap='coolwarm', extent=[self.t.min(), self.t.max(), 0, self.f[N/2-1]])
+            ax[2].add_collection(lc)
 
         # adjust figure
         fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
@@ -877,11 +827,13 @@ class QCWT(TFPrepresentation):
         cbar1.ax.xaxis.set_ticks_position('top')
 
         cbarax2 = fig.add_axes([0.686, 0.83, 0.303, 0.03])
+        # ellipticity scale, independent of the ridges drawn (there may be none)
+        im2 = ScalarMappable(norm=plt.Normalize(-np.pi / 4, np.pi / 4), cmap=cmap_chi)
         cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.pi/4, 0, np.pi/4], orientation='horizontal')
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')
 
-        for i, axis in enumerate(ax):
+        for axis in ax:
             axis.set_xlim([self.t.min(), self.t.max()])
             axis.set_ylim([self.sampled_frequencies.min(), self.sampled_frequencies.max()])
 
@@ -951,9 +903,9 @@ def _extractRidges(density, parThresh, parMinD):
                 ridges.append((currentRidgef, currentRidget))
                 currentRidget = []
                 currentRidgef = []
-                print('Ridge added')
+                logger.debug('Ridge %d added (%d points)', len(ridges), len(ridges[-1][0]))
 
-    print(str(len(ridges)) + ' ridges were recovered.')
+    logger.info('%d ridges extracted', len(ridges))
 
     return ridges
 
