@@ -76,6 +76,11 @@ uv run ruff check            # lint
 uv run sphinx-build -b html docs docs/_build/html   # build the docs
 ```
 
+The test suite contains three kinds of tests:
+- **Property tests** check mathematical identities (round trips, Parseval, symmetries).
+- **Snapshot tests** compare outputs with reference values stored in `tests/<module>/*.npz`. After an intentional change to numerical results, regenerate them with `uv run pytest --force-regen`, check that the change is the expected one, and commit the updated `.npz` files.
+- **Known-bug tests** are marked `xfail`; `uv run pytest -rx` lists them. Once a bug is fixed its test passes, and pytest reports a failure until the `xfail` marker is removed.
+
 To make a release:
 1. Set the version with `uv version X.Y.Z`. This updates `pyproject.toml` and `uv.lock`.
 2. Commit, then tag `vX.Y.Z`.
