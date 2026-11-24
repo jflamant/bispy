@@ -673,7 +673,7 @@ class QCWT(TFPrepresentation):
             for fi, fsampled in enumerate(self.sampled_frequencies):
                 s = eta /(2*np.pi*fsampled) # scale
 
-                prefactor = (np.pi)**(-1/4)/(1+np.exp(-eta**2)-2*np.exp(-3/4*eta**2))**1/2*np.sqrt(s)
+                prefactor = np.pi**(-1/4) * (1 + np.exp(-eta**2) - 2*np.exp(-3/4*eta**2))**(-1/2) * np.sqrt(s)
 
                 temp = prefactor*(np.exp(-0.5*(s*2*np.pi*f - eta)**2) - np.exp(-0.5*((s*2*np.pi*f)**2 + eta**2)))
                 W[fi, :] = utils.sympSynth(temp, 0)

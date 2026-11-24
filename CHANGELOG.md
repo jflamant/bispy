@@ -39,5 +39,10 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
   (nor, for `Multitaper`, `density`), and `Multitaper.compute()` ignored the bandwidth given to
   the constructor.
 - `QSTFT.extractRidges()` (and `QSTFT.compute(ridges=True)`) failed when `nfft` was not given.
+- **Values change:** `QCWT` with the Morlet wavelet used a wrong normalization constant
+  (`(...)**1/2` instead of `(...)**(-1/2)`). Coefficients were too small by a factor
+  2·sqrt(1 + exp(-η²) - 2 exp(-3η²/4)), which equals 2 for the default η = 2π. With the default,
+  `tfpr` is now 2 times larger and `S0`, `S1`, `S2`, `S3` are 4 times larger. Normalized Stokes
+  parameters, orientation, ellipticity and ridges are unchanged. Morse wavelets are not affected.
 
 [Unreleased]: https://github.com/jflamant/bispy/compare/v0.9.4.dev...HEAD

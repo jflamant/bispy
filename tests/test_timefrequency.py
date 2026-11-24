@@ -220,13 +220,14 @@ def test_qstft_ridges_with_default_nfft(chirp):
     assert default.ridges == explicit.ridges
 
 
-@pytest.mark.xfail(reason="known bug: Morlet normalization uses `**1/2` instead of `**0.5` (factor 2)")
-def test_qcwt_morlet_normalization(tone):
+@pytest.mark.parametrize("eta", [None, 1.0, 4.0])
+def test_qcwt_morlet_normalization(tone, eta):
     t, x = tone
-    eta = 2 * np.pi
+    params = dict(type="Morlet") if eta is None else dict(type="Morlet", eta=eta)
+    eta = 2 * np.pi if eta is None else eta
     C = tf.QCWT(x, t)
     with quiet():
-        C.compute(10, 200, dict(type="Morlet"), Nscales=8)
+        C.compute(10, 200, params, Nscales=8)
     f = np.fft.fftfreq(len(t), d=t[1] - t[0])
     for k, fs in enumerate(C.sampled_frequencies):
         s = eta / (2 * np.pi * fs)
