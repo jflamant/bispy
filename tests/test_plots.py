@@ -76,6 +76,16 @@ def test_qcwt_plot_ridges(qcwt):
     assert is_figure(fig) and len(ax) == 3
 
 
+@pytest.mark.parametrize("which", ["qstft", "qcwt"])
+def test_plot_ridges_when_no_ridge_is_found(qstft, qcwt, which, monkeypatch):
+    obj = {"qstft": qstft, "qcwt": qcwt}[which]
+    monkeypatch.setattr(obj, "ridges", [])
+    monkeypatch.setattr(obj, "extractRidges", lambda *args, **kwargs: None)  # finds nothing
+    fig, ax = obj.plotRidges()
+    assert is_figure(fig)
+    assert len(ax[2].collections) == 0  # no ridge drawn, but the figure is complete
+
+
 @pytest.mark.parametrize("estimator", ["Periodogram", "Multitaper"])
 def test_spectral_estimate_plot(chirps, estimator):
     t, x = chirps

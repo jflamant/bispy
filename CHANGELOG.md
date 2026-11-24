@@ -54,6 +54,10 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 - `timefrequency.Hembedding` was inexact for odd signal lengths: the highest positive frequency
   was halved, so the embedding no longer contained the original signal. Even lengths are
   unchanged.
+- `QSTFT.plotRidges()` and `QCWT.plotRidges()` crashed when no ridge was found.
+- An unknown `norm` option for Morse wavelets in `QCWT.compute` raised an obscure
+  `UnboundLocalError`. It now raises a `ValueError` naming the valid options, `'bandpass'`
+  and `'energy'`.
 - **Values change:** `QCWT` with the Morlet wavelet used a wrong normalization constant
   (`(...)**1/2` instead of `(...)**(-1/2)`). Coefficients were too small by a factor
   2·sqrt(1 + exp(-η²) - 2 exp(-3η²/4)), which equals 2 for the default η = 2π. With the default,

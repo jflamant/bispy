@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import quaternion
 import scipy.signal as sg
+from matplotlib.cm import ScalarMappable
 from matplotlib.collections import LineCollection
 
 from . import qfft, utils
@@ -469,7 +470,7 @@ class QSTFT(TFPrepresentation):
                                 norm=plt.Normalize(-np.pi / 4, np.pi / 4))
             lc.set_array(chi[(r[0], r[1])])
             lc.set_linewidth(5)
-            im2 = ax[2].add_collection(lc)
+            ax[2].add_collection(lc)
 
         # adjust figure
         fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
@@ -493,6 +494,8 @@ class QSTFT(TFPrepresentation):
         cbar1.ax.xaxis.set_ticks_position('top')
 
         cbarax2 = fig.add_axes([0.725, 0.83, 0.224, 0.03])
+        # ellipticity scale, independent of the ridges drawn (there may be none)
+        im2 = ScalarMappable(norm=plt.Normalize(-np.pi / 4, np.pi / 4), cmap=cmap_chi)
         cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.pi/4, 0, np.pi/4], orientation='horizontal')
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')
@@ -605,6 +608,9 @@ class QCWT(TFPrepresentation):
                 mode = 'bandpass'
             else:
                 mode = waveletParams['norm']
+            if mode not in ('bandpass', 'energy'):
+                raise ValueError(f"Unknown normalization {mode!r} for Morse wavelets, "
+                                 "must be 'bandpass' or 'energy'")
 
             fc = (beta/gamma)**(1./gamma) # central frequency of Morse wavelets
 
@@ -805,7 +811,7 @@ class QCWT(TFPrepresentation):
                                 norm=plt.Normalize(-np.pi / 4, np.pi / 4))
             lc.set_array(chi[(r[0], r[1])])
             lc.set_linewidth(3)
-            im2 = ax[2].add_collection(lc)
+            ax[2].add_collection(lc)
 
         # adjust figure
         fig.subplots_adjust(left=0.05, top=0.8, right=0.99, wspace=0.05)
@@ -821,6 +827,8 @@ class QCWT(TFPrepresentation):
         cbar1.ax.xaxis.set_ticks_position('top')
 
         cbarax2 = fig.add_axes([0.686, 0.83, 0.303, 0.03])
+        # ellipticity scale, independent of the ridges drawn (there may be none)
+        im2 = ScalarMappable(norm=plt.Normalize(-np.pi / 4, np.pi / 4), cmap=cmap_chi)
         cbar2 = fig.colorbar(im2, cax=cbarax2, ticks=[-np.pi/4, 0, np.pi/4], orientation='horizontal')
         cbar2.ax.set_xticklabels([r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
         cbar2.ax.xaxis.set_ticks_position('top')

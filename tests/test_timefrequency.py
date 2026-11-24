@@ -152,8 +152,13 @@ def test_qstft_snapshot(rs, snapshot):
 
 @pytest.mark.parametrize(
     "wavelet",
-    [dict(type="Morse", beta=12, gamma=3), dict(type="Morse"), dict(type="Morlet")],
-    ids=["morse-12-3", "morse-default", "morlet"],
+    [
+        dict(type="Morse", beta=12, gamma=3),
+        dict(type="Morse", beta=12, gamma=3, norm="energy"),
+        dict(type="Morse"),
+        dict(type="Morlet"),
+    ],
+    ids=["morse-12-3", "morse-energy", "morse-default", "morlet"],
 )
 def test_qcwt_locates_tone_and_polarization(tone, wavelet):
     t, x = tone
@@ -181,6 +186,12 @@ def test_qcwt_rejects_unknown_wavelet(tone):
     t, x = tone
     with pytest.raises(ValueError):
         tf.QCWT(x, t).compute(10, 200, dict(type="Haar"))
+
+
+def test_qcwt_rejects_unknown_morse_normalization(tone):
+    t, x = tone
+    with pytest.raises(ValueError, match="'bandpass' or 'energy'"):
+        tf.QCWT(x, t).compute(10, 200, dict(type="Morse", norm="bandpas"))
 
 
 def test_qcwt_ridges():
