@@ -155,8 +155,7 @@ class quaternionPSD(object):
         f = np.fft.fftshift(self.f)
 
         # size of plot
-        A = np.random.rand(1, 4)
-        w, h = plt.figaspect(A)
+        w, h = plt.figaspect(1 / 4)
         labelsize= 20
 
         fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
@@ -171,8 +170,7 @@ class quaternionPSD(object):
             if single_sided is True:
                 axis.set_xlim(0, f.max())
             axis.set_xlabel('Frequency [Hz]')
-            axis.set_aspect(1./axis.get_data_ratio())
-            axis.set_adjustable('box-forced')
+            axis.set_box_aspect(1)
             axis.set_title(label[i], y = 0.85, size=labelsize)
 
 
@@ -191,8 +189,7 @@ class quaternionPSD(object):
         __, theta, chi, Phi = utils.Stokes2geo(np.fft.fftshift(self.S0), np.fft.fftshift(self.S1), np.fft.fftshift(self.S2), np.fft.fftshift(self.S3))
 
         # size of plot
-        A = np.random.rand(1, 3)
-        w, h = plt.figaspect(A)
+        w, h = plt.figaspect(1 / 3)
         labelsize= 20
 
         fig, ax = plt.subplots(ncols=3, figsize=(w, h), gridspec_kw = {'width_ratios':[1, 1, 1]})
@@ -211,21 +208,18 @@ class quaternionPSD(object):
         axchi.plot(f, chi, color='g')
         axchi.tick_params('y', colors='g')
         axchi.set_ylim(-np.pi/4, np.pi/4)
-        axchi.set_xlim(-np.pi/4, np.pi/4)
 
         label =[r'$S_0$', r'$\Phi$', '']
 
         if single_sided is True:
             axchi.set_xlim(0, f.max())
-        axchi.set_aspect(1./axchi.get_data_ratio())
-        axchi.set_adjustable('box-forced')
+        axchi.set_box_aspect(1)
 
         for i, axis in enumerate(ax):
             if single_sided is True:
                 axis.set_xlim(0, f.max())
             axis.set_xlabel('Frequency [Hz]')
-            axis.set_aspect(1./axis.get_data_ratio())
-            axis.set_adjustable('box-forced')
+            axis.set_box_aspect(1)
             axis.set_title(label[i], y = 0.85, size=labelsize)
 
 

@@ -90,35 +90,34 @@ def test_spectral_estimate_plot(chirps, estimator):
     assert is_figure(fig) and len(axes) == 6
 
 
-# --- known bugs (see the audit); remove the marker when fixed --------------------
-
-
-@pytest.mark.xfail(reason="known bug: set_adjustable('box-forced') was removed from matplotlib", raises=ValueError)
 @pytest.mark.parametrize("method", ["plot", "plotStokes"])
-def test_psd_plots(psd, method):
-    fig, ax = getattr(psd, method)()
+@pytest.mark.parametrize("single_sided", [True, False])
+def test_psd_plots(psd, method, single_sided):
+    fig, ax = getattr(psd, method)(single_sided=single_sided)
     assert is_figure(fig)
 
 
-@pytest.mark.xfail(reason="known bug: plot() sets the frequency x-limits to (-pi/4, pi/4); also crashes (box-forced)")
 def test_psd_plot_two_sided_frequency_axis(psd):
     fig, ax = psd.plot(single_sided=False)
     lo, hi = ax[2].get_xlim()
     assert lo <= psd.f.min() and hi >= psd.f.max() - 1e-12
 
 
-@pytest.mark.xfail(reason="known bug: plot2D's docstring accepts complex input, but it raises", raises=ValueError)
 def test_plot2d_complex_input(chirps):
-    t, x = chirps
-    fig, ax = bsp.utils.visual.plot2D(t, np.exp(2j * np.pi * 5 * t))
+    t, _ = chirps
+    z = np.exp(2j * np.pi * 5 * t)
+    fig, ax = bsp.utils.visual.plot2D(t, z)
     assert is_figure(fig)
+    np.testing.assert_array_equal(ax[0].lines[0].get_ydata(), z.real)
+    np.testing.assert_array_equal(ax[1].lines[0].get_ydata(), z.imag)
 
 
-@pytest.mark.xfail(reason="known bug: plots call figaspect(np.random.rand(...)), advancing the global RNG")
-@pytest.mark.parametrize("which", ["qstft.plotStokes", "qcwt.plotStokes", "qstft.plotRidges"])
-def test_plots_leave_global_rng_untouched(qstft, qcwt, which):
+@pytest.mark.parametrize(
+    "which", ["qstft.plotStokes", "qcwt.plotStokes", "qstft.plotRidges", "psd.plot", "psd.plotStokes"]
+)
+def test_plots_leave_global_rng_untouched(qstft, qcwt, psd, which):
     obj, method = which.split(".")
-    plot = getattr({"qstft": qstft, "qcwt": qcwt}[obj], method)
+    plot = getattr({"qstft": qstft, "qcwt": qcwt, "psd": psd}[obj], method)
     np.random.seed(0)
     expected = np.random.random()
     np.random.seed(0)

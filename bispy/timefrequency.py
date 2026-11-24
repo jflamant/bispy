@@ -185,8 +185,7 @@ class TFPrepresentation(object):
         '''
         if affine:
             # size of plot
-            A = np.random.rand(1, 4)
-            w, h = plt.figaspect(A)
+            w, h = plt.figaspect(1 / 4)
             labelsize= 20
 
             fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
@@ -219,8 +218,7 @@ class TFPrepresentation(object):
             f = np.fft.fftshift(f)
             #tt, ff = np.meshgrid(t, np.fft.fftshift(f))
             # size of plot
-            A = np.random.rand(1, 4)
-            w, h = plt.figaspect(A)
+            w, h = plt.figaspect(1 / 4)
             labelsize= 20
 
             fig, ax = plt.subplots(ncols=4, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1, 1]})
@@ -500,8 +498,7 @@ class QSTFT(TFPrepresentation):
         # prepare meshgrid
         tt, ff = np.meshgrid(self.sampled_times, np.fft.fftshift(self.f))
         # size of plot
-        A = np.random.rand(1, 3)
-        w, h = plt.figaspect(A)
+        w, h = plt.figaspect(1 / 3)
         labelsize= 20
 
         fig, ax = plt.subplots(ncols=3, figsize=(w, h), sharey=True, gridspec_kw = {'width_ratios':[1, 1, 1]})

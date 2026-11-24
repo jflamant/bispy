@@ -438,8 +438,11 @@ class visual(object):
 
         fig = plt.figure(figsize=(10, 4))
 
-        N = np.size(t)
-        q1, q2 = sympSplit(q)
+        if q.dtype == 'quaternion':
+            q1, q2 = sympSplit(q)
+            u, v = q1.real, q2.real
+        else:  # complex array u + 1j*v
+            u, v = np.real(q), np.imag(q)
 
         gs = gridspec.GridSpec(2, 5)
         gs.update(hspace=0.1, wspace=0.1, bottom=0.18, left=0.09, top=0.95, right=0.94)
@@ -470,9 +473,9 @@ class visual(object):
         ax3.spines['bottom'].set_position(('outward', 10))
 
         # plots
-        ax1.plot(t, q1.real)
-        ax2.plot(t, q2.real)
-        ax3.plot(q1.real, q2.real)
+        ax1.plot(t, u)
+        ax2.plot(t, v)
+        ax3.plot(u, v)
 
         ax3.set_aspect('equal', 'box')
         # get limits
