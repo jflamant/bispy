@@ -36,6 +36,13 @@ jobs:
             echo "::error::Tag ${GITHUB_REF_NAME} does not match pyproject.toml version ${version} (expected v${version})"
             exit 1
           fi
+      - name: Check that CITATION.cff has no placeholders left
+        # Zenodo archives each release permanently, with the metadata of CITATION.cff.
+        run: |
+          if grep -n "TODO" CITATION.cff; then
+            echo "::error::Fill in or delete the TODO placeholders in CITATION.cff before releasing"
+            exit 1
+          fi
       - name: Run the test suite
         run: |
           uv sync --locked --no-default-groups --group test

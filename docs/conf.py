@@ -11,7 +11,7 @@ import bispy
 # -- Project -------------------------------------------------------------------
 
 project = "BiSPy"
-author = "Julien Flamant"
+author = "Julien Flamant, Nicolas Le Bihan, Pierre Chainais"
 copyright = "2017-2026, Julien Flamant"
 release = bispy.__version__  # read from pyproject.toml via the package metadata
 version = ".".join(release.split(".")[:2])

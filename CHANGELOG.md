@@ -1,14 +1,21 @@
 # Changelog
 
 All notable changes to BiSPy are documented in this file. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and version numbers follow
-[PEP 440](https://peps.python.org/pep-0440/).
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Since 1.0.0, versions follow
+[semantic versioning](https://semver.org/): changes that break existing code only happen
+in a new major version.
 
 Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-25
+
+First stable release, archived on Zenodo. The code is the same as in 0.10.0, apart from
+documentation fixes.
+
 ### Added
+- `CITATION.cff`: GitHub's "Cite this repository" button and Zenodo use it to cite BiSPy.
 - The documentation includes this changelog and documents `utils.polarizationEllipse`.
 
 ### Changed
@@ -83,5 +90,6 @@ First release after the 0.9.x development snapshots. When upgrading, note that:
   `tfpr` is now 2 times larger and `S0`, `S1`, `S2`, `S3` are 4 times larger. Normalized Stokes
   parameters, orientation, ellipticity and ridges are unchanged. Morse wavelets are not affected.
 
-[Unreleased]: https://github.com/jflamant/bispy/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/jflamant/bispy/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/jflamant/bispy/compare/v0.10.0...v1.0.0
 [0.10.0]: https://github.com/jflamant/bispy/compare/v0.9.4.dev...v0.10.0
