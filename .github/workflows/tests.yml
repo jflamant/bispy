@@ -29,6 +29,8 @@ jobs:
         with:
           version: ${{ env.UV_VERSION }}
       - run: uv run --locked --only-group lint ruff check
+      - name: Validate CITATION.cff
+        run: uvx --from cffconvert==2.0.0 cffconvert --validate
 
   test:
     # Reproducible runs: exact versions from uv.lock.

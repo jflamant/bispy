@@ -1,0 +1,86 @@
+# How to cite BiSPy. GitHub reads this file for its "Cite this repository" button,
+# and Zenodo for the metadata of each archived release.
+# Format: https://citation-file-format.github.io (validated in CI).
+#
+# Placeholders below are marked "to-do" in capitals. The release workflow refuses to
+# publish while any remain, because Zenodo archives are permanent: fill in (and
+# uncomment) or delete each one.
+
+cff-version: 1.2.0
+message: >-
+  If you use BiSPy in your research, please cite the software as below, together
+  with the paper(s) describing the methods you use (listed under references).
+type: software
+title: "BiSPy: Bivariate Signal Processing with Python"
+abstract: >-
+  BiSPy is an open-source Python framework for processing bivariate signals,
+  based on quaternion Fourier transforms. It provides time-frequency
+  representations (quaternion short-time Fourier and continuous wavelet
+  transforms, ridge extraction), spectral analysis of stationary bivariate
+  signals (periodogram, multitaper), linear time-invariant filtering, and the
+  simulation of polarized signals, with polarization described by Stokes
+  parameters.
+authors:
+  - family-names: Flamant
+    given-names: Julien
+    # TODO: uncomment and fill in
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+    # affiliation: ""
+  - family-names: Le Bihan
+    given-names: Nicolas
+    # TODO: uncomment and fill in
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+    # affiliation: ""
+  - family-names: Chainais
+    given-names: Pierre
+    # TODO: uncomment and fill in
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+    # affiliation: ""
+license: MIT
+repository-code: "https://github.com/jflamant/bispy"
+url: "https://jflamant.github.io/bispy/"
+keywords:
+  - signal processing
+  - bivariate signals
+  - polarization
+  - quaternion Fourier transform
+  - time-frequency analysis
+  - spectral analysis
+  - Stokes parameters
+references:
+  - type: article
+    title: "Time-frequency analysis of bivariate signals"
+    authors:
+      - family-names: Flamant
+        given-names: Julien
+      - family-names: Le Bihan
+        given-names: Nicolas
+      - family-names: Chainais
+        given-names: Pierre
+    journal: "Applied and Computational Harmonic Analysis"
+    year: 2017
+    doi: "10.1016/j.acha.2017.05.007"
+  - type: article
+    title: "Spectral analysis of stationary random bivariate signals"
+    authors:
+      - family-names: Flamant
+        given-names: Julien
+      - family-names: Le Bihan
+        given-names: Nicolas
+      - family-names: Chainais
+        given-names: Pierre
+    journal: "IEEE Transactions on Signal Processing"
+    year: 2017
+    doi: "10.1109/TSP.2017.2736494"
+  - type: article
+    title: "A complete framework for linear filtering of bivariate signals"
+    authors:
+      - family-names: Flamant
+        given-names: Julien
+      - family-names: Chainais
+        given-names: Pierre
+      - family-names: Le Bihan
+        given-names: Nicolas
+    journal: "IEEE Transactions on Signal Processing"
+    year: 2018
+    doi: "10.1109/TSP.2018.2855659"

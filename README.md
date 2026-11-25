@@ -15,7 +15,7 @@ BiSPy is an open-source python framework for processing bivariate signals. It su
 These papers contain theoretical results and several applications that can be reproduced with this toolbox.
 
 
-This python toolbox is currently under development and is hosted on GitHub. If you encounter a bug or something unexpected please let me know by [raising an issue](https://github.com/jflamant/bispy/issues) on the project page.
+BiSPy is developed on GitHub. If you encounter a bug or something unexpected, please let us know by [raising an issue](https://github.com/jflamant/bispy/issues) on the project page.
 
 ## Install
 
@@ -51,18 +51,9 @@ This software is distributed under the [MIT License](https://github.com/jflamant
 
 ## Cite this work
 
-If you use this package for your own work, please consider citing it with this piece of BibTeX:
+If you use BiSPy in your research, please cite the software, together with the paper(s) describing the methods you use ([1]–[3] above).
 
-```bibtex
-@misc{BiSPy,
-    title =   {{BiSPy: an Open-Source Python project for processing bivariate signals}},
-    author =  {Julien Flamant},
-    year =    {2018},
-    url =     {https://github.com/jflamant/bispy/},
-    howpublished = {Online at: \url{github.com/jflamant/bispy/}},
-    note =    {Code at https://github.com/jflamant/bispy/, documentation at https://jflamant.github.io/bispy/}
-}
-```
+To cite the software, use the **"Cite this repository"** button on the [GitHub page](https://github.com/jflamant/bispy), which gives APA and BibTeX entries. They are generated from [`CITATION.cff`](https://github.com/jflamant/bispy/blob/master/CITATION.cff).
 
 ## Development
 
@@ -85,5 +76,6 @@ The test suite contains three kinds of tests:
 
 To make a release:
 1. Set the version with `uv version X.Y.Z`. This updates `pyproject.toml` and `uv.lock`.
-2. Commit, then tag `vX.Y.Z`.
-3. Publish a GitHub Release from that tag. CI tests the package, builds it and uploads it to PyPI.
+2. Date the release in `CHANGELOG.md`, and check that `CITATION.cff` is up to date (the release workflow refuses placeholders marked to-do).
+3. Commit, then tag `vX.Y.Z`.
+4. Publish a GitHub Release from that tag. CI tests the package, builds it and uploads it to PyPI, and Zenodo archives the release with a DOI.

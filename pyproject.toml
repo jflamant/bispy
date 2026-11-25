@@ -2,14 +2,19 @@
 name = "bispy-polar"
 # Single source of truth for the version. Bump with `uv version --bump ...`
 # or set it with `uv version X.Y.Z`; the git tag must match (`vX.Y.Z`).
-version = "0.10.1.dev0"
+version = "1.0.0"
 description = "An open-source Python framework for processing bivariate signals."
 readme = "README.md"
 requires-python = ">=3.10"
 # SPDX expression; must match the LICENCE file.
 license = "MIT"
 license-files = ["LICENCE"]
-authors = [{ name = "Julien Flamant", email = "julien.flamant@cnrs.fr" }]
+# Keep in sync with the authors of CITATION.cff.
+authors = [
+    { name = "Julien Flamant", email = "julien.flamant@cnrs.fr" },
+    { name = "Nicolas Le Bihan" },
+    { name = "Pierre Chainais" },
+]
 keywords = [
     "signal processing",
     "bivariate signals",
@@ -19,7 +24,7 @@ keywords = [
     "spectral analysis",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
@@ -46,6 +51,7 @@ Homepage = "https://github.com/jflamant/bispy"
 Documentation = "https://jflamant.github.io/bispy/"
 Source = "https://github.com/jflamant/bispy"
 Issues = "https://github.com/jflamant/bispy/issues"
+Changelog = "https://jflamant.github.io/bispy/changelog.html"
 
 # Development-only dependencies (not published). `uv sync` installs the `dev` group.
 [dependency-groups]
