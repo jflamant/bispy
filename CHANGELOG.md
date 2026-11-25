@@ -16,7 +16,6 @@ documentation fixes.
 
 ### Added
 - `CITATION.cff`: GitHub's "Cite this repository" button and Zenodo use it to cite BiSPy.
-  Nicolas Le Bihan and Pierre Chainais are listed as authors, with Julien Flamant.
 - The documentation includes this changelog and documents `utils.polarizationEllipse`.
 
 ### Changed

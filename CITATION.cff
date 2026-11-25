@@ -23,19 +23,16 @@ abstract: >-
 authors:
   - family-names: Flamant
     given-names: Julien
-    # TODO: uncomment and fill in
-    # orcid: "https://orcid.org/0000-0000-0000-0000"
-    # affiliation: ""
+    orcid: "https://orcid.org/0000-0001-9994-173X"
+    affiliation: "Université de Lorraine, CNRS, CRAN, F-54000, Nancy, France"
   - family-names: Le Bihan
     given-names: Nicolas
-    # TODO: uncomment and fill in
-    # orcid: "https://orcid.org/0000-0000-0000-0000"
-    # affiliation: ""
+    orcid: "https://orcid.org/0000-0001-6175-6045"
+    affiliation: "CNRS, Université Grenoble Alpes, Grenoble INP, GIPSA-lab, 38000 Grenoble France"
   - family-names: Chainais
     given-names: Pierre
-    # TODO: uncomment and fill in
-    # orcid: "https://orcid.org/0000-0000-0000-0000"
-    # affiliation: ""
+    orcid: "https://orcid.org/0000-0003-4377-7584"
+    affiliation: "Université de Lille, CNRS, Centrale Lille, UMR 9189 CRIStAL, F-59000 Lille, France"
 license: MIT
 repository-code: "https://github.com/jflamant/bispy"
 url: "https://jflamant.github.io/bispy/"
