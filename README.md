@@ -3,6 +3,7 @@
 [![docs-page](https://img.shields.io/badge/docs-latest-blue)](https://jflamant.github.io/bispy/)
 [![PyPI version](https://badge.fury.io/py/bispy-polar.svg)](https://badge.fury.io/py/bispy-polar)
 [![Tests](https://github.com/jflamant/bispy/actions/workflows/tests.yml/badge.svg)](https://github.com/jflamant/bispy/actions/workflows/tests.yml)
+[![DOI](https://zenodo.org/badge/83583387.svg)](https://doi.org/10.5281/zenodo.24527438)
 
 BiSPy is an open-source python framework for processing bivariate signals. It supports our papers on time-frequency analysis [1], spectral analysis [2] and linear time-invariant filtering [3] of bivariate signals.
 
