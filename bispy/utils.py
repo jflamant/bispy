@@ -10,7 +10,8 @@ import numpy as np
 import quaternion
 
 __all__ = ['sympSplit', 'sympSynth', 'StokesNorm', 'normalizeStokes',
-    'Stokes2geo', 'geo2Stokes', 'quat2euler', 'euler2quat', 'polarizationEllipse']
+    'Stokes2geo', 'geo2Stokes', 'quat2euler', 'euler2quat', 'polarizationAxis',
+    'polarizationEllipse']
 
 
 def sympSplit(q):
@@ -163,6 +164,9 @@ def normalizeStokes(S0, S1, S2, S3, tol=0.0):
     that the maximum value of S0 has a significance for the whole indices of
     the Si arrays.
 
+    Where the denominator is zero (S0 = 0 and tol = 0), the normalized
+    parameters are NaN. NaN values in S0 only affect their own index.
+
     Parameters
     ----------
     S0, S1, S2, S3 : array_type
@@ -177,11 +181,12 @@ def normalizeStokes(S0, S1, S2, S3, tol=0.0):
     quat2euler
     '''
 
-    epsilon = tol * np.max(S0)  # soft thresholding
+    epsilon = tol * np.nanmax(S0) if tol > 0 else 0.0  # soft thresholding
 
-    S1n = S1 / (S0 + epsilon)
-    S2n = S2 / (S0 + epsilon)
-    S3n = S3 / (S0 + epsilon)
+    with np.errstate(divide='ignore', invalid='ignore'):  # 0/0 gives NaN, silently
+        S1n = S1 / (S0 + epsilon)
+        S2n = S2 / (S0 + epsilon)
+        S3n = S3 / (S0 + epsilon)
 
     return S1n, S2n, S3n
 
@@ -191,6 +196,9 @@ def Stokes2geo(S0, S1, S2, S3, tol=0.0):
 
     It returns the decomposition in a, theta, chi and degree of polarization
     Phi.
+
+    Without power (S0 = 0), all outputs are NaN. Without polarization
+    (Phi = 0), the ellipse is undefined: chi is NaN (and theta is 0).
 
     Parameters
     ----------
@@ -218,7 +226,8 @@ def Stokes2geo(S0, S1, S2, S3, tol=0.0):
 
     a = np.sqrt(Phi*S0)
     theta = 0.5 * np.arctan2(S2n, S1n)
-    chi = 0.5 * np.arcsin(S3n/Phi)
+    with np.errstate(invalid='ignore'):  # 0/0 where Phi = 0 gives NaN, silently
+        chi = 0.5 * np.arcsin(S3n/Phi)
 
     return a, theta, chi, Phi
 
@@ -371,6 +380,39 @@ class windows:
             window = np.exp(np.log(sigma) * np.linspace(-1, 1, N)**2)
 
         return window
+
+def polarizationAxis(theta, chi):
+    ''' Polarization axis of the ellipse of orientation theta and ellipticity chi.
+
+    The polarization axis is the unit pure quaternion::
+
+        mu = i sin(2 chi) + j cos(2 theta) cos(2 chi) + k sin(2 theta) cos(2 chi)
+
+    that is i S3 + j S1 + k S2 with normalized Stokes parameters: the point of
+    the Poincaré sphere at longitude 2 theta and latitude 2 chi. It is the axis
+    expected by `spectral.quaternionPSD` and by the filters of `filters`.
+
+    Parameters
+    ----------
+    theta : float or array_type
+        Orientation of the ellipse, between -pi/2 and pi/2
+    chi : float or array_type
+        Ellipticity, between -pi/4 and pi/4
+
+    Returns
+    -------
+    mu : quaternion or quaternion array
+        unit pure quaternion(s), broadcast from theta and chi
+
+    See also
+    --------
+    geo2Stokes
+    polarizationEllipse
+    '''
+    _, S1, S2, S3 = geo2Stokes(1, theta, chi)
+    S1, S2, S3 = np.broadcast_arrays(S1, S2, S3)
+    return quaternion.from_float_array(np.stack([np.zeros_like(S1), S3, S1, S2], axis=-1))
+
 
 def polarizationEllipse(theta, chi, a=1, N=128):
 
