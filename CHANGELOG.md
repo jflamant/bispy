@@ -9,6 +9,7 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-26
 ### Added
 - `utils.polarizationAxis(theta, chi)` returns the polarization axis of an ellipse: the
   unit pure quaternion i S3 + j S1 + k S2 (normalized Stokes parameters), as expected by
@@ -129,6 +130,7 @@ First release after the 0.9.x development snapshots. When upgrading, note that:
   `tfpr` is now 2 times larger and `S0`, `S1`, `S2`, `S3` are 4 times larger. Normalized Stokes
   parameters, orientation, ellipticity and ridges are unchanged. Morse wavelets are not affected.
 
-[Unreleased]: https://github.com/jflamant/bispy/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/jflamant/bispy/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/jflamant/bispy/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/jflamant/bispy/compare/v0.10.0...v1.0.0
 [0.10.0]: https://github.com/jflamant/bispy/compare/v0.9.4.dev...v0.10.0
