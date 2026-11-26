@@ -32,6 +32,7 @@ To get started, simply use
 ```
 import bispy as bsp
 ```
+and read the [getting-started tutorial](https://jflamant.github.io/bispy/tutorials/gettingstarted.html), which introduces quaternion arrays, the polarization ellipse, Stokes parameters and the quaternion Fourier transform.
 
 ## Requirements
 
