@@ -10,6 +10,12 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 ## [Unreleased]
 
 ### Added
+- `timefrequency.Hembedding.plot()` displays the instantaneous amplitude, orientation,
+  ellipticity and phase. The phase is unwrapped, including the jumps of pi that occur
+  when the orientation wraps around.
+- The time-frequency tutorial starts with a section on the quaternion embedding and the
+  instantaneous polarization parameters, adapted from the third notebook of the EUSIPCO
+  2024 tutorial.
 - `CITATION.cff` gives the Zenodo concept DOI of BiSPy, so GitHub's "Cite this repository"
   button includes it.
 - A getting-started tutorial: bivariate signals as quaternion arrays, the polarization
@@ -22,6 +28,8 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
   tutorial by N. Le Bihan and J. Flamant.
 
 ### Changed
+- The docstring of `timefrequency.Hembedding` states the expected input: the bivariate
+  signal itself, not its quaternion embedding.
 - The documentation uses the Sphinx Book Theme instead of the Read the Docs theme. Each
   page links to the GitHub repository, to the issue tracker and to its own source for edits.
 

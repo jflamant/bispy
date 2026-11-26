@@ -49,6 +49,35 @@ def test_visual(chirps, kind):
     assert is_figure(fig)
 
 
+@pytest.fixture(scope="module")
+def hembedding():
+    N = 256
+    t = np.linspace(0, 1, N)
+    x = bsp.signals.bivariateAMFM(bsp.utils.windows.hanning(N), 0.3, 0.2, 2 * np.pi * 30 * t, Hembedding=False)
+    return t, tf.Hembedding(x)
+
+
+def test_hembedding_plot(hembedding):
+    t, H = hembedding
+    fig, ax = H.plot(t)
+    assert is_figure(fig) and len(ax) == 4
+    np.testing.assert_array_equal(ax[0].lines[0].get_xdata(), t)
+    for axis, value in zip(ax[:3], [H.a, H.theta, H.chi], strict=True):
+        np.testing.assert_array_equal(axis.lines[0].get_ydata(), value)
+
+
+def test_hembedding_plot_default_time_is_sample_index(hembedding):
+    _, H = hembedding
+    _, ax = H.plot()
+    np.testing.assert_array_equal(ax[0].lines[0].get_xdata(), np.arange(H.a.size))
+
+
+def test_hembedding_plot_wrapped_phase(hembedding):
+    _, H = hembedding
+    _, ax = H.plot(unwrap=False)
+    np.testing.assert_array_equal(ax[3].lines[0].get_ydata(), H.phi)
+
+
 @pytest.mark.parametrize("kind", ["2D", "3D"])
 def test_plot_signal(qstft, kind):
     fig, ax = qstft.plotSignal(kind=kind)
