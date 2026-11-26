@@ -34,6 +34,8 @@ authors:
     orcid: "https://orcid.org/0000-0003-4377-7584"
     affiliation: "Université de Lille, CNRS, Centrale Lille, UMR 9189 CRIStAL, F-59000 Lille, France"
 license: MIT
+# Zenodo concept DOI: it covers all versions and resolves to the latest release.
+doi: "10.5281/zenodo.24527438"
 repository-code: "https://github.com/jflamant/bispy"
 url: "https://jflamant.github.io/bispy/"
 keywords:

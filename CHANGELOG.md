@@ -10,6 +10,8 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 ## [Unreleased]
 
 ### Added
+- `CITATION.cff` gives the Zenodo concept DOI of BiSPy, so GitHub's "Cite this repository"
+  button includes it.
 - A getting-started tutorial: bivariate signals as quaternion arrays, the polarization
   ellipse and its quaternion polar form, Stokes parameters and the Poincaré sphere, and
   the QFT. It is adapted from the first notebook of the EUSIPCO 2024 tutorial.
