@@ -9,3 +9,4 @@ Tutorials
 
    timefrequency
    spectralanalysis
+   filtering
