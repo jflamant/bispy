@@ -65,6 +65,24 @@ def test_hembedding_any_length(n):
     np.testing.assert_allclose(as_float(bsp.qfft.Qfft(H))[n // 2 + 1 :], 0, atol=1e-12)
 
 
+def test_hembedding_plot_unwraps_phase_across_orientation_wraps():
+    """The orientation crosses pi/2, so quat2euler's phase jumps by pi; the plotted
+    phase is the model phase, up to a multiple of 2 pi."""
+    N = 1024
+    t = np.linspace(0, 1, N)
+    phi = 2 * np.pi * (50 * t + 50 * t**2)
+    theta = -np.pi / 4 + np.pi * t
+    x = bsp.signals.bivariateAMFM(bsp.utils.windows.hanning(N), theta, 0.2, phi, Hembedding=False)
+    H = tf.Hembedding(x)
+    mid = slice(150, -150)  # away from the edges, where the amplitude vanishes
+    assert np.ptp(np.unwrap(H.theta[mid], period=np.pi) - H.theta[mid]) > 3  # theta does wrap
+
+    _, ax = H.plot(t)
+    offset = (ax[3].lines[0].get_ydata() - phi)[mid]
+    np.testing.assert_allclose(offset, offset[0], atol=1e-4)
+    assert abs(offset[0] - 2 * np.pi * np.round(offset[0] / (2 * np.pi))) < 1e-4
+
+
 def test_hembedding_rejects_non_quaternion():
     with pytest.raises(ValueError):
         tf.Hembedding(np.ones(8))

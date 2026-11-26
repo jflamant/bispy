@@ -41,13 +41,23 @@ def _hembedding(q):
 
 
 class Hembedding:
-    ''' H-embedding class. Computes quaternion embedding of complex-valued
-    signals.
+    ''' H-embedding class. Computes the quaternion embedding of a bivariate
+    signal, and its instantaneous amplitude, orientation, ellipticity and
+    phase.
+
+    The quaternion embedding plays the role of the analytic signal: in the QFT
+    domain, negative frequencies are cancelled and positive ones doubled. Its
+    polar form a exp(i theta) exp(-k chi) exp(j phi) gives the instantaneous
+    parameters.
 
     Parameters
     ----------
     q : array_type
-        quaternion input signal
+        bivariate signal u + i v, as a quaternion array with zero j and k parts,
+        e.g. from ``utils.sympSynth(u, v)`` or
+        ``signals.bivariateAMFM(..., Hembedding=False)``. Do not pass a signal
+        that is already a quaternion embedding (the default output of
+        `signals.bivariateAMFM`): its amplitude would be doubled.
 
     Attributes
     ----------
@@ -88,7 +98,50 @@ class Hembedding:
         self.chi = chi
         self.phi = phi
 
-    # TODO: routine for plotting the extracted parameters?
+    def plot(self, t=None, unwrap=True):
+        ''' Plot the instantaneous amplitude, orientation, ellipticity and phase.
+
+        Orientation and ellipticity are shown on their full ranges,
+        [-pi/2, pi/2] and [-pi/4, pi/4]. They are undefined where the
+        amplitude vanishes, so expect erratic values there.
+
+        Parameters
+        ----------
+        t : array_type, optional
+            time array. Default is the sample index.
+        unwrap : bool, optional
+            If True (default), the phase is unwrapped. Each time the orientation
+            wraps around (from pi/2 to -pi/2, or back), the phase jumps by pi,
+            since (theta + pi, phi + pi) describe the same quaternion; these
+            jumps are removed too.
+
+        Returns
+        -------
+        fig, ax : figure and array of 4 axes (a, theta, chi, phi)
+            may be needed to tweak the plot, e.g. to add reference curves
+        '''
+        if t is None:
+            t = np.arange(np.size(self.a))
+
+        phi = self.phi
+        if unwrap:
+            wraps = np.round((np.unwrap(self.theta, period=np.pi) - self.theta) / np.pi)
+            phi = np.unwrap(self.phi + np.pi * wraps)
+
+        fig, ax = plt.subplots(nrows=4, sharex=True, figsize=(8, 7), layout='constrained')
+        labels = [r'$a(t)$', r'$\theta(t)$', r'$\chi(t)$', r'$\varphi(t)$']
+        for axis, y, label in zip(ax, [self.a, self.theta, self.chi, phi], labels, strict=True):
+            axis.plot(t, y)
+            axis.set_ylabel(label)
+
+        ax[1].set_ylim(-np.pi / 2, np.pi / 2)
+        ax[1].set_yticks([-np.pi / 2, 0, np.pi / 2], [r'$-\frac{\pi}{2}$', r'$0$', r'$\frac{\pi}{2}$'])
+        ax[2].set_ylim(-np.pi / 4, np.pi / 4)
+        ax[2].set_yticks([-np.pi / 4, 0, np.pi / 4], [r'$-\frac{\pi}{4}$', r'$0$', r'$\frac{\pi}{4}$'])
+        ax[3].set_xlabel('Time')
+        ax[3].set_xlim(t[0], t[-1])
+
+        return fig, ax
 
 class TFPrepresentation:
 
