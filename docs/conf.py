@@ -30,6 +30,8 @@ extensions = [
 ]
 
 source_suffix = {".rst": "restructuredtext", ".md": "myst-nb", ".ipynb": "myst-nb"}
+# $...$ and $$...$$ in Markdown and notebook cells are rendered as math (MathJax)
+myst_enable_extensions = ["dollarmath"]
 exclude_patterns = ["_build"]
 language = "en"
 pygments_style = "sphinx"

@@ -9,9 +9,20 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 
 ## [Unreleased]
 
+### Added
+- A tutorial on linear filtering (`filters` module): simulating a signal with a prescribed
+  quaternion PSD with a Hermitian filter, rotating polarization states with a unitary
+  filter, and splitting a signal in two with a Hermitian filter (an unpolarized remainder,
+  or two uncorrelated polarized parts). Parts of it are adapted from the EUSIPCO 2024
+  tutorial by N. Le Bihan and J. Flamant.
+
 ### Changed
 - The documentation uses the Sphinx Book Theme instead of the Read the Docs theme. Each
   page links to the GitHub repository, to the issue tracker and to its own source for edits.
+
+### Fixed
+- Math written as `$...$` in the tutorials is rendered as equations, instead of being
+  shown as raw LaTeX.
 
 ## [1.0.0] - 2026-11-25
 
