@@ -10,6 +10,9 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 ## [Unreleased]
 
 ### Added
+- A getting-started tutorial: bivariate signals as quaternion arrays, the polarization
+  ellipse and its quaternion polar form, Stokes parameters and the Poincaré sphere, and
+  the QFT. It is adapted from the first notebook of the EUSIPCO 2024 tutorial.
 - A tutorial on linear filtering (`filters` module): simulating a signal with a prescribed
   quaternion PSD with a Hermitian filter, rotating polarization states with a unitary
   filter, and splitting a signal in two with a Hermitian filter (an unpolarized remainder,
