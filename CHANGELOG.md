@@ -9,6 +9,10 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 
 ## [Unreleased]
 
+### Changed
+- The documentation uses the Sphinx Book Theme instead of the Read the Docs theme. Each
+  page links to the GitHub repository, to the issue tracker and to its own source for edits.
+
 ## [1.0.0] - 2026-11-25
 
 First stable release, archived on Zenodo. The code is the same as in 0.10.0, apart from

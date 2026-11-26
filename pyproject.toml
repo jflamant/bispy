@@ -58,7 +58,7 @@ Changelog = "https://jflamant.github.io/bispy/changelog.html"
 test = ["pytest>=8", "pytest-cov>=5", "pytest-regressions>=2.5"]
 # myst-nb renders and executes the tutorial notebooks; ipython provides their
 # "ipython3" syntax highlighter.
-docs = ["sphinx>=7", "sphinx-rtd-theme>=2", "numpydoc>=1.6", "myst-parser>=2", "myst-nb>=1", "ipython>=8"]
+docs = ["sphinx>=7", "sphinx-book-theme>=1", "numpydoc>=1.6", "myst-parser>=2", "myst-nb>=1", "ipython>=8"]
 lint = ["ruff>=0.8"]
 dev = [
     { include-group = "test" },

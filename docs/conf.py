@@ -56,4 +56,13 @@ intersphinx_mapping = {
 
 # -- HTML output ---------------------------------------------------------------
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_book_theme"
+html_title = f"BiSPy {release}"
+html_theme_options = {
+    "repository_url": "https://github.com/jflamant/bispy",
+    "repository_branch": "master",
+    "path_to_docs": "docs",
+    "use_repository_button": True,  # GitHub link in the header
+    "use_issues_button": True,
+    "use_edit_page_button": True,  # "suggest edit" link on each page
+}
