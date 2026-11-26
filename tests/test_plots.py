@@ -131,6 +131,18 @@ def test_psd_plots(psd, method, single_sided):
     assert is_figure(fig)
 
 
+@pytest.mark.filterwarnings("error")
+@pytest.mark.parametrize("method", ["plot", "plotStokes"])
+def test_psd_plots_with_zero_power_are_silent(method):
+    # A band-limited PSD has S0 = 0 outside the band: no 0/0 RuntimeWarnings.
+    N = 128
+    S0 = np.zeros(N)
+    S0[10:20] = 1
+    psd = bsp.spectral.quaternionPSD(N, S0, 0.5, quaternion.quaternion(0, 0, 1, 0))
+    fig, _ = getattr(psd, method)()
+    assert is_figure(fig)
+
+
 def test_psd_plot_two_sided_frequency_axis(psd):
     fig, ax = psd.plot(single_sided=False)
     lo, hi = ax[2].get_xlim()

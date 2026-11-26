@@ -10,6 +10,12 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
 ## [Unreleased]
 
 ### Added
+- `utils.polarizationAxis(theta, chi)` returns the polarization axis of an ellipse: the
+  unit pure quaternion i S3 + j S1 + k S2 (normalized Stokes parameters), as expected by
+  `spectral.quaternionPSD` and the filters. The filtering tutorial uses it.
+- The spectral analysis tutorial explains why estimates are averaged: the periodogram of a
+  single realization always has a degree of polarization of 1. Adapted from the second
+  notebook of the EUSIPCO 2024 tutorial.
 - `timefrequency.Hembedding.plot()` displays the instantaneous amplitude, orientation,
   ellipticity and phase. The phase is unwrapped, including the jumps of pi that occur
   when the orientation wraps around.
@@ -34,6 +40,11 @@ Releases up to 0.9.4.dev0 were development snapshots and have no changelog.
   page links to the GitHub repository, to the issue tracker and to its own source for edits.
 
 ### Fixed
+- `utils.Stokes2geo` and `utils.normalizeStokes` no longer emit `RuntimeWarning`s where
+  there is no power (S0 = 0) or no polarization (Phi = 0). They return NaN there, as
+  before. So `spectral.quaternionPSD.plot()` is now silent for band-limited PSDs.
+- `utils.normalizeStokes`, and so `utils.Stokes2geo`, ignore NaN values in S0 when
+  computing the tolerance. Before, a single NaN made every output NaN, even with `tol=0`.
 - Math written as `$...$` in the tutorials is rendered as equations, instead of being
   shown as raw LaTeX.
 
