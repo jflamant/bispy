@@ -156,6 +156,33 @@ def test_qstft_two_chirps_two_ridges():
     assert len(S.ridges) == 2
 
 
+def test_extract_ridges_keeps_short_trailing_ridge():
+    density = np.zeros((20, 20))
+    density[5, 2:6] = 10.0
+    density[15, 12:14] = 10.0
+    ridges = tf._extractRidges(density, parThresh=4, parMinD=3)
+    assert len(ridges) == 2
+    assert ridges[0] == ([5, 5, 5, 5], [2, 3, 4, 5])
+    assert ridges[1] == ([15, 15], [12, 13])
+
+
+def test_extract_ridges_does_not_merge_distant_last_point():
+    density = np.zeros((20, 20))
+    density[5, 2:6] = 10.0
+    density[15, 15] = 10.0
+    ridges = tf._extractRidges(density, parThresh=4, parMinD=3)
+    assert len(ridges) == 2
+    assert ridges[0] == ([5, 5, 5, 5], [2, 3, 4, 5])
+    assert ridges[1] == ([15], [15])
+
+
+def test_extract_ridges_single_maximum():
+    density = np.zeros((10, 10))
+    density[4, 5] = 10.0
+    ridges = tf._extractRidges(density, parThresh=4, parMinD=3)
+    assert ridges == [([4], [5])]
+
+
 def test_qstft_snapshot(rs, snapshot):
     N = 128
     t = np.arange(N) * 0.01
