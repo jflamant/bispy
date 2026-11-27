@@ -921,42 +921,27 @@ def _extractRidges(density, parThresh, parMinD):
     # chain the ridges
     ridges = []
 
-    currentRidget = []
-    currentRidgef = []
-
     while np.any(locMax):
-
         freqMask, timeMask = np.where(locMax)
 
-        currentRidget.append(timeMask[0])
-        currentRidgef.append(freqMask[0])
-
+        currentRidgef = [freqMask[0]]
+        currentRidget = [timeMask[0]]
         locMax[freqMask[0], timeMask[0]] = False
 
         freqMask, timeMask = np.where(locMax)
-
-        FLAG = False  # Avoid undifined FLAG if condition is false.
-        if len(timeMask) > 1:
-            FLAG = True
-        while FLAG:
-
-            distances = np.sqrt((timeMask-currentRidget[-1])**2 + (freqMask-currentRidgef[-1])**2)
-
+        while len(timeMask) > 0:
+            distances = np.sqrt((timeMask - currentRidget[-1])**2 + (freqMask - currentRidgef[-1])**2)
             minD = np.where(distances == distances.min())[0][0]
-            if (distances[minD] < parMinD) and (len(timeMask) > 1):
+            if distances[minD] < parMinD:
                 currentRidget.append(timeMask[minD])
                 currentRidgef.append(freqMask[minD])
                 locMax[freqMask[minD], timeMask[minD]] = False
                 freqMask, timeMask = np.where(locMax)
             else:
-                FLAG = False
-                if len(timeMask) == 1:
-                    currentRidget.append(timeMask[0])
-                    currentRidgef.append(freqMask[0])
-                ridges.append((currentRidgef, currentRidget))
-                currentRidget = []
-                currentRidgef = []
-                logger.debug('Ridge %d added (%d points)', len(ridges), len(ridges[-1][0]))
+                break
+
+        ridges.append((currentRidgef, currentRidget))
+        logger.debug('Ridge %d added (%d points)', len(ridges), len(ridges[-1][0]))
 
     logger.info('%d ridges extracted', len(ridges))
 
